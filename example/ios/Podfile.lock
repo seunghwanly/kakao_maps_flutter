@@ -1,0 +1,35 @@
+PODS:
+  - Flutter (1.0.0)
+  - integration_test (0.0.1):
+    - Flutter
+  - kakao_maps_flutter (0.0.1):
+    - Flutter
+    - KakaoMapsSDK
+  - KakaoMapsSDK (2.12.5)
+
+DEPENDENCIES:
+  - Flutter (from `Flutter`)
+  - integration_test (from `.symlinks/plugins/integration_test/ios`)
+  - kakao_maps_flutter (from `.symlinks/plugins/kakao_maps_flutter/ios`)
+
+SPEC REPOS:
+  trunk:
+    - KakaoMapsSDK
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: Flutter
+  integration_test:
+    :path: ".symlinks/plugins/integration_test/ios"
+  kakao_maps_flutter:
+    :path: ".symlinks/plugins/kakao_maps_flutter/ios"
+
+SPEC CHECKSUMS:
+  Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
+  integration_test: 252f60fa39af5e17c3aa9899d35d908a0721b573
+  kakao_maps_flutter: 82eb458f34af4d9bf158cc20d76aa03eddbccc6d
+  KakaoMapsSDK: c41700e1579054e310e9238c8111bd5275b19ef3
+
+PODFILE CHECKSUM: 2cb865c824376aef12e2eb059ab69c0b9158560c
+
+COCOAPODS: 1.16.2

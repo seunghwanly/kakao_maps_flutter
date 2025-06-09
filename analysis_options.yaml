@@ -1,0 +1,49 @@
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  exclude: [ build/**, lib/**/*.g.dart ]
+
+linter:
+  rules:
+    # Errors
+    - avoid_dynamic_calls
+    - avoid_type_to_string
+    - close_sinks
+    - no_self_assignments
+    # Style
+    - always_put_required_named_parameters_first
+    - avoid_bool_literals_in_conditional_expressions
+    - avoid_classes_with_only_static_members
+    - avoid_multiple_declarations_per_line
+    - avoid_redundant_argument_values
+    - avoid_return_types_on_setters
+    - avoid_returning_null_for_void
+    - avoid_returning_this
+    - avoid_setters_without_getters
+    - cast_nullable_to_non_nullable
+    - directives_ordering
+    - flutter_style_todos
+    - join_return_with_assignment
+    - matching_super_parameters
+    - prefer_asserts_in_initializer_lists
+    - prefer_constructors_over_static_methods
+    - prefer_final_in_for_each
+    - prefer_if_elements_to_conditional_expressions
+    - prefer_int_literals
+    - prefer_null_aware_method_calls
+    - prefer_single_quotes
+    - require_trailing_commas
+    - sized_box_shrink_expand
+    - sort_constructors_first
+    - type_annotate_public_apis
+    - unawaited_futures
+    - unnecessary_await_in_return
+    - unnecessary_parenthesis
+    - use_colored_box
+    - use_decorated_box
+    - use_enums
+    - use_is_even_rather_than_modulo
+    - use_setters_to_change_properties
+    - use_string_buffers
+    # Pub
+    - sort_pub_dependencies
