@@ -24,15 +24,15 @@ class FeatureDrawer extends StatelessWidget {
   });
 
   final bool isMapReady;
-  final Function(LatLng, {bool animated}) onCameraMove;
-  final Function(String, LatLng) onMarkerAdd;
-  final Function(String) onMarkerRemove;
+  final Future<void> Function(LatLng, {bool animated}) onCameraMove;
+  final Future<void> Function(String, LatLng) onMarkerAdd;
+  final Future<void> Function(String) onMarkerRemove;
   final VoidCallback onMarkersAdd;
   final VoidCallback onMarkersRemove;
   final VoidCallback onMarkersClear;
   final VoidCallback onPoiVisibilityToggle;
   final VoidCallback onPoiClickabilityToggle;
-  final Function(int) onPoiScaleChange;
+  final Future<void> Function(int) onPoiScaleChange;
   final VoidCallback onCoordinateTest;
   final VoidCallback onPaddingSet;
   final VoidCallback onMapInfoGet;
