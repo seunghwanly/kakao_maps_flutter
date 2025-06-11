@@ -14,9 +14,10 @@ const String $title = 'KakaoMapsSDK v2 Flutter Demo';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load();
 
   /// TODO: Replace with your own API key
-  await KakaoMapsFlutter.init(dotenv.env['KAKAO_MAPS_API_KEY']!);
+  await KakaoMapsFlutter.init(dotenv.get('KAKAO_API_KEY'));
 
   runApp(const MyApp());
 }

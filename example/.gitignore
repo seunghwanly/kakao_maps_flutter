@@ -46,4 +46,4 @@ app.*.map.json
 
 /android/app/.cxx/
 
-.env
+*.env

@@ -9,14 +9,15 @@ Pod::Spec.new do |s|
   s.description      = <<-DESC
 KakaoMaps SDK v2 for Flutter
                        DESC
-  s.homepage         = 'http://example.com'
+  s.homepage         = 'https://github.com/seunghwanly/kakao_maps_flutter'
   s.license          = { :file => '../LICENSE' }
-  s.author           = { 'Your Company' => 'email@example.com' }
+  s.author           = { 'seunghwanly' => 'seunghwanly@gmail.com' }
   s.source           = { :path => '.' }
   s.source_files = 'Classes/**/*'
   s.dependency 'Flutter'
-  s.dependency 'KakaoMapsSDK'
+  s.dependency 'KakaoMapsSDK', '~> 2.12.5'
   s.platform = :ios, '13.0'
+  s.ios.deployment_target = '13.0'
 
   # Flutter.framework does not contain a i386 slice.
   s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'i386' }

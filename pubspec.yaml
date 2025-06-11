@@ -1,5 +1,5 @@
 name: kakao_maps_flutter
-description: "KakaoMaps SDK v2 for Flutter"
+description: KakaoMaps SDK v2 for Flutter. Supports both iOS and Android with comprehensive map features.
 version: 0.0.1-beta1
 homepage: https://github.com/seunghwanly/kakao_maps_flutter
 repository: https://github.com/seunghwanly/kakao_maps_flutter
@@ -38,6 +38,9 @@ flutter:
         pluginClass: KakaoMapsFlutterPlugin
       ios:
         pluginClass: KakaoMapsFlutterPlugin
+        # Swift Package Manager
+        podspec: ios/kakao_maps_flutter.podspec
+        supports_swift_package_manager: true
 
 topics:
   - maps

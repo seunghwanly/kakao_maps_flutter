@@ -4,7 +4,7 @@ PODS:
     - Flutter
   - kakao_maps_flutter (0.0.1):
     - Flutter
-    - KakaoMapsSDK
+    - KakaoMapsSDK (~> 2.12.5)
   - KakaoMapsSDK (2.12.5)
 
 DEPENDENCIES:
@@ -27,7 +27,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   integration_test: 252f60fa39af5e17c3aa9899d35d908a0721b573
-  kakao_maps_flutter: 82eb458f34af4d9bf158cc20d76aa03eddbccc6d
+  kakao_maps_flutter: 497ee5133afdb8bbc39ed65a60d0bd5af90eeb38
   KakaoMapsSDK: c41700e1579054e310e9238c8111bd5275b19ef3
 
 PODFILE CHECKSUM: 2cb865c824376aef12e2eb059ab69c0b9158560c
