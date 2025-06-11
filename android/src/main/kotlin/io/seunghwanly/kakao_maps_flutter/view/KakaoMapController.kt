@@ -18,26 +18,23 @@ import com.kakao.vectormap.label.LabelOptions
 import com.kakao.vectormap.label.LabelStyle
 import com.kakao.vectormap.label.LabelStyles
 import com.kakao.vectormap.label.LabelTextStyle
-import com.kakao.vectormap.mapwidget.InfoWindowOptions
-import com.kakao.vectormap.mapwidget.component.GuiLayout
-import com.kakao.vectormap.mapwidget.component.GuiText
-import com.kakao.vectormap.mapwidget.component.Orientation
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.platform.PlatformView
 import io.seunghwanly.kakao_maps_flutter.data.cameraAnimation.toCameraAnimationOrNull
 import io.seunghwanly.kakao_maps_flutter.data.cameraUpdate.toCameraUpdate
+import io.seunghwanly.kakao_maps_flutter.data.labelClickEvent.LabelClickEvent
 import io.seunghwanly.kakao_maps_flutter.data.labelOption.LabelOption
 import io.seunghwanly.kakao_maps_flutter.data.labelOption.toLabelOptionOrNull
 import io.seunghwanly.kakao_maps_flutter.data.latLng.toLatLng
-import kotlin.io.encoding.ExperimentalEncodingApi
 import org.json.JSONObject
+import kotlin.io.encoding.ExperimentalEncodingApi
 
 class KakaoMapController(
-        private val context: Context,
-        private val id: Int,
-        private val args: Any?,
-        private val methodChannel: MethodChannel
+    private val context: Context,
+    private val id: Int,
+    private val args: Any?,
+    private val methodChannel: MethodChannel,
 ) : PlatformView, MethodChannel.MethodCallHandler {
     private val mapView: MapView = MapView(context)
 
@@ -50,54 +47,50 @@ class KakaoMapController(
         // Init Kakao Map
         // https://apis.map.kakao.com/android_v2/docs/getting-started/quickstart/#3-지도-시작-및-kakaomap-객체-가져오기
         mapView.start(
-                object : MapLifeCycleCallback() {
-                    override fun onMapDestroy() {
-                        mapView.finish()
+            object : MapLifeCycleCallback() {
+                override fun onMapDestroy() {
+                    mapView.finish()
+                }
+
+                override fun onMapError(p0: Exception?) {
+                    methodChannel.invokeMethod("onMapError", p0.toString())
+                }
+            },
+            object : KakaoMapReadyCallback() {
+                override fun onMapReady(kakaoMap: KakaoMap) {
+                    kMap = kakaoMap
+
+                    // Send message to Flutter
+                    methodChannel.invokeMethod("onMapReady", true)
+
+                    // Null Check
+                    if (!::kMap.isInitialized) {
+                        throw IllegalStateException(
+                            "onMapReady is called but kakaoMap is not initialized"
+                        )
                     }
 
-                    override fun onMapError(p0: Exception?) {
-                        methodChannel.invokeMethod("onMapError", p0.toString())
-                    }
-                },
-                object : KakaoMapReadyCallback() {
-                    override fun onMapReady(kakaoMap: KakaoMap) {
-                        kMap = kakaoMap
+                    kMap.moveCamera(
+                        CameraUpdateFactory.newCenterPosition(
+                            LatLng.from(37.394726159, 127.111209047)
+                        )
+                    )
 
-                        // Send message to Flutter
-                        methodChannel.invokeMethod("onMapReady", true)
+                    // Set Listener
+                    kMap.setOnLabelClickListener { kakaoMap, labelLayer, label ->
+                        val position = label.position
 
-                        // Null Check
-                        if (!::kMap.isInitialized) {
-                            throw IllegalStateException(
-                                    "onMapReady is called but kakaoMap is not initialized"
-                            )
-                        }
-
-                        kMap.moveCamera(
-                                CameraUpdateFactory.newCenterPosition(
-                                        LatLng.from(37.394726159, 127.111209047)
-                                )
+                        val event = LabelClickEvent.fromLabel(
+                            label = label,
+                            layerId = labelLayer?.layerId,
                         )
 
-                        // Set Listener
-                        kMap.setOnLabelClickListener { kakaoMap, labelLayer, label ->
-                            val position = label.position
-                            //
-                            // .setBody(GuiLayout(Orientation.Horizontal)),
+                        methodChannel.invokeMethod("onLabelClicked", event.toMap())
 
-                            kakaoMap.mapWidgetManager?.infoWindowLayer?.addInfoWindow(
-                                    InfoWindowOptions.from(position)
-                                            .setBody(
-                                                    GuiLayout(Orientation.Horizontal).apply {
-                                                        addView(GuiText(label.labelId))
-                                                    },
-                                            )
-                            )
-
-                            false
-                        }
+                        true
                     }
-                },
+                }
+            },
         )
     }
 
@@ -137,20 +130,20 @@ class KakaoMapController(
         require(::kMap.isInitialized) { "kakaoMap is not initialized" }
         // Parse Marker
         val labelOption: LabelOption =
-                args.toLabelOptionOrNull()
-                        ?: return result.error(
-                                "E001",
-                                "label must not be null",
-                                null,
-                        )
+            args.toLabelOptionOrNull()
+                ?: return result.error(
+                    "E001",
+                    "label must not be null",
+                    null,
+                )
 
         val currentLayer: LabelLayer =
-                kMap.labelManager?.layer
-                        ?: return result.error(
-                                "E002",
-                                "Either LabelManager or its layer is null",
-                                null,
-                        )
+            kMap.labelManager?.layer
+                ?: return result.error(
+                    "E002",
+                    "Either LabelManager or its layer is null",
+                    null,
+                )
 
         if (currentLayer.hasLabel(labelOption.id)) {
             currentLayer.getLabel(labelOption.id)?.remove()
@@ -158,19 +151,19 @@ class KakaoMapController(
 
         // Create Label style
         val labelStyle: LabelStyle =
-                if (labelOption.image == null) {
-                    LabelStyle.from(LabelTextStyle.from(10, 0xFF000000.toInt()))
-                } else {
-                    LabelStyle.from(labelOption.image)
-                }
+            if (labelOption.image == null) {
+                LabelStyle.from(LabelTextStyle.from(10, 0xFF000000.toInt()))
+            } else {
+                LabelStyle.from(labelOption.image)
+            }
 
         val labelStyles = LabelStyles.from(labelStyle)
 
         val option =
-                LabelOptions.from(
-                        labelOption.id,
-                        labelOption.latLng,
-                )
+            LabelOptions.from(
+                labelOption.id,
+                labelOption.latLng,
+            )
         option.setStyles(labelStyles)
 
         kMap.labelManager?.layer?.addLabel(option)
@@ -184,9 +177,9 @@ class KakaoMapController(
         val labelId: String = args.optString("id")
         if (labelId.isNullOrEmpty()) {
             return result.error(
-                    "E001",
-                    "id must not be null or empty",
-                    null,
+                "E001",
+                "id must not be null or empty",
+                null,
             )
         }
 
@@ -210,11 +203,11 @@ class KakaoMapController(
             }
 
             val labelStyle =
-                    if (option.image == null) {
-                        LabelStyle.from(LabelTextStyle.from(10, 0xFF000000.toInt()))
-                    } else {
-                        LabelStyle.from(option.image)
-                    }
+                if (option.image == null) {
+                    LabelStyle.from(LabelTextStyle.from(10, 0xFF000000.toInt()))
+                } else {
+                    LabelStyle.from(option.image)
+                }
 
             val labelStyles = LabelStyles.from(labelStyle)
             val labelOption = LabelOptions.from(option.id, option.latLng)
@@ -254,10 +247,10 @@ class KakaoMapController(
 
         val center = kMap.cameraPosition?.position
         return result.success(
-                mapOf(
-                        "latitude" to center?.latitude,
-                        "longitude" to center?.longitude,
-                )
+            mapOf(
+                "latitude" to center?.latitude,
+                "longitude" to center?.longitude,
+            )
         )
     }
 
@@ -270,10 +263,10 @@ class KakaoMapController(
         val point = kMap.toScreenPoint(latLng)
 
         return result.success(
-                mapOf(
-                        "dx" to point?.x,
-                        "dy" to point?.y,
-                )
+            mapOf(
+                "dx" to point?.x,
+                "dy" to point?.y,
+            )
         )
     }
 
@@ -287,10 +280,10 @@ class KakaoMapController(
         val latLng = kMap.fromScreenPoint(dx.toInt(), dy.toInt())
 
         return result.success(
-                mapOf(
-                        "latitude" to latLng?.latitude,
-                        "longitude" to latLng?.longitude,
-                )
+            mapOf(
+                "latitude" to latLng?.latitude,
+                "longitude" to latLng?.longitude,
+            )
         )
     }
 
@@ -298,7 +291,7 @@ class KakaoMapController(
         require(::kMap.isInitialized) { "kakaoMap is not initialized" }
 
         val isVisible = args.optBoolean("isVisible", true)
-        kMap.setPoiVisible(isVisible)
+        kMap.isPoiVisible = isVisible
 
         return result.success(null)
     }
@@ -307,7 +300,7 @@ class KakaoMapController(
         require(::kMap.isInitialized) { "kakaoMap is not initialized" }
 
         val isClickable = args.optBoolean("isClickable", true)
-        kMap.setPoiClickable(isClickable)
+        kMap.isPoiClickable = isClickable
 
         return result.success(null)
     }
@@ -316,7 +309,7 @@ class KakaoMapController(
         require(::kMap.isInitialized) { "kakaoMap is not initialized" }
 
         val scale = args.optInt("scale", 1)
-        kMap.setPoiScale(PoiScale.getEnum(scale))
+        kMap.poiScale = PoiScale.getEnum(scale)
 
         return result.success(null)
     }
@@ -352,35 +345,35 @@ class KakaoMapController(
         val southwest = kMap.viewport.left to kMap.viewport.bottom
 
         return result.success(
-                mapOf(
-                        "northeast" to
-                                mapOf(
-                                        "latitude" to northeast.first,
-                                        "longitude" to northeast.second,
-                                ),
-                        "southwest" to
-                                mapOf(
-                                        "latitude" to southwest.first,
-                                        "longitude" to southwest.second,
-                                ),
-                )
+            mapOf(
+                "northeast" to
+                        mapOf(
+                            "latitude" to northeast.first,
+                            "longitude" to northeast.second,
+                        ),
+                "southwest" to
+                        mapOf(
+                            "latitude" to southwest.first,
+                            "longitude" to southwest.second,
+                        ),
+            )
         )
     }
 
     private fun getMapInfo(result: MethodChannel.Result) {
         require(::kMap.isInitialized) { "kakaoMap is not initialized" }
 
-        val cameraPosition: CameraPosition? = kMap.getCameraPosition()
+        val cameraPosition: CameraPosition? = kMap.cameraPosition
         if (cameraPosition == null) {
             return result.success(null)
         }
 
         return result.success(
-                mapOf(
-                        "zoomLevel" to cameraPosition.zoomLevel,
-                        "rotation" to cameraPosition.rotationAngle,
-                        "tilt" to cameraPosition.tiltAngle,
-                )
+            mapOf(
+                "zoomLevel" to cameraPosition.zoomLevel,
+                "rotation" to cameraPosition.rotationAngle,
+                "tilt" to cameraPosition.tiltAngle,
+            )
         )
     }
 
