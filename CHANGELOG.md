@@ -1,3 +1,20 @@
+## 0.0.1-beta1+2
+
+### 🎉 Features
+* EventHandler support with `LabelClickEvent` and `onLabelClicked` callback
+* Swift Package Manager support for iOS
+* Enhanced documentation and examples
+* `.env` file integration for API key management
+
+### ♻️ API Changes
+* Modernized KakaoMapController with property-based API
+* Replaced deprecated methods (`setPoiVisible` → `isPoiVisible`, `getCameraPosition` → `cameraPosition`)
+
+### 🔧 Improvements
+* Code cleanup and organization
+* New example app with `KakaoMapExampleScreen`
+* Added marker assets and data structure refactoring
+
 ## 0.0.1-beta1
 
 Initial release of the Kakao Maps Flutter plugin with core functionality:
