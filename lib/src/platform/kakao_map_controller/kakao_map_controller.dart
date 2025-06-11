@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:kakao_maps_flutter/src/data/data.dart'
@@ -8,6 +10,7 @@ import 'package:kakao_maps_flutter/src/data/data.dart'
         LatLng,
         LatLngBounds,
         MapInfo;
+import 'package:kakao_maps_flutter/src/data/label/label_click_event.dart';
 import 'package:kakao_maps_flutter/src/platform/kakao_map_method_call/kakao_map_method_call.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
@@ -30,6 +33,10 @@ class KakaoMapController extends KakaoMapControllerPlatform {
   final int viewId;
 
   late final KakaoMapControllerPlatform _platform;
+
+  @override
+  Stream<LabelClickEvent> get onLabelClickedStream =>
+      _platform.onLabelClickedStream;
 
   @override
   Future<T> _callMethod<T>(KakaoMapMethodCall<T> methodCall) async {

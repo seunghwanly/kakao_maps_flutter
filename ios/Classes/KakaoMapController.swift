@@ -159,7 +159,7 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate {
       competitionType: .none,
       competitionUnit: .symbolFirst,
       orderType: .rank,
-      zOrder: 0
+      zOrder: 10000  // 높은 zOrder 값으로 설정하여 기본 POI들보다 위에 표시
     )
     return manager.addLabelLayer(option: layerOption)
   }
@@ -282,11 +282,20 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate {
         poiID: id
       )
 
+      poiOption.clickable = true
+      poiOption.rank = 0  // 높은 rank 값으로 설정하여 렌더링 우선순위 증가
+
       // 4️⃣ Poi 추가
       let poi = targetLayer.addPoi(
         option: poiOption,
         at: point
       )
+
+      let _ = poi?.addPoiTappedEventHandler(target: self) { target in
+        { (param: PoiInteractionEventParam) -> Void in
+          target.handlePoiTapped(poi: poi!, param: param)
+        }
+      }
 
       poi?.show()
 
@@ -351,8 +360,15 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate {
         let point = MapPoint(longitude: longitude, latitude: latitude)
         let poiStyleID = createPoiStyleWithImage(image)
         let poiOption = PoiOptions(styleID: poiStyleID, poiID: id)
+        poiOption.clickable = true
+        poiOption.rank = 0  // 높은 rank 값으로 설정하여 렌더링 우선순위 증가
 
         let poi = targetLayer.addPoi(option: poiOption, at: point)
+        let _ = poi?.addPoiTappedEventHandler(target: self) { target in
+          { (param: PoiInteractionEventParam) -> Void in
+            target.handlePoiTapped(poi: poi!, param: param)
+          }
+        }
         poi?.show()
       }
 
@@ -584,5 +600,14 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate {
         "tilt": view.tiltAngle,
       ])
     }
+  }
+
+  // MARK: - Event Handlers
+  private func handlePoiTapped(poi: Poi, param: PoiInteractionEventParam) {
+    let eventData = LabelClickEvent.fromPoi(poi)
+
+    methodChannel.invokeMethod("onLabelClicked", arguments: eventData.toMap())
+
+    print("🎯 POI Tapped: \(param.poiItem.itemID)")
   }
 }

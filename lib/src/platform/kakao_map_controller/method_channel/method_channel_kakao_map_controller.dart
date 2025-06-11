@@ -16,6 +16,12 @@ class MethodChannelKakaoMapController extends KakaoMapControllerPlatform {
             return;
           }
 
+          if (call.method == 'onLabelClicked') {
+            final event = LabelClickEvent.fromJson(call.arguments);
+            _instance.onLabelClicked(event);
+            return;
+          }
+
           throw UnimplementedError(
             '[Flutter:MethodChannelKakaoMapController] ${call.method} not implemented',
           );

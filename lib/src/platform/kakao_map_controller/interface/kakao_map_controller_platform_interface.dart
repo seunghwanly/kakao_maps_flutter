@@ -15,9 +15,22 @@ abstract class KakaoMapControllerPlatform extends PlatformInterface {
     _instance = instance;
   }
 
+  final StreamController<LabelClickEvent> _onLabelClickController =
+      StreamController<LabelClickEvent>.broadcast();
+
+  Stream<LabelClickEvent> get onLabelClickedStream =>
+      _onLabelClickController.stream;
+
   Future<T> _callMethod<T>(KakaoMapMethodCall<T> methodCall) async {
     throw UnimplementedError(
       '[Flutter:KakaoMapControllerPlatform] callMethod not implemented',
     );
+  }
+
+  void onLabelClicked(LabelClickEvent event) =>
+      _onLabelClickController.add(event);
+
+  void dispose() {
+    _onLabelClickController.close();
   }
 }
