@@ -1,3 +1,7 @@
+/// Data models and classes used throughout the Kakao Maps SDK.
+///
+/// Contains geographic coordinates, camera configurations, map information,
+/// and marker (label) definitions.
 library kakao_maps_flutter.data;
 
 export 'camera/camera_animation.dart';

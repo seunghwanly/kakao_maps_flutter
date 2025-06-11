@@ -45,5 +45,7 @@ linter:
     - use_is_even_rather_than_modulo
     - use_setters_to_change_properties
     - use_string_buffers
+    # Documentation
+    - public_member_api_docs
     # Pub
     - sort_pub_dependencies

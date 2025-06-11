@@ -6,7 +6,17 @@ import '../../platform/kakao_map_controller/kakao_map_controller.dart';
 
 const String _$viewTypeId = 'kakao_map_view';
 
+/// A widget that displays a Kakao Map view.
+///
+/// This widget creates a platform-specific view (AndroidView/UiKitView) that
+/// displays the native Kakao Map with the specified configuration.
 class KakaoMap extends StatefulWidget {
+  /// Creates a KakaoMap widget.
+  ///
+  /// The [onMapCreated] callback is called when the map is ready to be used.
+  /// The [creationParams] can be used to pass additional parameters during
+  /// map creation. The [width] and [height] specify the dimensions of the
+  /// map widget.
   const KakaoMap({
     this.onMapCreated,
     this.creationParams = const <String, Object?>{},
@@ -15,11 +25,24 @@ class KakaoMap extends StatefulWidget {
     super.key,
   });
 
+  /// Additional parameters to pass during map creation.
+  ///
+  /// These parameters are merged with default width/height values.
   final Map<String, Object?> creationParams;
 
+  /// Callback function called when the map is created and ready to use.
+  ///
+  /// Provides a [KakaoMapController] instance to interact with the map.
   final void Function(KakaoMapController controller)? onMapCreated;
 
+  /// The width of the map widget.
+  ///
+  /// If null, uses the maximum available width.
   final double? width;
+
+  /// The height of the map widget.
+  ///
+  /// If null, uses the maximum available height.
   final double? height;
 
   @override
