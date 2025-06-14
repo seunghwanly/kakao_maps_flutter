@@ -1,0 +1,58 @@
+name: ✨ 기능 요청
+description: 새로운 기능이나 개선사항을 제안해주세요
+title: "[FEATURE] "
+labels: ["enhancement", "triage"]
+
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## ✨ 기능 요청
+        
+        새로운 기능 제안을 해주셔서 감사합니다! 제안하신 기능을 더 잘 이해할 수 있도록 아래 정보를 상세히 작성해주세요.
+
+  - type: textarea
+    id: feature-description
+    attributes:
+      label: 🎯 기능 설명
+      description: 제안하는 기능에 대해 자세히 설명해주세요
+      placeholder: 예) 카카오맵 지도 테마 지원 기능을 추가해주세요
+    validations:
+      required: true
+
+  - type: textarea
+    id: motivation
+    attributes:
+      label: 💡 필요성
+      description: 왜 이 기능이 필요한지, 어떤 문제를 해결하는지 설명해주세요
+      placeholder: |
+        예) 현재 패키지는 카카오맵의 기본 테마만 지원하는데,
+        사용자들이 다양한 지도 스타일(위성, 하이브리드, 야간 모드 등)을
+        필요로 하고 있어서 앱의 목적에 맞는 지도 표현이 어렵습니다.
+    validations:
+      required: true
+
+  - type: textarea
+    id: use-cases
+    attributes:
+      label: 🔥 사용 사례
+      description: 이 기능이 어떤 상황에서 사용될지 구체적인 예시를 들어주세요
+      placeholder: |
+        예)
+        1. 사용자가 지도 스타일을 일반 지도에서 위성 지도로 변경할 수 있습니다.
+        2. 앱에서 하이브리드 지도 모드를 선택하면 위성 지도와 도로 정보를 함께 표시합니다.
+        3. 지도 스타일을 지형도로 변경하여 등고선과 지형 정보를 표시합니다.
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: 📎 추가 정보
+      description: 기능 요청과 관련된 추가 정보를 작성해주세요
+      placeholder: |
+        - 참고할 만한 다른 패키지나 라이브러리
+        - 관련 이슈나 토론 링크
+        - 스크린샷이나 mockup
+        - 기타 도움이 될 만한 정보

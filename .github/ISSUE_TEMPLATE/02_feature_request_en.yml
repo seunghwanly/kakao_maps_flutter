@@ -1,0 +1,57 @@
+name: ✨ Feature Request
+description: Suggest a new feature or enhancement
+title: "[FEATURE] "
+labels: ["enhancement", "triage"]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## ✨ Feature Request
+        
+        Thank you for suggesting a new feature! Please provide detailed information below to help us understand your proposal better.
+
+  - type: textarea
+    id: feature-description
+    attributes:
+      label: 🎯 Feature Description
+      description: Clearly and concisely describe the proposed feature
+      placeholder: e.g., Add support for KakaoMap themes
+    validations:
+      required: true
+
+  - type: textarea
+    id: motivation
+    attributes:
+      label: 💡 Motivation
+      description: Explain why this feature is needed and what problem it solves
+      placeholder: |
+        e.g., Currently, the package only supports the default KakaoMap theme,
+        but users need various map styles (satellite, hybrid, night mode, etc.),
+        making it difficult to express maps according to the app's purpose.
+    validations:
+      required: true
+
+  - type: textarea
+    id: use-cases
+    attributes:
+      label: 🔥 Use Cases
+      description: Provide specific examples of when this feature would be used
+      placeholder: |
+        e.g.,
+        1. When users want to change map style from normal to satellite view
+        2. When app needs to display hybrid map mode showing both satellite and road information
+        3. When changing map style to terrain view to show contour lines and terrain information
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: 📎 Additional Context
+      description: Add any additional information related to the feature request
+      placeholder: |
+        - Other packages or libraries to reference
+        - Related issue or discussion links
+        - Screenshots or mockups
+        - Other helpful information

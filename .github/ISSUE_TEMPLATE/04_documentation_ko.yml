@@ -1,0 +1,54 @@
+name: 📚 문서 개선
+description: 문서의 오류나 개선사항을 신고해주세요
+title: "[DOCS] "
+labels: ["documentation", "triage"]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 📚 문서 개선
+        
+        문서 개선에 관심을 가져주셔서 감사합니다! 더 나은 문서를 만들 수 있도록 아래 정보를 작성해주세요.
+
+  - type: dropdown
+    id: doc-type
+    attributes:
+      label: 📖 문서 유형
+      description: 어떤 종류의 문서 이슈인가요?
+      options:
+        - README.md
+        - 예제 코드
+        - 주석 (Code Comments)
+        - 기타
+    validations:
+      required: true
+
+  - type: input
+    id: doc-location
+    attributes:
+      label: 📍 문서 위치
+      description: 문제가 있는 문서의 위치나 파일명을 입력해주세요
+      placeholder: 예) README.md, lib/src/widget.dart, example/main.dart
+    validations:
+      required: true
+
+  - type: textarea
+    id: current-content
+    attributes:
+      label: 📝 현재 내용
+      description: 문제가 있는 현재 문서 내용을 복사해서 붙여넣어주세요
+      placeholder: |
+        현재 문서의 문제가 있는 부분을 여기에 붙여넣어주세요...
+
+  - type: textarea
+    id: suggested-improvement
+    attributes:
+      label: ✨ 개선 제안
+      description: 어떻게 개선하면 좋을지 구체적으로 제안해주세요
+      placeholder: |
+        예)
+        - 잘못된 부분을 올바른 내용으로 수정
+        - 누락된 매개변수 설명 추가
+        - 더 명확한 예시 코드 제공
+        - 단계별 가이드 추가

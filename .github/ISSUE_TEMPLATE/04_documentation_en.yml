@@ -1,0 +1,54 @@
+name: 📚 Documentation Improvement
+description: Report documentation errors or suggest improvements
+title: "[DOCS] "
+labels: ["documentation", "triage"]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 📚 Documentation Improvement
+        
+        Thank you for your interest in improving our documentation! Please provide the information below to help us create better documentation.
+
+  - type: dropdown
+    id: doc-type
+    attributes:
+      label: 📖 Document Type
+      description: What type of documentation issue is this?
+      options:
+        - README.md
+        - Example Code
+        - Code Comments
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: doc-location
+    attributes:
+      label: 📍 Document Location
+      description: Enter the location or filename of the problematic documentation
+      placeholder: e.g., README.md, lib/src/widget.dart, example/main.dart
+    validations:
+      required: true
+
+  - type: textarea
+    id: current-content
+    attributes:
+      label: 📝 Current Content
+      description: Copy and paste the current problematic documentation content
+      placeholder: |
+        Paste the problematic part of the current documentation here...
+
+  - type: textarea
+    id: suggested-improvement
+    attributes:
+      label: ✨ Suggested Improvement
+      description: Please provide specific suggestions for improvement
+      placeholder: |
+        e.g.,
+        - Correct the incorrect content
+        - Add missing parameter descriptions
+        - Provide clearer example code
+        - Add step-by-step guide 
