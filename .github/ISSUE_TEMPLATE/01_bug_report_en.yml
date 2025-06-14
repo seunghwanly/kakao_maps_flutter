@@ -1,0 +1,143 @@
+name: 🐛 Bug Report
+description: Report a bug or issue with the package
+title: "[BUG] "
+labels: ["bug", "triage"]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 🐛 Bug Report
+        
+        Thank you for reporting this bug! Please provide detailed information below to help us resolve the issue quickly.
+
+  - type: textarea
+    id: bug-description
+    attributes:
+      label: 📝 Bug Description
+      description: Clearly describe what bug occurred
+      placeholder: e.g., App crashes when moveCamera function is called
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: 🔄 Steps to Reproduce
+      description: List the steps to reproduce the bug in order
+      placeholder: |
+        1. Launch the app
+        2. Call moveCamera function after KakaoMapView is rendered
+        3. App crashes
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: ✅ Expected Behavior
+      description: Describe what you expected to happen
+      placeholder: The map should move to the specified location
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual-behavior
+    attributes:
+      label: ❌ Actual Behavior
+      description: Describe what actually happened
+      placeholder: App crashes and displays an error message
+    validations:
+      required: true
+
+  - type: textarea
+    id: minimal-code
+    attributes:
+      label: 💻 Minimal Reproducible Code
+      description: Provide minimal code that reproduces the issue
+      render: dart
+      placeholder: |
+        ```dart
+        // Please provide minimal code that reproduces the issue
+        class MyWidget extends StatelessWidget {
+          @override
+          Widget build(BuildContext context) {
+            return Container();
+          }
+        }
+        ```
+    validations:
+      required: false
+
+  - type: textarea
+    id: error-logs
+    attributes:
+      label: 📋 Error Logs
+      description: Include any relevant error messages or logs
+      render: shell
+      placeholder: |
+        Paste error logs here...
+        
+        How to check Flutter logs:
+        - Android Studio: Check Run tab
+        - VS Code: Check Debug Console
+        - Terminal: Use flutter logs command
+
+  - type: input
+    id: package-version
+    attributes:
+      label: 📦 Package Version
+      description: Enter the package version you're using
+      placeholder: e.g., 1.0.0
+    validations:
+      required: true
+
+  - type: input
+    id: flutter-version
+    attributes:
+      label: 🔧 Flutter Version
+      description: Enter the result of flutter --version command
+      placeholder: e.g., Flutter 3.16.0
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: platforms
+    attributes:
+      label: 📱 Platforms
+      description: Select the platforms where the issue occurs
+      options:
+        - label: Android
+        - label: iOS
+
+  - type: textarea
+    id: device-info
+    attributes:
+      label: 📲 Device Information
+      description: Provide detailed information about tested devices
+      placeholder: |
+        e.g.,
+        - Android: Galaxy S21 (Android 12)
+        - iOS: iPhone 13 (iOS 16.0)
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: 📎 Additional Context
+      description: Add any additional information or screenshots related to the bug
+      placeholder: Screenshots, related issue links, workarounds, etc.
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: ✅ Checklist
+      description: Please check the following items before submitting the issue
+      options:
+        - label: I have searched for similar issues and this hasn't been reported before
+          required: true
+        - label: I have provided minimal reproducible code
+          required: true
+        - label: I have updated the package to the latest version
+          required: true
+        - label: I have updated Flutter to the latest stable version
+          required: false

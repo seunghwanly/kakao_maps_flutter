@@ -1,0 +1,53 @@
+name: ❓ Question and Help Request
+description: Ask questions about package usage or request help
+title: "[QUESTION] "
+labels: ["question", "help wanted"]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## ❓ Question and Help Request
+        
+        Thank you for your question! Please provide the information below to help us give you a more accurate answer.
+        
+        > 💡 **Tip**: First, check the [documentation](link) and [examples](link), and search existing issues for similar questions!
+
+  - type: textarea
+    id: question
+    attributes:
+      label: 📝 Question
+      description: Please write your specific question clearly
+      placeholder: |
+        e.g.,
+        - How can I move to a specific location on KakaoMap?
+        - How can I change the KakaoMap theme?
+    validations:
+      required: true
+
+  - type: input
+    id: package-version-q
+    attributes:
+      label: 📦 Package Version
+      description: Enter the package version you're using
+      placeholder: e.g., 1.0.0
+    validations:
+      required: true
+
+  - type: input
+    id: flutter-version-q
+    attributes:
+      label: 🔧 Flutter Version
+      description: Enter the result of flutter --version command
+      placeholder: e.g., Flutter 3.16.0
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: platforms-q
+    attributes:
+      label: 📱 Platform
+      description: Which platform are you working on?
+      options:
+        - label: Android
+        - label: iOS 
