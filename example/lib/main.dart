@@ -9,6 +9,7 @@ import 'assets/example_assets.dart';
 import 'widgets/widgets.dart';
 
 part 'kakao_map_example_screen.dart';
+part 'kakao_map_example_static_map_screen.dart';
 
 const String $title = 'KakaoMapsSDK v2 Flutter Demo';
 
@@ -17,7 +18,10 @@ void main() async {
   await dotenv.load();
 
   /// TODO: Replace with your own API key
-  await KakaoMapsFlutter.init(dotenv.get('KAKAO_API_KEY'));
+  await KakaoMapsFlutter.init(
+    dotenv.get('KAKAO_API_KEY'),
+    webAPIKey: dotenv.maybeGet('KAKAO_WEB_API_KEY'),
+  );
 
   runApp(const MyApp());
 }
@@ -34,6 +38,9 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       home: const KakaoMapExampleScreen(),
+      routes: {
+        '/static/map_1': (context) => const KakaoMapExampleStaticMapScreen(),
+      },
     );
   }
 }
