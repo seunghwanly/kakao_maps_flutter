@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart' show Offset;
 import 'package:kakao_maps_flutter/src/data/data.dart';
+import 'package:kakao_maps_flutter/src/enum/enum.dart';
 
 sealed class KakaoMapMethodCall<R> {
   const KakaoMapMethodCall();
@@ -327,4 +328,55 @@ final class GetMapInfo extends KakaoMapMethodCall<MapInfo?> {
     }
     return MapInfo.fromJson(value);
   }
+}
+
+/// SDK 내 [LodLabelLayer] 를 생성합니다.
+/// - Android: https://apis.map.kakao.com/android_v2/docs/api-guide/label/lodlabel/#2-lodlabellayer
+/// - iOS: https://apis.map.kakao.com/ios_v2/docs/map/04_label/03_lodpoi/#lodlabellayer
+///
+/// 생성한 Marker를 지도 레벨에 따라 클러스터링을 합니다. 공식문서에 따르면 플랫폼에서 각자 아래처럼 명시되어있습니다.
+/// - Android: [Label]
+/// - iOS: [Poi]
+final class CreateMarkerClustering extends KakaoMapMethodCall<void> {
+  const CreateMarkerClustering({
+    required this.layerId,
+    required this.competitionType,
+    required this.competitionUnit,
+    required this.orderingType,
+    required this.zOrder,
+    required this.radius,
+    this.isVisible = true,
+    this.isClickable = true,
+  });
+
+  final String layerId;
+
+  final MarkerCompetitionType competitionType;
+
+  final MarkerCompetitionUnit competitionUnit;
+
+  final MarkerOrderingType orderingType;
+
+  final int zOrder;
+
+  final double radius;
+
+  final bool isVisible;
+
+  final bool isClickable;
+
+  @override
+  Map<String, Object?>? encode() => {
+        'layerId': layerId,
+        'competitionType': competitionType.value,
+        'competitionUnit': competitionUnit.value,
+        'orderingType': orderingType.value,
+        'zOrder': zOrder,
+        'radius': radius,
+        'isVisible': isVisible,
+        'isClickable': isClickable,
+      };
+
+  @override
+  String get name => 'createLodLabelLayer';
 }
