@@ -85,7 +85,6 @@ class _StaticKakaoMapState extends State<StaticKakaoMap> {
   late final WebViewController controller;
 
   bool isLoading = true;
-  bool hasError = false;
 
   @override
   void initState() {
@@ -94,7 +93,7 @@ class _StaticKakaoMapState extends State<StaticKakaoMap> {
     _initializeController();
   }
 
-  Future<void> _initializeController() async {
+  void _initializeController() {
     try {
       // 검증된 패턴을 사용하여 컨트롤러 생성
       late final PlatformWebViewControllerCreationParams params;
@@ -107,64 +106,34 @@ class _StaticKakaoMapState extends State<StaticKakaoMap> {
         params = const PlatformWebViewControllerCreationParams();
       }
 
-      controller = WebViewController.fromPlatformCreationParams(params);
+      controller = WebViewController.fromPlatformCreationParams(params)
+        ..setJavaScriptMode(JavaScriptMode.unrestricted)
+        ..setBackgroundColor(widget.backgroundColor)
+        ..setNavigationDelegate(
+          NavigationDelegate(
+            onPageFinished: (url) {
+              if (!mounted) return;
 
-      await controller.setJavaScriptMode(JavaScriptMode.unrestricted);
-      await controller.setBackgroundColor(widget.backgroundColor);
-      await controller.setNavigationDelegate(
-        NavigationDelegate(
-          onPageFinished: (url) {
-            if (!mounted) return;
-            setState(() {
-              isLoading = false;
-              hasError = false;
-            });
-          },
-          onWebResourceError: (error) {
-            if (!mounted) return;
-            setState(() {
-              isLoading = false;
-              hasError = true;
-            });
-          },
-        ),
-      );
+              setState(() => isLoading = false);
+            },
+          ),
+        )
 
-      // 작동하는 패턴을 사용하여 HTML 로드
-      await controller.loadHtmlString(
-        StaticMapController.instance.buildHTML(
-          width: widget.width * widget.scaleRatio,
-          height: widget.height * widget.scaleRatio,
-          level: widget.level,
-          center: widget.center,
-          marker: widget.marker,
-        ),
-      );
+        // 작동하는 패턴을 사용하여 HTML 로드
+        ..loadHtmlString(
+          StaticMapController.instance.buildHTML(
+            width: widget.width * widget.scaleRatio,
+            height: widget.height * widget.scaleRatio,
+            level: widget.level,
+            center: widget.center,
+            marker: widget.marker,
+          ),
+        );
     } catch (e) {
       if (!mounted) return;
 
-      setState(() {
-        isLoading = false;
-        hasError = true;
-      });
+      setState(() => isLoading = false);
     }
-  }
-
-  Future<void> _retryLoad() async {
-    if (!mounted) return;
-
-    setState(() {
-      isLoading = true;
-      hasError = false;
-    });
-
-    // 사용자 정의 콜백이 있으면 실행, 없으면 기본 reload
-    if (widget.onRetry != null) {
-      widget.onRetry!();
-      return;
-    }
-
-    await _initializeController();
   }
 
   @override
@@ -182,39 +151,18 @@ class _StaticKakaoMapState extends State<StaticKakaoMap> {
         final finalWidth = min(widget.width, availableWidth);
         final finalHeight = min(widget.height, availableHeight);
 
-        // 에러 상태
-        if (hasError) {
-          return Container(
-            width: finalWidth,
-            height: finalHeight,
-            color: widget.backgroundColor,
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.error_outline, size: 32),
-                  const SizedBox(height: 8),
-                  Text(widget.errorMessage),
-                  const SizedBox(height: 8),
-                  ElevatedButton(
-                    onPressed: _retryLoad,
-                    child: Text(widget.retryButtonText),
-                  ),
-                ],
-              ),
-            ),
-          );
-        }
-
         // 로딩 상태
         if (widget.isLoadingProgressEnabled && isLoading) {
-          return Container(
-            width: finalWidth,
-            height: finalHeight,
+          return ColoredBox(
             color: widget.backgroundColor,
-            child: widget.loadingWidget ??
-                const Center(child: CircularProgressIndicator.adaptive()),
+            child: SizedBox(
+              width: finalWidth,
+              height: finalHeight,
+              child: Center(
+                child: widget.loadingWidget ??
+                    const CircularProgressIndicator.adaptive(),
+              ),
+            ),
           );
         }
 
@@ -222,7 +170,9 @@ class _StaticKakaoMapState extends State<StaticKakaoMap> {
         return SizedBox(
           width: finalWidth,
           height: finalHeight,
-          child: WebViewWidget(controller: controller),
+          child: IgnorePointer(
+            child: WebViewWidget(controller: controller),
+          ),
         );
       },
     );
