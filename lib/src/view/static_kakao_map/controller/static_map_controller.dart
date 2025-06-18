@@ -16,105 +16,121 @@ class StaticMapController {
 
   final String _webAPIKey;
 
-  static const String _headTag = '''
-<head>
-    <meta charset="utf-8">
-</head>
-''';
-
   /// - [width] : 지도의 너비(px)
   /// - [height] : 지도의 높이(px)
   /// - [level] : 지도의 확대 레벨
   /// - [center] : 지도의 중심좌표
   /// - [marker] : (optional) 지도에 표시할 마커
   String buildHTML({
-    required int width,
-    required int height,
+    required double width,
+    required double height,
     required int level,
     required LatLng center,
     LabelOption? marker,
   }) {
+    // Flutter 위젯 크기를 viewport로 설정하고 map-container가 100% fill
+    final String htmlHeader = '''
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=${width.round()}, height=${height.round()}, user-scalable=no" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+    .map-container {
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+<body>
+''';
+
+    final String scriptHeader = '''
+  <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=$_webAPIKey"></script>
+''';
+
+    const String htmlFooter = '''
+</body>
+</html>
+''';
+
     /// 다른 이미지 마커가 있는 경우, 일반 지도 API 사용
+    /// StaticMap은 커스텀 마커 이미지를 지원하지 않음
     if (marker != null &&
         marker.base64EncodedImage != null &&
         marker.base64EncodedImage!.isNotEmpty) {
       return '''
-<!DOCTYPE html>
-<html>
-$_headTag
-<body>
-<!-- 이미지 지도를 표시할 div 입니다 -->
-<div id="map" style="width:${width}px;height:${height}px;"></div>    
-
-<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=$_webAPIKey"></script>
-<script>
-// 정적 지도(이미지 지도)는 기본 마커 이외의 다른 이미지 마커를 지원하지 않기 떄문에
-// 일반 지도 API를 활용 합니다.
-var mapContainer = document.getElementById('map'), // 지도를 표시할 div 
-    mapOption = { 
-        center: new kakao.maps.LatLng(${center.latitude}, ${center.longitude}), // 지도의 중심좌표
-        level: $level // 지도의 확대 레벨
+$htmlHeader
+  <div id="map" class="map-container"></div>
+$scriptHeader
+  <script>
+    var container = document.getElementById('map');
+    
+    var options = {
+      center: new kakao.maps.LatLng(${center.latitude}, ${center.longitude}),
+      level: $level,
+      draggable: false,
+      disableDoubleClick: true,
+      disableDoubleClickZoom: true,
+      keyboardShortcuts: false
     };
 
-var map = new kakao.maps.Map(mapContainer, mapOption); // 지도를 생성합니다
+    var map = new kakao.maps.Map(container, options);
 
-var imageSrc = 'data:image/svg+xml;base64,${marker.base64EncodedImage}'; // 마커이미지의 주소입니다    
-    // TODO(seunghwanly): 마커의 크기 및 옵션 지원, LabelOption 확장 필요
-    //imageSize = new kakao.maps.Size(64, 69), // 마커이미지의 크기입니다
-    //imageOption = {offset: new kakao.maps.Point(27, 69)}; // 마커이미지의 옵션입니다. 마커의 좌표와 일치시킬 이미지 안에서의 좌표를 설정합니다.
-      
-// 마커의 이미지정보를 가지고 있는 마커이미지를 생성합니다
-var markerImage = new kakao.maps.MarkerImage(imageSrc), // 지원예정: imageSize, imageOption
-    markerPosition = new kakao.maps.LatLng(${marker.latLng.latitude}, ${marker.latLng.longitude}); // 마커가 표시될 위치입니다
+    var imageSrc = 'data:image/svg+xml;base64,${marker.base64EncodedImage}';
+    var markerImage = new kakao.maps.MarkerImage(imageSrc);
+    var markerPosition = new kakao.maps.LatLng(${marker.latLng.latitude}, ${marker.latLng.longitude});
 
-// 마커를 생성합니다
-var marker = new kakao.maps.Marker({
-    position: markerPosition, 
-    image: markerImage // 마커이미지 설정 
-});
+    var mapMarker = new kakao.maps.Marker({
+      position: markerPosition,
+      image: markerImage
+    });
 
-// 마커가 지도 위에 표시되도록 설정합니다
-marker.setMap(map);  
-map.setDraggable(false);
-</script>
-</body>
-</html>
+    mapMarker.setMap(map);
+    
+    // 추가적인 사용자 상호작용 방지
+    map.setDraggable(false);
+    map.setZoomable(false);
+  </script>
+$htmlFooter
 ''';
     }
 
-    /// 이미지 지도에 표시할 마커입니다
-    /// 이미지 지도에 표시할 마커는 Object 형태입니다
-    String? markerKeyValue;
+    /// 기본 마커를 사용하는 정적 지도
+    String? markerOption = '';
     if (marker != null) {
-      markerKeyValue = '''
+      markerOption = '''
 marker: {
   position: new kakao.maps.LatLng(${marker.latLng.latitude}, ${marker.latLng.longitude})
-}
-''';
+},''';
     }
 
     return '''
-<!DOCTYPE html>
-<html>
-$_headTag
-<body>
-<!-- 이미지 지도를 표시할 div 입니다 -->
-<div id="staticMap" style="width:${width}px;height:${height}px;"></div>    
+$htmlHeader
+  <div id="staticMap" class="map-container"></div>
+$scriptHeader
+  <script>
+    var container = document.getElementById('staticMap');
+    
+    var options = {
+      center: new kakao.maps.LatLng(${center.latitude}, ${center.longitude}),
+      level: $level,
+      $markerOption
+    };
 
-<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=$_webAPIKey"></script>
-<script>
-var staticMapContainer  = document.getElementById('staticMap'), // 이미지 지도를 표시할 div  
-    staticMapOption = { 
-        center: new kakao.maps.LatLng(${center.latitude}, ${center.longitude}), // 이미지 지도의 중심좌표
-        level: $level, // 이미지 지도의 확대 레벨
-        ${markerKeyValue ?? ''} // 이미지 지도에서 표시할 마커
-    };    
-
-// 이미지 지도를 생성합니다
-var staticMap = new kakao.maps.StaticMap(staticMapContainer, staticMapOption);
-</script>
-</body>
-</html>
-    ''';
+    var staticMap = new kakao.maps.StaticMap(container, options);
+  </script>
+$htmlFooter
+''';
   }
 }
