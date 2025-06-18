@@ -20,6 +20,7 @@ class FeatureDrawer extends StatelessWidget {
     required this.isPoisVisible,
     required this.isPoisClickable,
     required this.poiScale,
+    required this.onStaticMapButtonPressed,
     super.key,
   });
 
@@ -40,6 +41,7 @@ class FeatureDrawer extends StatelessWidget {
   final bool isPoisVisible;
   final bool isPoisClickable;
   final int poiScale;
+  final VoidCallback onStaticMapButtonPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -215,6 +217,19 @@ class FeatureDrawer extends StatelessWidget {
                 onTap: () {
                   onViewportBoundsGet();
                   Navigator.of(context).pop();
+                },
+              ),
+            ],
+          ),
+
+          KakaoDrawerSection(
+            title: '🌍 Static Map',
+            children: [
+              KakaoDrawerTile(
+                title: 'Show Static Map',
+                enabled: isMapReady,
+                onTap: () {
+                  onStaticMapButtonPressed();
                 },
               ),
             ],

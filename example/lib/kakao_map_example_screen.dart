@@ -105,6 +105,7 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
           isPoisVisible: isPoisVisible,
           isPoisClickable: isPoisClickable,
           poiScale: poiScale,
+          onStaticMapButtonPressed: onStaticMapButtonPressed,
         ),
       ),
     );
@@ -399,5 +400,11 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
       '📍 Label clicked: ${event.labelId}',
       duration: const Duration(seconds: 3),
     );
+  }
+
+  Future<void> onStaticMapButtonPressed() async {
+    if (!mounted) return;
+
+    await Navigator.of(context).pushNamed('/static/map_1');
   }
 }

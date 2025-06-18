@@ -4,3 +4,4 @@
 library kakao_maps_flutter.view;
 
 export 'kakao_map/kakao_map.dart';
+export 'static_kakao_map/static_kakao_map.dart';
