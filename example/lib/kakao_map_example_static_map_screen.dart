@@ -9,16 +9,29 @@ class KakaoMapExampleStaticMapScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Static Map'),
       ),
-      body: const Center(
-        child: StaticKakaoMap(
-          width: 600,
-          height: 600,
-          level: 7,
-          center: LatLng(
-            latitude: 37.54699,
-            longitude: 127.09598,
-          ),
-        ),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return Center(
+            child: StaticKakaoMap(
+              width: min(constraints.maxWidth, 300),
+              height: min(constraints.maxHeight, 200),
+              level: 3,
+              center: const LatLng(
+                latitude: 37.54699,
+                longitude: 127.09598,
+              ),
+              marker: const LabelOption(
+                id: 'marker',
+                latLng: LatLng(
+                  latitude: 37.54699,
+                  longitude: 127.09598,
+                ),
+                base64EncodedImage: '',
+              ),
+              scaleRatio: MediaQuery.maybeDevicePixelRatioOf(context) ?? 1,
+            ),
+          );
+        },
       ),
     );
   }
