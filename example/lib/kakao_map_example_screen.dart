@@ -110,6 +110,11 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
           onInfoWindowsAddAll: onInfoWindowsAddAll,
           onInfoWindowsClear: onInfoWindowsClear,
           onStaticMapButtonPressed: onStaticMapButtonPressed,
+          onGuiInfoWindowCustomBubble: onGuiInfoWindowCustomBubble,
+          onGuiInfoWindowComplex: onGuiInfoWindowComplex,
+          onGuiInfoWindowIconText: onGuiInfoWindowIconText,
+          onGuiInfoWindowAndroidSDK: onGuiInfoWindowAndroidSDK,
+          onGuiInfoWindowTimeBased: onGuiInfoWindowTimeBased,
         ),
       ),
     );
@@ -489,5 +494,249 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
     if (!mounted) return;
 
     await Navigator.of(context).pushNamed('/static/map_1');
+  }
+
+  /// GUI InfoWindow methods
+  Future<void> onGuiInfoWindowCustomBubble() async {
+    if (mapController == null) return;
+
+    // Create background with nine-patch (Android SDK style)
+    const bgImage = GuiImage.fromBase64(
+      base64EncodedImage: ExampleAssets.infoWindowBackgroundImage4x,
+      isNinepatch: true,
+      fixedArea: GuiImageFixedArea(
+        left: 14, // 7 * 2 for 4x scale
+        top: 14,
+        right: 14,
+        bottom: 14,
+      ),
+    );
+
+    // Create text component
+    const textComponent = GuiText(
+      text: 'Custom GUI InfoWindow!',
+      textSize: 30,
+      strokeSize: 1,
+      strokeColor: 0xFFFFFFFF,
+    );
+
+    // Create layout (equivalent to Android's GuiLayout)
+    const body = GuiLayout(
+      orientation: Orientation.horizontal,
+      children: [textComponent],
+      background: bgImage,
+      paddingLeft: 20,
+      paddingTop: 20,
+      paddingRight: 20,
+      paddingBottom: 18,
+    );
+
+    // Create InfoWindow with GUI body
+    const infoWindow = InfoWindowOption.custom(
+      id: 'gui_custom_bubble',
+      latLng: seoulStation,
+      body: body,
+      bodyOffset: InfoWindowOffset(x: 0, y: -4),
+    );
+
+    await mapController!.addInfoWindow(infoWindowOption: infoWindow);
+    showSnackBar('✨ GUI Custom Bubble InfoWindow added');
+  }
+
+  Future<void> onGuiInfoWindowComplex() async {
+    if (mapController == null) return;
+
+    // Create multiple text components
+    const titleText = GuiText(
+      text: 'Jamsil Station',
+      textSize: 28,
+      textColor: 0xFF1a1a1a,
+      strokeSize: 1,
+      strokeColor: 0xFFFFFFFF,
+    );
+
+    const subtitleText = GuiText(
+      text: 'Sports & Shopping Complex',
+      textSize: 18,
+      textColor: 0xFF555555,
+    );
+
+    const descriptionText = GuiText(
+      text: 'Home to Lotte World Tower\nand Olympic Sports Complex',
+      textColor: 0xFF777777,
+    );
+
+    // Create vertical layout for stacked text
+    const textLayout = GuiLayout(
+      orientation: Orientation.vertical,
+      children: [titleText, subtitleText, descriptionText],
+      paddingLeft: 16,
+      paddingTop: 12,
+      paddingRight: 16,
+      paddingBottom: 12,
+    );
+
+    // Background with nine-patch scaling
+    const backgroundImage = GuiImage.fromBase64(
+      base64EncodedImage: ExampleAssets.infoWindowBackgroundImage4x,
+      isNinepatch: true,
+      fixedArea: GuiImageFixedArea(left: 14, top: 14, right: 14, bottom: 14),
+    );
+
+    // Main container
+    const body = GuiLayout(
+      orientation: Orientation.horizontal,
+      children: [textLayout],
+      background: backgroundImage,
+      paddingLeft: 8,
+      paddingTop: 8,
+      paddingRight: 8,
+      paddingBottom: 8,
+    );
+
+    const infoWindow = InfoWindowOption.custom(
+      id: 'gui_complex_info',
+      latLng: jamsilStation,
+      body: body,
+      bodyOffset: InfoWindowOffset(x: 0, y: -6),
+    );
+
+    await mapController!.addInfoWindow(infoWindowOption: infoWindow);
+    showSnackBar('🏢 GUI Complex InfoWindow added');
+  }
+
+  Future<void> onGuiInfoWindowIconText() async {
+    if (mapController == null) return;
+
+    // Create icon from base64 data
+    const icon = GuiImage.fromBase64(
+      base64EncodedImage: ExampleAssets.marker2x,
+    );
+
+    // Create text component
+    const textComponent = GuiText(
+      text: 'Gangnam Station',
+      textSize: 20,
+      strokeSize: 1,
+      strokeColor: 0xFFFFFFFF,
+    );
+
+    // Use 2x image for smaller InfoWindow
+    const backgroundImage = GuiImage.fromBase64(
+      base64EncodedImage: ExampleAssets.infoWindowBackgroundImage2x,
+      isNinepatch: true,
+      fixedArea: GuiImageFixedArea(left: 7, top: 7, right: 7, bottom: 7),
+    );
+
+    // Horizontal layout with icon and text
+    const body = GuiLayout(
+      orientation: Orientation.horizontal,
+      children: [icon, textComponent],
+      background: backgroundImage,
+      paddingLeft: 12,
+      paddingTop: 8,
+      paddingRight: 12,
+      paddingBottom: 8,
+    );
+
+    const infoWindow = InfoWindowOption.custom(
+      id: 'gui_icon_text',
+      latLng: gangnamStation,
+      body: body,
+    );
+
+    await mapController!.addInfoWindow(infoWindowOption: infoWindow);
+    showSnackBar('🚇 GUI Icon + Text InfoWindow added');
+  }
+
+  Future<void> onGuiInfoWindowAndroidSDK() async {
+    if (mapController == null) return;
+
+    // Android SDK exact recreation:
+    // GuiLayout body = new GuiLayout(Orientation.Horizontal);
+    // body.setPadding(20, 20, 20, 18);
+    // GuiImage bgImage = new GuiImage(R.drawable.window_body, true);
+    // image.setFixedArea(7, 7, 7, 7);
+    // body.setBackground(bgImage);
+    // GuiText text = new GuiText("InfoWindow!");
+    // text.setTextSize(30);
+    // body.addView(text);
+
+    const text = GuiText(text: 'Android SDK Style!', textSize: 30);
+
+    const bgImage = GuiImage.fromBase64(
+      base64EncodedImage: ExampleAssets.infoWindowBackgroundImage2x,
+      isNinepatch: true,
+      fixedArea: GuiImageFixedArea(left: 7, top: 7, right: 7, bottom: 7),
+    );
+
+    const body = GuiLayout(
+      orientation: Orientation.horizontal,
+      children: [text],
+      background: bgImage,
+      paddingLeft: 20,
+      paddingTop: 20,
+      paddingRight: 20,
+      paddingBottom: 18,
+    );
+
+    // Show at a slightly different position to differentiate
+    const position = LatLng(latitude: 37.565, longitude: 126.975);
+
+    const infoWindow = InfoWindowOption.custom(
+      id: 'gui_android_sdk_equivalent',
+      latLng: position,
+      body: body,
+      bodyOffset: InfoWindowOffset(x: 0, y: -4),
+    );
+
+    await mapController!.addInfoWindow(infoWindowOption: infoWindow);
+    showSnackBar('🤖 Android SDK Style InfoWindow added');
+  }
+
+  Future<void> onGuiInfoWindowTimeBased() async {
+    if (mapController == null) return;
+
+    final isEvening = DateTime.now().hour >= 18;
+    final message = isEvening ? 'Good Evening! 🌆' : 'Good Day! ☀️';
+    final textColor = isEvening ? 0xFF4A90E2 : 0xFFFF9500;
+
+    final textComponent = GuiText(
+      text: message,
+      textSize: 24,
+      textColor: textColor,
+      strokeSize: 1,
+      strokeColor: 0xFFFFFFFF,
+    );
+
+    const bgImage = GuiImage.fromBase64(
+      base64EncodedImage: ExampleAssets.infoWindowBackgroundImage4x,
+      isNinepatch: true,
+      fixedArea: GuiImageFixedArea(left: 14, top: 14, right: 14, bottom: 14),
+    );
+
+    final body = GuiLayout(
+      orientation: Orientation.horizontal,
+      children: [textComponent],
+      background: bgImage,
+      paddingLeft: 16,
+      paddingTop: 12,
+      paddingRight: 16,
+      paddingBottom: 12,
+    );
+
+    // Show at a position near the center
+    const position = LatLng(latitude: 37.57, longitude: 126.98);
+
+    final infoWindow = InfoWindowOption.custom(
+      id: 'gui_time_based',
+      latLng: position,
+      body: body,
+    );
+
+    await mapController!.addInfoWindow(infoWindowOption: infoWindow);
+
+    final timeOfDay = isEvening ? 'evening' : 'day';
+    showSnackBar('⏰ Time-based InfoWindow added ($timeOfDay theme)');
   }
 }

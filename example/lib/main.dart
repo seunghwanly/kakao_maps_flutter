@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Orientation;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:kakao_maps_flutter/kakao_maps_flutter.dart';
 
