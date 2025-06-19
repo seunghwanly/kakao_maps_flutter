@@ -328,3 +328,72 @@ final class GetMapInfo extends KakaoMapMethodCall<MapInfo?> {
     return MapInfo.fromJson(value);
   }
 }
+
+final class AddInfoWindow extends KakaoMapMethodCall<void> {
+  const AddInfoWindow({
+    required this.infoWindowOption,
+  });
+
+  final InfoWindowOption infoWindowOption;
+
+  @override
+  String get name => 'addInfoWindow';
+
+  @override
+  Map<String, Object?>? encode() => infoWindowOption.toJson();
+}
+
+final class RemoveInfoWindow extends KakaoMapMethodCall<void> {
+  const RemoveInfoWindow({
+    required this.id,
+  });
+
+  final String id;
+
+  @override
+  String get name => 'removeInfoWindow';
+
+  @override
+  Map<String, Object?>? encode() => {'id': id};
+}
+
+final class AddInfoWindows extends KakaoMapMethodCall<void> {
+  const AddInfoWindows({
+    required this.infoWindowOptions,
+  });
+
+  final List<InfoWindowOption> infoWindowOptions;
+
+  @override
+  String get name => 'addInfoWindows';
+
+  @override
+  Map<String, Object?>? encode() => {
+        'infoWindowOptions':
+            infoWindowOptions.map((option) => option.toJson()).toList(),
+      };
+}
+
+final class RemoveInfoWindows extends KakaoMapMethodCall<void> {
+  const RemoveInfoWindows({
+    required this.ids,
+  });
+
+  final List<String> ids;
+
+  @override
+  String get name => 'removeInfoWindows';
+
+  @override
+  Map<String, Object?>? encode() => {'ids': ids};
+}
+
+final class ClearInfoWindows extends KakaoMapMethodCall<void> {
+  const ClearInfoWindows();
+
+  @override
+  String get name => 'clearInfoWindows';
+
+  @override
+  Map<String, Object?>? encode() => null;
+}

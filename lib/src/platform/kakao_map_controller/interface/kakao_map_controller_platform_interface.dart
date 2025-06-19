@@ -18,8 +18,14 @@ abstract class KakaoMapControllerPlatform extends PlatformInterface {
   final StreamController<LabelClickEvent> _onLabelClickController =
       StreamController<LabelClickEvent>.broadcast();
 
+  final StreamController<InfoWindowClickEvent> _onInfoWindowClickController =
+      StreamController<InfoWindowClickEvent>.broadcast();
+
   Stream<LabelClickEvent> get onLabelClickedStream =>
       _onLabelClickController.stream;
+
+  Stream<InfoWindowClickEvent> get onInfoWindowClickedStream =>
+      _onInfoWindowClickController.stream;
 
   Future<T> _callMethod<T>(KakaoMapMethodCall<T> methodCall) async {
     throw UnimplementedError(
@@ -30,7 +36,11 @@ abstract class KakaoMapControllerPlatform extends PlatformInterface {
   void onLabelClicked(LabelClickEvent event) =>
       _onLabelClickController.add(event);
 
+  void onInfoWindowClicked(InfoWindowClickEvent event) =>
+      _onInfoWindowClickController.add(event);
+
   void dispose() {
     _onLabelClickController.close();
+    _onInfoWindowClickController.close();
   }
 }

@@ -121,6 +121,16 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate {
       getViewportBounds(result)
     case "getMapInfo":
       getMapInfo(result)
+    case "addInfoWindow":
+      addInfoWindow(call, result)
+    case "removeInfoWindow":
+      removeInfoWindow(call, result)
+    case "addInfoWindows":
+      addInfoWindows(call, result)
+    case "removeInfoWindows":
+      removeInfoWindows(call, result)
+    case "clearInfoWindows":
+      clearInfoWindows(result)
     default:
       result(FlutterMethodNotImplemented)
     }
@@ -602,6 +612,142 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate {
     }
   }
 
+  // MARK: - InfoWindow Management
+  private var infoWindows: [String: Any] = [:]
+
+  private func addInfoWindow(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+    guard let args = call.arguments as? [String: Any],
+      let id = args["id"] as? String,
+      let latLngDict = args["latLng"] as? [String: Any],
+      let latitude = latLngDict["latitude"] as? Double,
+      let longitude = latLngDict["longitude"] as? Double,
+      let title = args["title"] as? String
+    else {
+      result(
+        FlutterError(code: "E001", message: "Invalid arguments for addInfoWindow", details: nil))
+      return
+    }
+
+    withKakaoMapView(result) { view in
+      let mapPoint = MapPoint(longitude: longitude, latitude: latitude)
+      let snippet = args["snippet"] as? String
+      let isVisible = args["isVisible"] as? Bool ?? true
+
+      // iOS KakaoMapsSDK supports InfoWindows natively
+      // Create and show InfoWindow using the native API
+      let infoWindow = InfoWindow()
+      infoWindow.position = mapPoint
+
+      // Set InfoWindow content - combine title and snippet
+      var content = title
+      if let snippet = snippet, !snippet.isEmpty {
+        content += "\n\(snippet)"
+      }
+
+      // Store InfoWindow reference for management
+      infoWindows[id] = infoWindow
+
+      if isVisible {
+        view.showInfoWindow(infoWindow)
+      }
+
+      result(nil)
+    }
+  }
+
+  private func removeInfoWindow(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+    guard let args = call.arguments as? [String: Any],
+      let id = args["id"] as? String
+    else {
+      result(
+        FlutterError(code: "E001", message: "Invalid arguments for removeInfoWindow", details: nil))
+      return
+    }
+
+    withKakaoMapView(result) { view in
+      if let infoWindow = infoWindows[id] as? InfoWindow {
+        view.hideInfoWindow(infoWindow)
+        infoWindows.removeValue(forKey: id)
+      }
+      result(nil)
+    }
+  }
+
+  private func addInfoWindows(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+    guard let args = call.arguments as? [String: Any],
+      let infoWindowOptions = args["infoWindowOptions"] as? [[String: Any]]
+    else {
+      result(
+        FlutterError(code: "E001", message: "Invalid arguments for addInfoWindows", details: nil))
+      return
+    }
+
+    withKakaoMapView(result) { view in
+      for infoWindowDict in infoWindowOptions {
+        guard let id = infoWindowDict["id"] as? String,
+          let latLngDict = infoWindowDict["latLng"] as? [String: Any],
+          let latitude = latLngDict["latitude"] as? Double,
+          let longitude = latLngDict["longitude"] as? Double,
+          let title = infoWindowDict["title"] as? String
+        else {
+          continue
+        }
+
+        let mapPoint = MapPoint(longitude: longitude, latitude: latitude)
+        let snippet = infoWindowDict["snippet"] as? String
+        let isVisible = infoWindowDict["isVisible"] as? Bool ?? true
+
+        let infoWindow = InfoWindow()
+        infoWindow.position = mapPoint
+
+        var content = title
+        if let snippet = snippet, !snippet.isEmpty {
+          content += "\n\(snippet)"
+        }
+
+        infoWindows[id] = infoWindow
+
+        if isVisible {
+          view.showInfoWindow(infoWindow)
+        }
+      }
+      result(nil)
+    }
+  }
+
+  private func removeInfoWindows(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+    guard let args = call.arguments as? [String: Any],
+      let ids = args["ids"] as? [String]
+    else {
+      result(
+        FlutterError(code: "E001", message: "Invalid arguments for removeInfoWindows", details: nil)
+      )
+      return
+    }
+
+    withKakaoMapView(result) { view in
+      for id in ids {
+        if let infoWindow = infoWindows[id] as? InfoWindow {
+          view.hideInfoWindow(infoWindow)
+          infoWindows.removeValue(forKey: id)
+        }
+      }
+      result(nil)
+    }
+  }
+
+  private func clearInfoWindows(_ result: @escaping FlutterResult) {
+    withKakaoMapView(result) { view in
+      for (_, infoWindow) in infoWindows {
+        if let iw = infoWindow as? InfoWindow {
+          view.hideInfoWindow(iw)
+        }
+      }
+      infoWindows.removeAll()
+      result(nil)
+    }
+  }
+
   // MARK: - Event Handlers
   private func handlePoiTapped(poi: Poi, param: PoiInteractionEventParam) {
     let eventData = LabelClickEvent.fromPoi(poi)
@@ -609,5 +755,28 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate {
     methodChannel.invokeMethod("onLabelClicked", arguments: eventData.toMap())
 
     print("🎯 POI Tapped: \(param.poiItem.itemID)")
+  }
+
+  private func handleInfoWindowTapped(infoWindow: InfoWindow) {
+    // Find InfoWindow ID by reference
+    var infoWindowId: String?
+    for (id, storedInfoWindow) in infoWindows {
+      if let storedIW = storedInfoWindow as? InfoWindow, storedIW === infoWindow {
+        infoWindowId = id
+        break
+      }
+    }
+
+    guard let id = infoWindowId else { return }
+
+    let eventData: [String: Any] = [
+      "infoWindowId": id,
+      "latLng": [
+        "latitude": infoWindow.position.wgsCoord.latitude,
+        "longitude": infoWindow.position.wgsCoord.longitude,
+      ],
+    ]
+
+    methodChannel.invokeMethod("onInfoWindowClicked", arguments: eventData)
   }
 }

@@ -105,6 +105,10 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
           isPoisVisible: isPoisVisible,
           isPoisClickable: isPoisClickable,
           poiScale: poiScale,
+          onInfoWindowAdd: onInfoWindowAdd,
+          onInfoWindowRemove: onInfoWindowRemove,
+          onInfoWindowsAddAll: onInfoWindowsAddAll,
+          onInfoWindowsClear: onInfoWindowsClear,
           onStaticMapButtonPressed: onStaticMapButtonPressed,
         ),
       ),
@@ -118,13 +122,18 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
       onLabelClicked,
     );
 
+    /// Listen to InfoWindow click events
+    controller.onInfoWindowClickedStream.listen(
+      onInfoWindowClicked,
+    );
+
     if (mounted) setState(() => mapReadyNotifier.value = true);
   }
 
   Future<void> setupInitialMap() async {
     if (!mapReadyNotifier.value || mapController == null) return;
 
-    await Future.delayed(const Duration(milliseconds: 500));
+    await Future.delayed(const Duration(milliseconds: 800));
 
     /// Set initial POI scale for better marker visibility
     await mapController!.setPoiScale(scale: poiScale);
@@ -398,6 +407,80 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
   void onLabelClicked(LabelClickEvent event) {
     showSnackBar(
       '📍 Label clicked: ${event.labelId}',
+      duration: const Duration(seconds: 3),
+    );
+  }
+
+  /// InfoWindow management methods
+  Future<void> onInfoWindowAdd(
+    String id,
+    LatLng position,
+    String title, {
+    String? snippet,
+  }) async {
+    if (mapController == null) return;
+
+    await mapController!.addInfoWindow(
+      infoWindowOption: InfoWindowOption(
+        id: id,
+        latLng: position,
+        title: title,
+        snippet: snippet,
+        offset: const InfoWindowOffset(x: 0, y: -20),
+      ),
+    );
+    showSnackBar('💬 InfoWindow "$id" added');
+  }
+
+  Future<void> onInfoWindowRemove(String id) async {
+    if (mapController == null) return;
+
+    await mapController!.removeInfoWindow(id: id);
+    showSnackBar('❌ InfoWindow "$id" removed');
+  }
+
+  Future<void> onInfoWindowsClear() async {
+    if (mapController == null) return;
+
+    await mapController!.clearInfoWindows();
+    showSnackBar('🧹 All InfoWindows cleared');
+  }
+
+  Future<void> onInfoWindowsAddAll() async {
+    if (mapController == null) return;
+
+    final infoWindows = [
+      const InfoWindowOption(
+        id: 'seoul_info',
+        latLng: seoulStation,
+        title: 'Seoul Station',
+        snippet: 'Main railway station in Seoul',
+        offset: InfoWindowOffset(x: 0, y: -20),
+      ),
+      const InfoWindowOption(
+        id: 'jamsil_info',
+        latLng: jamsilStation,
+        title: 'Jamsil Station',
+        snippet: 'Sports complex and shopping area',
+        offset: InfoWindowOffset(x: 0, y: -20),
+      ),
+      const InfoWindowOption(
+        id: 'gangnam_info',
+        latLng: gangnamStation,
+        title: 'Gangnam Station',
+        snippet: 'Business district center',
+        offset: InfoWindowOffset(x: 0, y: -20),
+      ),
+    ];
+
+    await mapController!.addInfoWindows(infoWindowOptions: infoWindows);
+    showSnackBar('💬 Added 3 station InfoWindows');
+  }
+
+  void onInfoWindowClicked(InfoWindowClickEvent event) {
+    showSnackBar(
+      '💬 InfoWindow clicked: ${event.infoWindowId}\n'
+      'Position: ${event.latLng.latitude.toStringAsFixed(6)}, ${event.latLng.longitude.toStringAsFixed(6)}',
       duration: const Duration(seconds: 3),
     );
   }

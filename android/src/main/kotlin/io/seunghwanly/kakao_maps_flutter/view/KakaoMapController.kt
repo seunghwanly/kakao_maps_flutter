@@ -18,6 +18,8 @@ import com.kakao.vectormap.label.LabelOptions
 import com.kakao.vectormap.label.LabelStyle
 import com.kakao.vectormap.label.LabelStyles
 import com.kakao.vectormap.label.LabelTextStyle
+import com.kakao.vectormap.mapwidget.InfoWindowOptions
+import com.kakao.vectormap.mapwidget.component.GuiText
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.platform.PlatformView
@@ -80,10 +82,11 @@ class KakaoMapController(
                     kMap.setOnLabelClickListener { kakaoMap, labelLayer, label ->
                         val position = label.position
 
-                        val event = LabelClickEvent.fromLabel(
-                            label = label,
-                            layerId = labelLayer?.layerId,
-                        )
+                        val event =
+                            LabelClickEvent.fromLabel(
+                                label = label,
+                                layerId = labelLayer?.layerId,
+                            )
 
                         methodChannel.invokeMethod("onLabelClicked", event.toMap())
 
@@ -377,6 +380,104 @@ class KakaoMapController(
         )
     }
 
+    // InfoWindow methods using native InfoWindowLayer API
+    private fun addInfoWindow(args: JSONObject, result: MethodChannel.Result) {
+        require(::kMap.isInitialized) { "kakaoMap is not initialized" }
+
+        try {
+            kMap.mapWidgetManager?.infoWindowLayer?.addInfoWindow(
+                InfoWindowOptions.from(
+                    args.getString("id")
+                        ?: throw IllegalArgumentException(
+                            "id must not be null"
+                        ),
+                    LatLng.from(
+                        args.getDouble("latitude"),
+                        args.getDouble("longitude")
+                    )
+                )
+            )
+            return result.success(null)
+        } catch (e: Exception) {
+            return result.error("E003", "Error adding InfoWindow: ${e.message}", null)
+        }
+    }
+
+    private fun removeInfoWindow(args: JSONObject, result: MethodChannel.Result) {
+        require(::kMap.isInitialized) { "kakaoMap is not initialized" }
+
+        try {
+            val id = args.getString("id") ?: throw IllegalArgumentException("id must not be null")
+            val infoWindow = kMap.mapWidgetManager?.infoWindowLayer?.getInfoWindow(id)
+            infoWindow?.remove()
+            return result.success(null)
+        } catch (e: Exception) {
+            return result.error("E004", "Error removing InfoWindow: ${e.message}", null)
+        }
+    }
+
+    private fun addInfoWindows(args: JSONObject, result: MethodChannel.Result) {
+        require(::kMap.isInitialized) { "kakaoMap is not initialized" }
+
+        try {
+            val infoWindowOptions = args.getJSONArray("infoWindowOptions")
+
+            for (i in 0 until infoWindowOptions.length()) {
+                val infoWindowJson = infoWindowOptions.getJSONObject(i)
+                val option = InfoWindowOptions.from(
+                    infoWindowJson.getString("id")
+                        ?: throw IllegalArgumentException("id must not be null"),
+                    LatLng.from(
+                        infoWindowJson.getDouble("latitude"),
+                        infoWindowJson.getDouble("longitude")
+                    )
+                )
+                option.isVisible = infoWindowJson.getBoolean("isVisible")
+                option.body = GuiText(infoWindowJson.getString("title"))
+
+                kMap.mapWidgetManager?.infoWindowLayer?.addInfoWindow(
+                    option,
+                )
+            }
+            return result.success(null)
+        } catch (e: Exception) {
+            return result.error("E005", "Error adding InfoWindows: ${e.message}", null)
+        }
+    }
+
+    private fun removeInfoWindows(args: JSONObject, result: MethodChannel.Result) {
+        require(::kMap.isInitialized) { "kakaoMap is not initialized" }
+
+        try {
+            val ids = args.getJSONArray("ids")
+
+            for (i in 0 until ids.length()) {
+                val id = ids.getString(i)
+                val infoWindow = kMap.mapWidgetManager?.infoWindowLayer?.getInfoWindow(id)
+                infoWindow?.remove()
+            }
+            return result.success(null)
+        } catch (e: Exception) {
+            return result.error("E006", "Error removing InfoWindows: ${e.message}", null)
+        }
+    }
+
+    private fun clearInfoWindows(result: MethodChannel.Result) {
+        require(::kMap.isInitialized) { "kakaoMap is not initialized" }
+
+        try {
+            // Use the native InfoWindowLayer removeAll() method as suggested
+            kMap.mapWidgetManager?.infoWindowLayer?.removeAll()
+            return result.success(null)
+        } catch (e: Exception) {
+            return result.error(
+                "E010",
+                "Error clearing InfoWindows: ${e.message}",
+                null,
+            )
+        }
+    }
+
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         Log.d("KakaoMapController", "onMethodCall: ${call.method}")
 
@@ -399,6 +500,11 @@ class KakaoMapController(
             "setViewport" -> setViewport(call.arguments as JSONObject, result)
             "getViewportBounds" -> getViewportBounds(result)
             "getMapInfo" -> getMapInfo(result)
+            "addInfoWindow" -> addInfoWindow(call.arguments as JSONObject, result)
+            "removeInfoWindow" -> removeInfoWindow(call.arguments as JSONObject, result)
+            "addInfoWindows" -> addInfoWindows(call.arguments as JSONObject, result)
+            "removeInfoWindows" -> removeInfoWindows(call.arguments as JSONObject, result)
+            "clearInfoWindows" -> clearInfoWindows(result)
             else -> result.notImplemented()
         }
     }

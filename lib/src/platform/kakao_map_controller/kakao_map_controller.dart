@@ -6,6 +6,8 @@ import 'package:kakao_maps_flutter/src/data/data.dart'
     show
         CameraAnimation,
         CameraUpdate,
+        InfoWindowClickEvent,
+        InfoWindowOption,
         LabelOption,
         LatLng,
         LatLngBounds,
@@ -47,6 +49,14 @@ class KakaoMapController extends KakaoMapControllerPlatform {
   @override
   Stream<LabelClickEvent> get onLabelClickedStream =>
       _platform.onLabelClickedStream;
+
+  /// Stream of info window click events.
+  ///
+  /// Subscribe to this stream to receive notifications when info windows on the
+  /// map are clicked.
+  @override
+  Stream<InfoWindowClickEvent> get onInfoWindowClickedStream =>
+      _platform.onInfoWindowClickedStream;
 
   @override
   Future<T> _callMethod<T>(KakaoMapMethodCall<T> methodCall) async {
@@ -228,5 +238,49 @@ class KakaoMapController extends KakaoMapControllerPlatform {
   /// Returns details like zoom level, rotation, and tilt.
   Future<MapInfo?> getMapInfo() async {
     return _platform._callMethod(const GetMapInfo());
+  }
+
+  /// Adds an info window to the map.
+  ///
+  /// The [infoWindowOption] contains the info window's configuration including
+  /// position, content, and appearance settings.
+  Future<void> addInfoWindow({
+    required InfoWindowOption infoWindowOption,
+  }) async {
+    await _platform
+        ._callMethod(AddInfoWindow(infoWindowOption: infoWindowOption));
+  }
+
+  /// Removes an info window by its ID.
+  ///
+  /// The [id] is the unique identifier of the info window to remove.
+  Future<void> removeInfoWindow({
+    required String id,
+  }) async {
+    await _platform._callMethod(RemoveInfoWindow(id: id));
+  }
+
+  /// Adds multiple info windows to the map.
+  ///
+  /// The [infoWindowOptions] contains a list of info window configurations.
+  Future<void> addInfoWindows({
+    required List<InfoWindowOption> infoWindowOptions,
+  }) async {
+    await _platform
+        ._callMethod(AddInfoWindows(infoWindowOptions: infoWindowOptions));
+  }
+
+  /// Removes multiple info windows by their IDs.
+  ///
+  /// The [ids] contains a list of info window identifiers to remove.
+  Future<void> removeInfoWindows({
+    required List<String> ids,
+  }) async {
+    await _platform._callMethod(RemoveInfoWindows(ids: ids));
+  }
+
+  /// Removes all info windows from the map.
+  Future<void> clearInfoWindows() async {
+    await _platform._callMethod(const ClearInfoWindows());
   }
 }
