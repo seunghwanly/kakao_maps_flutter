@@ -343,6 +343,20 @@ final class AddInfoWindow extends KakaoMapMethodCall<void> {
   Map<String, Object?>? encode() => infoWindowOption.toJson();
 }
 
+final class UpdateInfoWindow extends KakaoMapMethodCall<void> {
+  const UpdateInfoWindow({
+    required this.infoWindowOption,
+  });
+
+  final InfoWindowOption infoWindowOption;
+
+  @override
+  String get name => 'updateInfoWindow';
+
+  @override
+  Map<String, Object?>? encode() => infoWindowOption.toJson();
+}
+
 final class RemoveInfoWindow extends KakaoMapMethodCall<void> {
   const RemoveInfoWindow({
     required this.id,

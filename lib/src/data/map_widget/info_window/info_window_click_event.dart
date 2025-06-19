@@ -1,6 +1,4 @@
-import 'package:kakao_maps_flutter/src/base/data.dart';
-
-import '../lat_lng/lat_lng.dart';
+part of '../map_widget.dart';
 
 /// Event data for when an info window is clicked on the map.
 ///
