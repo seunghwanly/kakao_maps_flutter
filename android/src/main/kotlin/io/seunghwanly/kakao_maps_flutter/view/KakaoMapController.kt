@@ -25,6 +25,7 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.platform.PlatformView
 import io.seunghwanly.kakao_maps_flutter.data.cameraAnimation.toCameraAnimationOrNull
 import io.seunghwanly.kakao_maps_flutter.data.cameraUpdate.toCameraUpdate
+import io.seunghwanly.kakao_maps_flutter.data.infoWindowOption.toNativeInfoWindowOptions
 import io.seunghwanly.kakao_maps_flutter.data.labelClickEvent.LabelClickEvent
 import io.seunghwanly.kakao_maps_flutter.data.labelOption.LabelOption
 import io.seunghwanly.kakao_maps_flutter.data.labelOption.toLabelOptionOrNull
@@ -380,23 +381,22 @@ class KakaoMapController(
         )
     }
 
-    // InfoWindow methods using native InfoWindowLayer API
+    // InfoWindow methods using native InfoWindowLayer API with GuiView support
     private fun addInfoWindow(args: JSONObject, result: MethodChannel.Result) {
         require(::kMap.isInitialized) { "kakaoMap is not initialized" }
 
         try {
-            kMap.mapWidgetManager?.infoWindowLayer?.addInfoWindow(
-                InfoWindowOptions.from(
-                    args.getString("id")
-                        ?: throw IllegalArgumentException(
-                            "id must not be null"
-                        ),
-                    LatLng.from(
-                        args.getDouble("latitude"),
-                        args.getDouble("longitude")
-                    )
+            // Use the new extension method that supports GuiView components
+            val options = args.toNativeInfoWindowOptions()
+                ?: return result.error(
+                    "E003", 
+                    "Failed to parse InfoWindow options", 
+                    null
                 )
-            )
+
+            // Add InfoWindow to the map using the native API
+            kMap.mapWidgetManager?.infoWindowLayer?.addInfoWindow(options)
+            
             return result.success(null)
         } catch (e: Exception) {
             return result.error("E003", "Error adding InfoWindow: ${e.message}", null)
@@ -424,20 +424,12 @@ class KakaoMapController(
 
             for (i in 0 until infoWindowOptions.length()) {
                 val infoWindowJson = infoWindowOptions.getJSONObject(i)
-                val option = InfoWindowOptions.from(
-                    infoWindowJson.getString("id")
-                        ?: throw IllegalArgumentException("id must not be null"),
-                    LatLng.from(
-                        infoWindowJson.getDouble("latitude"),
-                        infoWindowJson.getDouble("longitude")
-                    )
-                )
-                option.isVisible = infoWindowJson.getBoolean("isVisible")
-                option.body = GuiText(infoWindowJson.getString("title"))
-
-                kMap.mapWidgetManager?.infoWindowLayer?.addInfoWindow(
-                    option,
-                )
+                
+                // Use the new extension method for each InfoWindow
+                val options = infoWindowJson.toNativeInfoWindowOptions()
+                if (options != null) {
+                    kMap.mapWidgetManager?.infoWindowLayer?.addInfoWindow(options)
+                }
             }
             return result.success(null)
         } catch (e: Exception) {
@@ -459,6 +451,32 @@ class KakaoMapController(
             return result.success(null)
         } catch (e: Exception) {
             return result.error("E006", "Error removing InfoWindows: ${e.message}", null)
+        }
+    }
+
+    private fun updateInfoWindow(args: JSONObject, result: MethodChannel.Result) {
+        require(::kMap.isInitialized) { "kakaoMap is not initialized" }
+
+        try {
+            val id = args.getString("id") ?: throw IllegalArgumentException("id must not be null")
+            
+            // Remove existing InfoWindow if it exists
+            val existingInfoWindow = kMap.mapWidgetManager?.infoWindowLayer?.getInfoWindow(id)
+            existingInfoWindow?.remove()
+            
+            // Add updated InfoWindow with new options
+            val options = args.toNativeInfoWindowOptions()
+                ?: return result.error(
+                    "E007", 
+                    "Failed to parse InfoWindow options for update", 
+                    null
+                )
+
+            kMap.mapWidgetManager?.infoWindowLayer?.addInfoWindow(options)
+            
+            return result.success(null)
+        } catch (e: Exception) {
+            return result.error("E007", "Error updating InfoWindow: ${e.message}", null)
         }
     }
 
@@ -504,6 +522,7 @@ class KakaoMapController(
             "removeInfoWindow" -> removeInfoWindow(call.arguments as JSONObject, result)
             "addInfoWindows" -> addInfoWindows(call.arguments as JSONObject, result)
             "removeInfoWindows" -> removeInfoWindows(call.arguments as JSONObject, result)
+            "updateInfoWindow" -> updateInfoWindow(call.arguments as JSONObject, result)
             "clearInfoWindows" -> clearInfoWindows(result)
             else -> result.notImplemented()
         }
