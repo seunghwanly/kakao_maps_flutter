@@ -39,6 +39,12 @@ class KakaoMapController(
     private val mapView: MapView = MapView(context)
 
     private lateinit var kMap: KakaoMap
+    
+    // Parse initial position from args
+    private val initialPosition: LatLng? = parseInitialPosition(args)
+    
+    // Parse initial zoom level from args
+    private val initialLevel: Int? = parseInitialLevel(args)
 
     init {
         // Register Flutter MethodCallHandler
@@ -70,11 +76,7 @@ class KakaoMapController(
                         )
                     }
 
-                    kMap.moveCamera(
-                        CameraUpdateFactory.newCenterPosition(
-                            LatLng.from(37.394726159, 127.111209047)
-                        )
-                    )
+                    // Initial position is handled by getPosition() method
 
                     // Set Listener
                     kMap.setOnLabelClickListener { kakaoMap, labelLayer, label ->
@@ -90,8 +92,34 @@ class KakaoMapController(
                         true
                     }
                 }
+
+                override fun getPosition(): LatLng {
+                    // Return initialPosition if provided, otherwise use default
+                    return initialPosition ?: LatLng.from(37.394726159, 127.111209047)
+                }
+                
+                override fun getZoomLevel(): Int {
+                    // Return initialLevel if provided, otherwise use default
+                    return initialLevel ?: 15
+                }
             },
         )
+    }
+
+    private fun parseInitialPosition(args: Any?): LatLng? {
+        if (args !is Map<*, *>) return null
+        
+        val initialPositionMap = args["initialPosition"] as? Map<*, *> ?: return null
+        val latitude = initialPositionMap["latitude"] as? Double ?: return null
+        val longitude = initialPositionMap["longitude"] as? Double ?: return null
+        
+        return LatLng.from(latitude, longitude)
+    }
+
+    private fun parseInitialLevel(args: Any?): Int? {
+        if (args !is Map<*, *>) return null
+        
+        return args["initialLevel"] as? Int
     }
 
     private fun getZoomLevel(result: MethodChannel.Result) {

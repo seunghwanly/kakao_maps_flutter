@@ -74,6 +74,8 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
       ),
       body: KakaoMap(
         onMapCreated: onMapCreated,
+        initialPosition: seoulStation,
+        initialLevel: 15,
       ),
       floatingActionButton: ValueListenableBuilder<bool>(
         valueListenable: mapReadyNotifier,
@@ -129,15 +131,7 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
     /// Set initial POI scale for better marker visibility
     await mapController!.setPoiScale(scale: poiScale);
 
-    /// Move to Seoul Station with animation
-    await mapController!.moveCamera(
-      cameraUpdate: CameraUpdate.fromLatLng(seoulStation),
-      animation: const CameraAnimation(
-        duration: 1500,
-        autoElevation: true,
-        isConsecutive: false,
-      ),
-    );
+    // Map is already positioned at seoulStation via initialPosition parameter
   }
 
   Future<void> onZoomIn() async {

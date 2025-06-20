@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../data/lat_lng/lat_lng.dart';
 import '../../platform/kakao_map_controller/kakao_map_controller.dart';
 
 const String _$viewTypeId = 'kakao_map_view';
@@ -14,26 +15,32 @@ class KakaoMap extends StatefulWidget {
   /// Creates a KakaoMap widget.
   ///
   /// The [onMapCreated] callback is called when the map is ready to be used.
-  /// The [creationParams] can be used to pass additional parameters during
-  /// map creation. The [width] and [height] specify the dimensions of the
-  /// map widget.
+  /// The [initialPosition] sets the initial center position of the map.
+  /// The [initialLevel] sets the initial zoom level of the map.
+  /// The [width] and [height] specify the dimensions of the map widget.
   const KakaoMap({
     this.onMapCreated,
-    this.creationParams = const <String, Object?>{},
+    this.initialPosition,
+    this.initialLevel,
     this.width,
     this.height,
     super.key,
   });
 
-  /// Additional parameters to pass during map creation.
-  ///
-  /// These parameters are merged with default width/height values.
-  final Map<String, Object?> creationParams;
-
   /// Callback function called when the map is created and ready to use.
   ///
   /// Provides a [KakaoMapController] instance to interact with the map.
   final void Function(KakaoMapController controller)? onMapCreated;
+
+  /// The initial center position of the map.
+  ///
+  /// If null, the map will use its default center position.
+  final LatLng? initialPosition;
+
+  /// The initial zoom level of the map.
+  ///
+  /// Valid range is 1-21. If null, the map will use its default zoom level.
+  final int? initialLevel;
 
   /// The width of the map widget.
   ///
@@ -60,11 +67,20 @@ class _KakaoMapState extends State<KakaoMap> {
         final width = widget.width ?? constraints.maxWidth;
         final height = widget.height ?? constraints.maxHeight;
 
-        final creationParams = {
+        final creationParams = <String, Object?>{
           'width': width,
           'height': height,
-          ...widget.creationParams,
         };
+
+        // Add initialPosition to creationParams if provided
+        if (widget.initialPosition != null) {
+          creationParams['initialPosition'] = widget.initialPosition!.toJson();
+        }
+
+        // Add initialLevel to creationParams if provided
+        if (widget.initialLevel != null) {
+          creationParams['initialLevel'] = widget.initialLevel;
+        }
 
         return SizedBox(
           width: width,
