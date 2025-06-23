@@ -115,11 +115,23 @@ class MapScreen extends StatelessWidget {
         onMapCreated: (controller) {
           // Store controller for map operations
         },
+        initialPosition: LatLng(latitude: 37.5665, longitude: 126.9780), // Seoul City Hall
+        initialLevel: 15, // Zoom level 15
       ),
     );
   }
 }
 ```
+
+### Map Widget Parameters
+
+The `KakaoMap` widget accepts the following parameters:
+
+- `onMapCreated`: Callback function called when the map is created and ready to use
+- `initialPosition`: Optional `LatLng` that sets the initial center position of the map. If not provided, the map will use its default center position
+- `initialLevel`: Optional `int` that sets the initial zoom level of the map. Valid range is 1-21. If not provided, the map will use its default zoom level
+- `width`: Optional width of the map widget. If null, uses the maximum available width
+- `height`: Optional height of the map widget. If null, uses the maximum available height
 
 ### Map Operations
 
@@ -226,9 +238,28 @@ print('Rotation: ${mapInfo?.rotation}°');
 print('Tilt: ${mapInfo?.tilt}°');
 ```
 
-## Platform-Specific Setup
+---
 
-No platform-specific setup required
+### Troubleshooting: Kakao Maps Android SDK Dependency Error
+
+If you see the following error when building your project:
+
+```
+Could not find com.kakao.maps.open:android:2.12.8.
+```
+
+You need to add the Kakao Maps Maven repository to your `android/build.gradle` file. Open `android/build.gradle` and add the following inside the `allprojects > repositories` block:
+
+```groovy
+allprojects {
+    repositories {
+        // ... other repositories ...
+        maven { url 'https://devrepo.kakao.com/nexus/repository/kakaomap-releases/' }
+    }
+}
+```
+
+This will allow Gradle to find and download the Kakao Maps SDK for Android.
 
 ## Future Plans
 
@@ -236,9 +267,7 @@ No platform-specific setup required
 
 1. Map Events and Callbacks
    - Touch events
-   - POI click events
    - Camera movement events
-   - Marker click events
 
 2. Advanced Marker Features
    - Custom marker views

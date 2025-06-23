@@ -7,8 +7,14 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
     private let mapController: KMController
     private let methodChannel: FlutterMethodChannel
     private let kKakaoMapViewName = "mapview"
-    
-    init(
+      
+    // Store initial position
+  private let initialPosition: MapPoint?
+  
+  // Store initial zoom level
+  private let initialLevel: Int?
+
+  init(
         frame: CGRect,
         viewId: Int64,
         args: Any?,
@@ -37,7 +43,25 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
             binaryMessenger: messenger,
             codec: FlutterJSONMethodCodec.sharedInstance()
         )
-        
+            
+    // Parse initial position from args
+    if let args = args as? [String: Any],
+       let initialPositionData = args["initialPosition"] as? [String: Any],
+       let latitude = initialPositionData["latitude"] as? Double,
+       let longitude = initialPositionData["longitude"] as? Double {
+      self.initialPosition = MapPoint(longitude: longitude, latitude: latitude)
+    } else {
+      self.initialPosition = nil
+    }
+
+    // Parse initial zoom level from args
+    if let args = args as? [String: Any],
+       let level = args["initialLevel"] as? Int {
+      self.initialLevel = level
+    } else {
+      self.initialLevel = nil
+    }
+
         super.init()
         
         self.methodChannel.setMethodCallHandler(onMethodCall)
@@ -59,16 +83,20 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
     func addViews() {
         print("✅ addViews called!")
         
-        let defaultPosition = MapPoint(
+        // Use initialPosition if provided, otherwise use default
+    let defaultPosition = initialPosition ?? MapPoint(
             longitude: 127.108678,
             latitude: 37.402001
         )
-        
+            
+    // Use initialLevel if provided, otherwise use default
+    let defaultLevel = initialLevel ?? 7
+
         let mapviewInfo = MapviewInfo(
             viewName: kKakaoMapViewName,
             viewInfoName: "map",
             defaultPosition: defaultPosition,
-            defaultLevel: 7
+            defaultLevel: defaultLevel
         )
         
         mapController.addView(mapviewInfo)
