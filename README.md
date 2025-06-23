@@ -11,6 +11,8 @@ A Flutter plugin for integrating Kakao Maps SDK v2, providing a native map exper
 |---------|---------|-----|
 | Camera Controls | ✅ | ✅ |
 | Marker Management | ✅ | ✅ |
+| InfoWindow Management | ✅ | ✅ |
+| Custom GUI Components | ✅ | ✅ |
 | POI Controls | ✅ | ✅ |
 | Coordinate Conversion | ✅ | ❌ |
 | Map Information | ✅ | ✅ |
@@ -32,6 +34,23 @@ A Flutter plugin for integrating Kakao Maps SDK v2, providing a native map exper
 - Batch operations for multiple markers
 - Custom marker images support (base64 encoded)
 - Clear all markers functionality
+
+### 💬 InfoWindow Management
+
+- Add/remove individual info windows
+- Batch operations for multiple info windows
+- Text-based info windows with title and snippet
+- Custom GUI-based info windows with rich layouts
+- Click event handling for info windows
+- Offset positioning for precise placement
+- Custom background images and styling
+
+### 🎨 Custom GUI Components (InfoWindows)
+
+- **GuiText**: Customizable text components with color, size, and stroke
+- **GuiImage**: Support for base64 images, resources, and nine-patch scaling
+- **GuiLayout**: Flexible container layouts (horizontal/vertical orientation)
+- **Complex Layouts**: Nested components for rich info window designs
 
 ### 🏢 POI (Points of Interest) Controls
 
@@ -157,7 +176,59 @@ await controller.setPoiVisible(isVisible: true);
 await controller.setPoiScale(scale: 1); // Regular size
 ```
 
-4. Map Information:
+4. InfoWindow Management:
+
+```dart
+// Add a simple text-based info window
+await controller.addInfoWindow(
+  infoWindowOption: InfoWindowOption(
+    id: 'info_1',
+    latLng: LatLng(latitude: 37.5665, longitude: 126.9780),
+    title: 'Seoul Station',
+    snippet: 'Main railway station in Seoul',
+    offset: InfoWindowOffset(x: 0, y: -20),
+  ),
+);
+
+// Add a custom GUI-based info window
+const customInfoWindow = InfoWindowOption.custom(
+  id: 'custom_info',
+  latLng: LatLng(latitude: 37.5665, longitude: 126.9780),
+  body: GuiLayout(
+    orientation: Orientation.horizontal,
+    children: [
+      GuiImage.fromBase64(
+        base64EncodedImage: 'your_base64_image',
+      ),
+      GuiText(
+        text: 'Custom InfoWindow',
+        textSize: 16,
+        textColor: 0xFF333333,
+      ),
+    ],
+    background: GuiImage.fromBase64(
+      base64EncodedImage: 'background_image',
+      isNinepatch: true,
+      fixedArea: GuiImageFixedArea(left: 10, top: 10, right: 10, bottom: 10),
+    ),
+  ),
+);
+
+await controller.addInfoWindow(infoWindowOption: customInfoWindow);
+
+// Listen to info window click events
+controller.onInfoWindowClickedStream.listen((event) {
+  print('InfoWindow clicked: ${event.infoWindowId}');
+});
+
+// Remove an info window
+await controller.removeInfoWindow(id: 'info_1');
+
+// Clear all info windows
+await controller.clearInfoWindows();
+```
+
+5. Map Information:
 
 ```dart
 // Get current map info
@@ -202,7 +273,6 @@ This will allow Gradle to find and download the Kakao Maps SDK for Android.
    - Custom marker views
    - Marker clustering
    - Marker animations
-   - InfoWindow customization
 
 3. Polyline and Polygon Support
    - Draw paths and regions
@@ -224,6 +294,13 @@ This will allow Gradle to find and download the Kakao Maps SDK for Android.
    - Marker rendering optimization
    - Memory management improvements
    - Caching mechanisms
+
+### ✅ Recently Implemented
+
+- **InfoWindow Management**: Complete support for text-based and GUI-based info windows
+- **Custom GUI Components**: Rich layout system with GuiText, GuiImage, and GuiLayout
+- **InfoWindow Events**: Click event handling and callbacks
+- **Nine-patch Images**: Support for scalable background images
 
 ## Contributing
 

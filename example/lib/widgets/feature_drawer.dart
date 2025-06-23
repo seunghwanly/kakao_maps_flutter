@@ -20,7 +20,16 @@ class FeatureDrawer extends StatelessWidget {
     required this.isPoisVisible,
     required this.isPoisClickable,
     required this.poiScale,
+    required this.onInfoWindowAdd,
+    required this.onInfoWindowRemove,
+    required this.onInfoWindowsAddAll,
+    required this.onInfoWindowsClear,
     required this.onStaticMapButtonPressed,
+    required this.onGuiInfoWindowCustomBubble,
+    required this.onGuiInfoWindowComplex,
+    required this.onGuiInfoWindowIconText,
+    required this.onGuiInfoWindowAndroidSDK,
+    required this.onGuiInfoWindowTimeBased,
     super.key,
   });
 
@@ -41,7 +50,17 @@ class FeatureDrawer extends StatelessWidget {
   final bool isPoisVisible;
   final bool isPoisClickable;
   final int poiScale;
+  final Future<void> Function(String, LatLng, String, {String? snippet})
+      onInfoWindowAdd;
+  final Future<void> Function(String) onInfoWindowRemove;
+  final VoidCallback onInfoWindowsAddAll;
+  final VoidCallback onInfoWindowsClear;
   final VoidCallback onStaticMapButtonPressed;
+  final VoidCallback onGuiInfoWindowCustomBubble;
+  final VoidCallback onGuiInfoWindowComplex;
+  final VoidCallback onGuiInfoWindowIconText;
+  final VoidCallback onGuiInfoWindowAndroidSDK;
+  final VoidCallback onGuiInfoWindowTimeBased;
 
   @override
   Widget build(BuildContext context) {
@@ -216,6 +235,115 @@ class FeatureDrawer extends StatelessWidget {
                 enabled: isMapReady,
                 onTap: () {
                   onViewportBoundsGet();
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          ),
+
+          /// InfoWindow Management Section
+          KakaoDrawerSection(
+            title: '💬 InfoWindow Management',
+            children: [
+              KakaoDrawerTile(
+                title: 'Add Seoul InfoWindow',
+                enabled: isMapReady,
+                onTap: () {
+                  onInfoWindowAdd(
+                    'seoul_info',
+                    const LatLng(latitude: 37.555946, longitude: 126.972317),
+                    'Seoul Station',
+                    snippet: 'Main railway station in Seoul',
+                  );
+                  Navigator.of(context).pop();
+                },
+              ),
+              KakaoDrawerTile(
+                title: 'Add Jamsil InfoWindow',
+                enabled: isMapReady,
+                onTap: () {
+                  onInfoWindowAdd(
+                    'jamsil_info',
+                    const LatLng(latitude: 37.5132612, longitude: 127.1001336),
+                    'Jamsil Station',
+                    snippet: 'Sports complex and shopping area',
+                  );
+                  Navigator.of(context).pop();
+                },
+              ),
+              KakaoDrawerTile(
+                title: 'Remove Seoul InfoWindow',
+                enabled: isMapReady,
+                onTap: () {
+                  onInfoWindowRemove('seoul_info');
+                  Navigator.of(context).pop();
+                },
+              ),
+              KakaoDrawerTile(
+                title: 'Add All Station InfoWindows',
+                enabled: isMapReady,
+                onTap: () {
+                  onInfoWindowsAddAll();
+                  Navigator.of(context).pop();
+                },
+              ),
+              KakaoDrawerTile(
+                title: 'Clear All InfoWindows',
+                enabled: isMapReady,
+                onTap: () {
+                  onInfoWindowsClear();
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          ),
+
+          /// GUI InfoWindow Management Section
+          KakaoDrawerSection(
+            title: '🎨 GUI InfoWindows',
+            children: [
+              KakaoDrawerTile(
+                title: 'Custom Bubble (Base64)',
+                subtitle: 'Nine-patch background + styled text',
+                enabled: isMapReady,
+                onTap: () {
+                  onGuiInfoWindowCustomBubble();
+                  Navigator.of(context).pop();
+                },
+              ),
+              KakaoDrawerTile(
+                title: 'Complex Layout',
+                subtitle: 'Multi-text vertical layout',
+                enabled: isMapReady,
+                onTap: () {
+                  onGuiInfoWindowComplex();
+                  Navigator.of(context).pop();
+                },
+              ),
+              KakaoDrawerTile(
+                title: 'Icon + Text',
+                subtitle: 'Horizontal layout with image',
+                enabled: isMapReady,
+                onTap: () {
+                  onGuiInfoWindowIconText();
+                  Navigator.of(context).pop();
+                },
+              ),
+              KakaoDrawerTile(
+                title: 'Android SDK Style',
+                subtitle: 'Exact Android equivalent',
+                enabled: isMapReady,
+                onTap: () {
+                  onGuiInfoWindowAndroidSDK();
+                  Navigator.of(context).pop();
+                },
+              ),
+              KakaoDrawerTile(
+                title: 'Time-based Dynamic',
+                subtitle: 'Changes based on time of day',
+                enabled: isMapReady,
+                onTap: () {
+                  onGuiInfoWindowTimeBased();
                   Navigator.of(context).pop();
                 },
               ),
