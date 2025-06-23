@@ -8,7 +8,7 @@ let package = Package(
   ],
   products: [
     .library(
-      name: "kakao_maps_flutter",
+      name: "kakao-maps-flutter",
       targets: ["kakao_maps_flutter"]
     )
   ],
@@ -22,11 +22,11 @@ let package = Package(
     .target(
       name: "kakao_maps_flutter",
       dependencies: [
-        .product(name: "KakaoMapsSDK", package: "KakaoMapsSDK-SPM")
+        .product(name: "KakaoMapsSDK-SPM", package: "KakaoMapsSDK-SPM")
       ],
-      path: "Classes",
-      sources: ["**/*.swift"],
-      publicHeadersPath: "."
+      resources: [
+        .process("PrivacyInfo.xcprivacy")
+      ]
     )
   ]
 )

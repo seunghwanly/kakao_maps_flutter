@@ -13,7 +13,11 @@ KakaoMaps SDK v2 for Flutter
   s.license          = { :file => '../LICENSE' }
   s.author           = { 'seunghwanly' => 'seunghwanly@gmail.com' }
   s.source           = { :path => '.' }
-  s.source_files = 'Classes/**/*'
+  # s.source_files = 'Classes/**/*'
+  s.source_files = 'kakao_maps_flutter/Sources/kakao_maps_flutter/**/*.swift'
+  s.resource_bundles = {
+    'kakao_maps_flutter_privacy' => ['kakao_maps_flutter/Sources/kakao_maps_flutter/PrivacyInfo.xcprivacy']
+  }
   s.dependency 'Flutter'
   s.dependency 'KakaoMapsSDK', '~> 2.12.5'
   s.platform = :ios, '13.0'
