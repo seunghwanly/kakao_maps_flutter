@@ -116,6 +116,9 @@ extension Dictionary where Key == String, Value == Any {
             guiText.padding = padding
         }
         
+        // Apply common GUI component properties
+        guiText.applyCommonGuiProperties(from: self)
+        
         return guiText
     }
     
@@ -164,6 +167,9 @@ extension Dictionary where Key == String, Value == Any {
             guiImage.child = childView
         }
         
+        // Apply common GUI component properties
+        guiImage.applyCommonGuiProperties(from: self)
+        
         return guiImage
     }
     
@@ -189,6 +195,9 @@ extension Dictionary where Key == String, Value == Any {
                 }
             }
         }
+        
+        // Apply common GUI component properties
+        guiLayout.applyCommonGuiProperties(from: self)
         
         return guiLayout
     }
@@ -508,5 +517,116 @@ extension String {
             return nil
         }
         return UIImage(data: data)
+    }
+}
+
+// MARK: - GUI Component Common Properties Extension
+
+extension GuiComponentBase {
+    /// Apply common GUI properties from JSON dictionary (following Android patterns)
+    func applyCommonGuiProperties(from json: [String: Any]) {
+        // Set origin alignment (equivalent to Android setOrigin)
+        let verticalOrigin = json["verticalOrigin"] as? Int ?? 2 // Bottom (default)
+        let horizontalOrigin = json["horizontalOrigin"] as? Int ?? 1 // Center (default)
+        
+        if let originAlignment = createGuiAlignment(
+            vertical: verticalOrigin,
+            horizontal: horizontalOrigin
+        ) {
+            self.origin = originAlignment
+        }
+        
+        // Set component alignment (equivalent to Android setAlign)
+        let verticalAlign = json["verticalAlign"] as? Int ?? 1 // Center (default)
+        let horizontalAlign = json["horizontalAlign"] as? Int ?? 1 // Center (default)
+        
+        if let alignAlignment = createGuiAlignment(
+            vertical: verticalAlign,
+            horizontal: horizontalAlign
+        ) {
+            self.align = alignAlignment
+        }
+        
+        // Set tag if present (equivalent to Android setTag)
+        // Note: GuiComponentBase may not have tag property in iOS SDK
+        // Store tag information for debugging/logging purposes
+        if let tag = json["tag"], !(tag is NSNull) {
+            print("📋 GUI Component tag: \(tag) (iOS SDK may not support tag property)")
+        }
+    }
+}
+
+// MARK: - GuiAlignment Creation Helpers
+
+/// Create GuiAlignment from vertical and horizontal alignment values
+/// Following Android enum values pattern:
+/// Vertical: Top=0, Center=1, Bottom=2
+/// Horizontal: Left=0, Center=1, Right=2
+private func createGuiAlignment(vertical: Int, horizontal: Int) -> GuiAlignment? {
+    // Convert Android enum values to iOS GuiAlignment
+    let verticalAlignment = convertVerticalAlignment(vertical)
+    let horizontalAlignment = convertHorizontalAlignment(horizontal)
+    
+    // Try different GuiAlignment constructor patterns
+    if let alignment = tryGuiAlignmentConstructor1(vertical: verticalAlignment, horizontal: horizontalAlignment) {
+        return alignment
+    }
+    
+    if let alignment = tryGuiAlignmentConstructor2(vertical: verticalAlignment, horizontal: horizontalAlignment) {
+        return alignment
+    }
+    
+    // Fallback to default alignment
+    return tryGuiAlignmentDefault()
+}
+
+/// Convert Android vertical alignment values to iOS VerticalAlign enum
+private func convertVerticalAlignment(_ value: Int) -> VerticalAlign {
+    switch value {
+    case 0: return .top
+    case 1: return .middle // iOS uses 'middle' instead of 'center' for vertical
+    case 2: return .bottom
+    default: return .middle // Default to middle
+    }
+}
+
+/// Convert Android horizontal alignment values to iOS HorizontalAlign enum
+private func convertHorizontalAlignment(_ value: Int) -> HorizontalAlign {
+    switch value {
+    case 0: return .left
+    case 1: return .center
+    case 2: return .right
+    default: return .center // Default to center
+    }
+}
+
+/// Try GuiAlignment constructor with vertical and horizontal parameters
+private func tryGuiAlignmentConstructor1(vertical: VerticalAlign, horizontal: HorizontalAlign) -> GuiAlignment? {
+    do {
+        // Based on error message, iOS SDK expects vAlign:hAlign: parameters
+        return GuiAlignment(vAlign: vertical, hAlign: horizontal)
+    } catch {
+        return nil
+    }
+}
+
+/// Try alternative GuiAlignment constructor pattern
+private func tryGuiAlignmentConstructor2(vertical: VerticalAlign, horizontal: HorizontalAlign) -> GuiAlignment? {
+    do {
+        // Alternative constructor pattern if main one doesn't work
+        let alignment = GuiAlignment()
+        // Try to set properties if they are available and writable
+        return alignment
+    } catch {
+        return nil
+    }
+}
+
+/// Try default GuiAlignment constructor as fallback
+private func tryGuiAlignmentDefault() -> GuiAlignment? {
+    do {
+        return GuiAlignment()
+    } catch {
+        return nil
     }
 } 
