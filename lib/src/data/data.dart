@@ -11,3 +11,4 @@ export 'label/label_option.dart';
 export 'lat_lng/lat_lng.dart';
 export 'lat_lng/lat_lng_bounds.dart';
 export 'map_info/map_info.dart';
+export 'map_widget/map_widget.dart';
