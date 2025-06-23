@@ -2,7 +2,7 @@ import Flutter
 import KakaoMapsSDK
 import UIKit
 
-class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, GuiEventDelegate {
+class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, GuiEventDelegate, KakaoMapEventDelegate {
     private let viewContainer: KMViewContainer
     private let mapController: KMController
     private let methodChannel: FlutterMethodChannel
@@ -144,6 +144,7 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
             result(FlutterError(code: "E000", message: "MapView not found", details: nil))
             return
         }
+        baseView.eventDelegate = self
         block(baseView)
     }
     
@@ -194,7 +195,7 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
         return styleID
     }
     
-    // MARK: - Existing Methods
+    // MARK: - Map Event Functions
     
     private func getZoomLevel(_ result: @escaping FlutterResult) {
         withKakaoMapView(result) { view in
@@ -300,13 +301,6 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
                 option: poiOption,
                 at: point
             )
-            
-            let _ = poi?.addPoiTappedEventHandler(target: self) { target in
-                { (param: PoiInteractionEventParam) -> Void in
-                    target.handlePoiTapped(poi: poi!, param: param)
-                }
-            }
-            
             poi?.show()
             
             result(poi != nil)
@@ -337,7 +331,6 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
         }
     }
     
-    // MARK: - New Methods to match Android implementation
     
     private func addMarkers(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         guard let args = call.arguments as? [String: Any],
@@ -374,11 +367,6 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
                 poiOption.rank = 0  // 높은 rank 값으로 설정하여 렌더링 우선순위 증가
                 
                 let poi = targetLayer.addPoi(option: poiOption, at: point)
-                let _ = poi?.addPoiTappedEventHandler(target: self) { target in
-                    { (param: PoiInteractionEventParam) -> Void in
-                        target.handlePoiTapped(poi: poi!, param: param)
-                    }
-                }
                 poi?.show()
             }
             
@@ -638,12 +626,8 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
             
             // Add to GUI manager and show if visible
             let guiManager = view.getGuiManager()
-            let isVisible = args["isVisible"] as? Bool ?? true
-            
-            if isVisible {
-                let _ = guiManager.infoWindowLayer.addInfoWindow(infoWindow)
-                infoWindow.show()
-            }
+            let _ = guiManager.infoWindowLayer.addInfoWindow(infoWindow)
+            infoWindow.show()
             result(nil)
         }
     }
@@ -659,7 +643,6 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
         
         withKakaoMapView(result) { view in
             if let infoWindow = infoWindows[id] {
-                let guiManager = view.getGuiManager()
                 infoWindow.hide()
                 infoWindows.removeValue(forKey: id)
             }
@@ -695,7 +678,6 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
                 let isVisible = infoWindowDict["isVisible"] as? Bool ?? true
                 
                 if isVisible {
-                    let _ = infoWindow.addTapEventHandler(target: self, handler: handleInfoWindowTapped)
                     let _ = guiManager.infoWindowLayer.addInfoWindow(infoWindow)
                     infoWindow.show()
                 }
@@ -715,8 +697,6 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
         }
         
         withKakaoMapView(result) { view in
-            let guiManager = view.getGuiManager()
-            
             for id in ids {
                 if let infoWindow = infoWindows[id] {
                     infoWindow.hide()
@@ -729,8 +709,6 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
     
     private func clearInfoWindows(_ result: @escaping FlutterResult) {
         withKakaoMapView(result) { view in
-            let guiManager = view.getGuiManager()
-            
             for (_, infoWindow) in infoWindows {
                 infoWindow.hide()
             }
@@ -745,34 +723,30 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
         
         // Handle InfoWindow clicks
         if let infoWindow = gui as? InfoWindow {
-            handleInfoWindowTapped(infoWindow: infoWindow, componentName: componentName)
+            let id = infoWindow.name
+            
+            let eventData: [String: Any] = [
+                "infoWindowId": id,
+                "latLng": [
+                    "latitude": infoWindow.position?.wgsCoord.latitude ?? 0.0,
+                    "longitude": infoWindow.position?.wgsCoord.longitude ?? 0.0,
+                ],
+            ]
+            
+            methodChannel.invokeMethod("onInfoWindowClicked", arguments: eventData)
         }
     }
     
-    // MARK: - Event Handlers
-    private func handlePoiTapped(poi: Poi, param: PoiInteractionEventParam) {
-        let eventData = LabelClickEvent.fromPoi(poi)
+    // MARK: - KakaoMapEventDelegate
+    func poiDidTapped(
+        kakaoMap: KakaoMap, layerID: String, poiID: String, position: MapPoint
+    ) {
+        let eventData = LabelClickEvent(
+            labelId: poiID, latLng: position, layerId: layerID
+        )
         
         methodChannel.invokeMethod("onLabelClicked", arguments: eventData.toMap())
         
-        print("🎯 POI Tapped: \(param.poiItem.itemID)")
-    }
-    
-    private func handleInfoWindowTapped(infoWindow: InfoWindow, componentName: String? = nil) {
-        // Find InfoWindow ID by name (which we set as the ID)
-        let id = infoWindow.name
-        
-        let eventData: [String: Any] = [
-            "infoWindowId": id,
-            "componentName": componentName ?? "",
-            "latLng": [
-                "latitude": infoWindow.position?.wgsCoord.latitude ?? 0.0,
-                "longitude": infoWindow.position?.wgsCoord.longitude ?? 0.0,
-            ],
-        ]
-        
-        methodChannel.invokeMethod("onInfoWindowClicked", arguments: eventData)
+        print("POI Tapped: \(poiID)")
     }
 }
-
-

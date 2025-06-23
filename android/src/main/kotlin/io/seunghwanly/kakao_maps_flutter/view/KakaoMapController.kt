@@ -18,8 +18,6 @@ import com.kakao.vectormap.label.LabelOptions
 import com.kakao.vectormap.label.LabelStyle
 import com.kakao.vectormap.label.LabelStyles
 import com.kakao.vectormap.label.LabelTextStyle
-import com.kakao.vectormap.mapwidget.InfoWindowOptions
-import com.kakao.vectormap.mapwidget.component.GuiText
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.platform.PlatformView
@@ -90,6 +88,21 @@ class KakaoMapController(
                             )
 
                         methodChannel.invokeMethod("onLabelClicked", event.toMap())
+
+                        true
+                    }
+
+                    kMap.setOnInfoWindowClickListener { kakaoMap, infoWindow, id ->
+
+                        val event = mapOf(
+                            "infoWindowId" to id,
+                            "latLng" to mapOf(
+                                "latitude" to infoWindow.position.latitude,
+                                "longitude" to infoWindow.position.longitude,
+                            )
+                        )
+
+                        methodChannel.invokeMethod("onInfoWindowClicked", event)
 
                         true
                     }
@@ -389,14 +402,14 @@ class KakaoMapController(
             // Use the new extension method that supports GuiView components
             val options = args.toNativeInfoWindowOptions()
                 ?: return result.error(
-                    "E003", 
-                    "Failed to parse InfoWindow options", 
+                    "E003",
+                    "Failed to parse InfoWindow options",
                     null
                 )
 
             // Add InfoWindow to the map using the native API
             kMap.mapWidgetManager?.infoWindowLayer?.addInfoWindow(options)
-            
+
             return result.success(null)
         } catch (e: Exception) {
             return result.error("E003", "Error adding InfoWindow: ${e.message}", null)
@@ -424,7 +437,7 @@ class KakaoMapController(
 
             for (i in 0 until infoWindowOptions.length()) {
                 val infoWindowJson = infoWindowOptions.getJSONObject(i)
-                
+
                 // Use the new extension method for each InfoWindow
                 val options = infoWindowJson.toNativeInfoWindowOptions()
                 if (options != null) {
@@ -459,21 +472,21 @@ class KakaoMapController(
 
         try {
             val id = args.getString("id") ?: throw IllegalArgumentException("id must not be null")
-            
+
             // Remove existing InfoWindow if it exists
             val existingInfoWindow = kMap.mapWidgetManager?.infoWindowLayer?.getInfoWindow(id)
             existingInfoWindow?.remove()
-            
+
             // Add updated InfoWindow with new options
             val options = args.toNativeInfoWindowOptions()
                 ?: return result.error(
-                    "E007", 
-                    "Failed to parse InfoWindow options for update", 
+                    "E007",
+                    "Failed to parse InfoWindow options for update",
                     null
                 )
 
             kMap.mapWidgetManager?.infoWindowLayer?.addInfoWindow(options)
-            
+
             return result.success(null)
         } catch (e: Exception) {
             return result.error("E007", "Error updating InfoWindow: ${e.message}", null)

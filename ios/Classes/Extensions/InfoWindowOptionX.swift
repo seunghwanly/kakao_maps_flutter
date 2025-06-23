@@ -24,10 +24,10 @@ extension Dictionary where Key == String, Value == Any {
             // Handle custom GuiView body
             if let bodyJson = self["body"] as? [String: Any] {
                 if let guiBody = bodyJson.createGuiView() {
-                    // For iOS, InfoWindow.body expects GuiImage
-                    // Convert GuiLayout to appropriate GuiImage structure
-                    if let bodyImage = convertToInfoWindowBody(guiBody, from: bodyJson) {
-                        infoWindow.body = bodyImage
+                    // For iOS, InfoWindow.body expects GuiButton (to enable tap events)
+                    // Convert GuiLayout to appropriate GuiButton structure
+                    if let bodyButton = convertToInfoWindowBody(guiBody, from: bodyJson) {
+                        infoWindow.body = bodyButton
                     }
                 }
             }
@@ -41,8 +41,8 @@ extension Dictionary where Key == String, Value == Any {
             
             // Set tail if provided
             if let tailJson = self["tail"] as? [String: Any],
-               let tailImage = tailJson.createGuiImage() {
-                infoWindow.tail = tailImage
+               let tailButton = tailJson.createGuiButton() {
+                infoWindow.tail = tailButton
             }
         } else {
             // Fallback to simple text body
@@ -79,8 +79,8 @@ extension Dictionary where Key == String, Value == Any {
         switch type {
         case 4: // GuiText
             return self.createGuiText()
-        case 2, 3: // GuiImage (2: normal, 3: ninepatch)
-            return self.createGuiImage()
+        case 2, 3: // GuiButton (was GuiImage) - enables tap events
+            return self.createGuiButton()
         case 0, 1: // GuiLayout (0: horizontal, 1: vertical)
             return self.createGuiLayout()
         default:
@@ -122,9 +122,9 @@ extension Dictionary where Key == String, Value == Any {
         return guiText
     }
     
-    /// Create GuiImage with proper resource handling
-    func createGuiImage() -> GuiImage? {
-        let componentId = self["componentId"] as? String ?? "image"
+    /// Create GuiButton (was GuiImage) with proper resource handling and tap capability
+    func createGuiButton() -> GuiButton? {
+        let componentId = self["componentId"] as? String ?? "button"
         let isNinepatch = self["isNinepatch"] as? Bool ?? false
         
         var image: UIImage?
@@ -136,19 +136,23 @@ extension Dictionary where Key == String, Value == Any {
         // Handle resource ID if needed (future implementation)
         else if let resourceId = self["resourceId"] as? Int, resourceId != 0 {
             // Resource mapping would go here
-            return nil
+            return GuiButton(componentId)
         }
-        // Create empty GuiImage if no source
+        // Create empty GuiButton if no source
         else {
-            return GuiImage(componentId)
+            return GuiButton(componentId)
         }
         
-        guard let uiImage = image else {
-            return GuiImage(componentId)
-        }
+        let guiButton = GuiButton(componentId)
         
-        let guiImage = GuiImage(componentId)
-        guiImage.image = uiImage
+        // Set the main image
+        if let uiImage = image {
+            guiButton.image = uiImage
+            
+            // Optionally set pressed state image (can be same as normal image or customized)
+            // For now, use the same image for pressed state
+            guiButton.pressedImage = uiImage
+        }
         
         // Handle nine-patch stretching
         if isNinepatch, let fixedArea = self["fixedArea"] as? [String: Any] {
@@ -158,19 +162,19 @@ extension Dictionary where Key == String, Value == Any {
         
         // Apply padding if provided
         if let padding = self.createGuiPadding() {
-            guiImage.padding = padding
+            guiButton.padding = padding
         }
         
         // Add child if present
         if let childJson = self["child"] as? [String: Any],
            let childView = childJson.createGuiView() as? GuiComponentBase {
-            guiImage.child = childView
+            guiButton.child = childView
         }
         
         // Apply common GUI component properties
-        guiImage.applyCommonGuiProperties(from: self)
+        guiButton.applyCommonGuiProperties(from: self)
         
-        return guiImage
+        return guiButton
     }
     
     /// Create GuiLayout with proper orientation and children
@@ -200,6 +204,11 @@ extension Dictionary where Key == String, Value == Any {
         guiLayout.applyCommonGuiProperties(from: self)
         
         return guiLayout
+    }
+    
+    /// Legacy method for backward compatibility - creates GuiButton instead
+    func createGuiImage() -> GuiButton? {
+        return self.createGuiButton()
     }
     
     /// Create GuiPadding from JSON padding properties
@@ -239,11 +248,11 @@ private func createGuiPaddingWithValues(left: Int, top: Int, right: Int, bottom:
     }
 }
 
-/// Convert GuiView to InfoWindow body (GuiImage)
-private func convertToInfoWindowBody(_ guiView: Any, from json: [String: Any]) -> GuiImage? {
-    // If it's already a GuiImage, use it directly
-    if let guiImage = guiView as? GuiImage {
-        return guiImage
+/// Convert GuiView to InfoWindow body (GuiButton)
+private func convertToInfoWindowBody(_ guiView: Any, from json: [String: Any]) -> GuiButton? {
+    // If it's already a GuiButton, use it directly
+    if let guiButton = guiView as? GuiButton {
+        return guiButton
     }
     
     // If it's a GuiLayout, we need special handling for iOS InfoWindow limitations
@@ -251,50 +260,50 @@ private func convertToInfoWindowBody(_ guiView: Any, from json: [String: Any]) -
         return convertLayoutToInfoWindowBody(from: json)
     }
     
-    // If it's GuiText, wrap in GuiImage
+    // If it's GuiText, wrap in GuiButton
     if let guiText = guiView as? GuiText {
-        let containerImage = GuiImage("")
-        containerImage.child = guiText as GuiComponentBase
-        return containerImage
+        let containerButton = GuiButton("")
+        containerButton.child = guiText as GuiComponentBase
+        return containerButton
     }
     
     return nil
 }
 
 /// Convert complex layout to InfoWindow body with proper handling for nested structures
-private func convertLayoutToInfoWindowBody(from json: [String: Any]) -> GuiImage? {
-    // Create body image (following official documentation pattern)
-    let bodyImage = GuiImage("bodyImage")
+private func convertLayoutToInfoWindowBody(from json: [String: Any]) -> GuiButton? {
+    // Create body button (following official documentation pattern with tap capability)
+    let bodyButton = GuiButton("bodyButton")
     
     // Set background image if provided
     if let backgroundJson = json["background"] as? [String: Any],
-       let backgroundUIImage = backgroundJson.createGuiImage()?.image {
-        bodyImage.image = backgroundUIImage
+       let backgroundUIImage = backgroundJson.createGuiButton()?.image {
+        bodyButton.image = backgroundUIImage
     }
     
     // Method 1: Use the JSON as-is to create GuiLayout (preferred approach)
     if let guiLayout = json.createGuiLayout() {
-        bodyImage.child = guiLayout
-        return bodyImage
+        bodyButton.child = guiLayout
+        return bodyButton
     }
     
     // Method 2: Create complete layout from children array with orientation
     if let childrenArray = json["children"] as? [[String: Any]], !childrenArray.isEmpty {
         let orientation = json["orientation"] as? Int ?? 0
         if let completeLayout = createCompleteLayout(from: childrenArray, orientation: orientation) {
-            bodyImage.child = completeLayout
-            return bodyImage
+            bodyButton.child = completeLayout
+            return bodyButton
         }
     }
     
     // Fallback: if layout creation fails, use primary child (should rarely happen)
     if let childrenArray = json["children"] as? [[String: Any]], !childrenArray.isEmpty {
         if let primaryChild = findPrimaryChild(from: childrenArray) {
-            bodyImage.child = primaryChild
+            bodyButton.child = primaryChild
         }
     }
     
-    return bodyImage
+    return bodyButton
 }
 
 /// Create a complete GuiLayout from children array (proper implementation following docs)
@@ -335,8 +344,8 @@ private func findPrimaryChild(from childrenArray: [[String: Any]]) -> GuiCompone
                     foundText = textComponent
                     // Don't break - we want to find the last/most important text
                 }
-            case 2, 3: // GuiImage
-                if foundImage == nil, let imageComponent = childJson.createGuiImage() {
+            case 2, 3: // GuiButton
+                if foundImage == nil, let imageComponent = childJson.createGuiButton() {
                     foundImage = imageComponent
                 }
             case 0, 1: // GuiLayout - recurse into nested layouts
@@ -359,7 +368,7 @@ private func findPrimaryChild(from childrenArray: [[String: Any]]) -> GuiCompone
 }
 
 /// Create simple text body for fallback cases
-private func createSimpleTextBody(text: String, textSize: Int? = nil, textColor: Int? = nil) -> GuiImage? {
+private func createSimpleTextBody(text: String, textSize: Int? = nil, textColor: Int? = nil) -> GuiButton? {
     let guiText = GuiText("")
     
     let style = createTextStyle(
@@ -371,9 +380,9 @@ private func createSimpleTextBody(text: String, textSize: Int? = nil, textColor:
     
     guiText.addText(text: text, style: style)
     
-    let bodyImage = GuiImage("")
-    bodyImage.child = guiText as GuiComponentBase
-    return bodyImage
+    let bodyButton = GuiButton("")
+    bodyButton.child = guiText as GuiComponentBase
+    return bodyButton
 }
 
 /// Create TextStyle with proper color conversion
