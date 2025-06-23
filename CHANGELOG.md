@@ -1,3 +1,28 @@
+## 0.0.1-beta2
+
+### 🎉 Features
+* **StaticKakaoMap widget** for displaying static map images with customizable markers
+* **InfoWindow management** with add, remove, and batch operations
+* **Custom GUI components** (GuiText, GuiImage, GuiLayout) for rich InfoWindow layouts
+* **InfoWindow click events** with `onInfoWindowClickedStream` callback
+* **Initial map position and zoom level** support in KakaoMap widget
+
+### ♻️ API Changes
+* Added `InfoWindowOption` for InfoWindow configuration
+* Added `StaticMapController` for static map generation
+* Added `initialPosition` and `initialLevel` parameters to KakaoMap widget
+
+### 🔧 Improvements
+* Enhanced iOS Info.plist for network permissions and embedded views
+* Updated example app with InfoWindow and StaticMap demonstrations
+* Improved error handling for InfoWindow and StaticMap operations
+* Added Nine-patch image support for custom InfoWindow backgrounds
+
+### 📝 Documentation
+* Updated README with InfoWindow management examples
+* Added troubleshooting guide for Kakao Maps Android SDK dependency
+* Enhanced map widget parameters documentation
+
 ## 0.0.1-beta1+2
 
 ### 🎉 Features
