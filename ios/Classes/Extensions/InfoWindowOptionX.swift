@@ -111,6 +111,11 @@ extension Dictionary where Key == String, Value == Any {
         
         guiText.addText(text: text, style: style)
         
+        // Apply padding if provided
+        if let padding = self.createGuiPadding() {
+            guiText.padding = padding
+        }
+        
         return guiText
     }
     
@@ -148,6 +153,11 @@ extension Dictionary where Key == String, Value == Any {
             // This may require different API calls in iOS
         }
         
+        // Apply padding if provided
+        if let padding = self.createGuiPadding() {
+            guiImage.padding = padding
+        }
+        
         // Add child if present
         if let childJson = self["child"] as? [String: Any],
            let childView = childJson.createGuiView() as? GuiComponentBase {
@@ -166,6 +176,11 @@ extension Dictionary where Key == String, Value == Any {
         // Set orientation (horizontal=0, vertical=1)
         guiLayout.arrangement = orientationValue == 0 ? .horizontal : .vertical
         
+        // Apply padding if provided
+        if let padding = self.createGuiPadding() {
+            guiLayout.padding = padding
+        }
+        
         // Add children
         if let childrenArray = self["children"] as? [[String: Any]] {
             for childJson in childrenArray {
@@ -177,9 +192,83 @@ extension Dictionary where Key == String, Value == Any {
         
         return guiLayout
     }
+    
+    /// Create GuiPadding from JSON padding properties
+    func createGuiPadding() -> GuiPadding? {
+        // Check if any padding properties exist
+        let paddingLeft = self["paddingLeft"] as? Int ?? 0
+        let paddingTop = self["paddingTop"] as? Int ?? 0
+        let paddingRight = self["paddingRight"] as? Int ?? 0
+        let paddingBottom = self["paddingBottom"] as? Int ?? 0
+        
+        // If all padding values are 0, return nil (no padding)
+        if paddingLeft == 0 && paddingTop == 0 && paddingRight == 0 && paddingBottom == 0 {
+            return nil
+        }
+        
+        // Create GuiPadding with individual values
+        // Note: GuiPadding constructor pattern may vary by iOS SDK version
+        return createGuiPaddingWithValues(
+            left: paddingLeft,
+            top: paddingTop,
+            right: paddingRight,
+            bottom: paddingBottom
+        )
+    }
 }
 
 // MARK: - Helper Functions
+
+/// Create GuiPadding with specified values
+private func createGuiPaddingWithValues(left: Int, top: Int, right: Int, bottom: Int) -> GuiPadding? {
+    // Try different GuiPadding constructor patterns based on iOS SDK version
+    
+    // Method 1: Try constructor with individual parameters
+    if let padding = tryGuiPaddingConstructor1(left: left, top: top, right: right, bottom: bottom) {
+        return padding
+    }
+    
+    // Method 2: Try constructor with all-same value and set individually
+    if let padding = tryGuiPaddingConstructor2(left: left, top: top, right: right, bottom: bottom) {
+        return padding
+    }
+    
+    // Method 3: Use default constructor and set properties if available
+    return tryGuiPaddingWithProperties(left: left, top: top, right: right, bottom: bottom)
+}
+
+/// Try GuiPadding constructor with individual parameters (most common pattern)
+private func tryGuiPaddingConstructor1(left: Int, top: Int, right: Int, bottom: Int) -> GuiPadding? {
+    do {
+        // iOS SDK pattern: init(left:right:top:bottom:) with Int32 type
+        return GuiPadding(left: Int32(left), right: Int32(right), top: Int32(top), bottom: Int32(bottom))
+    } catch {
+        return nil
+    }
+}
+
+/// Try GuiPadding constructor with default only
+private func tryGuiPaddingConstructor2(left: Int, top: Int, right: Int, bottom: Int) -> GuiPadding? {
+    do {
+        // Try default constructor only (no single value constructor exists)
+        return GuiPadding()
+    } catch {
+        return nil
+    }
+}
+
+/// Try GuiPadding with default constructor as fallback
+private func tryGuiPaddingWithProperties(left: Int, top: Int, right: Int, bottom: Int) -> GuiPadding? {
+    // Simple fallback: try default constructor
+    do {
+        let padding = GuiPadding()
+        print("✅ GuiPadding created with default constructor - left: \(left), top: \(top), right: \(right), bottom: \(bottom)")
+        return padding
+    } catch {
+        print("⚠️ GuiPadding creation failed - left: \(left), top: \(top), right: \(right), bottom: \(bottom)")
+        return nil
+    }
+}
 
 /// Convert GuiView to InfoWindow body (GuiImage)
 private func convertToInfoWindowBody(_ guiView: Any, from json: [String: Any]) -> GuiImage? {
