@@ -216,7 +216,6 @@ extension Dictionary where Key == String, Value == Any {
         }
         
         // Create GuiPadding with individual values
-        // Note: GuiPadding constructor pattern may vary by iOS SDK version
         return createGuiPaddingWithValues(
             left: paddingLeft,
             top: paddingTop,
@@ -230,52 +229,13 @@ extension Dictionary where Key == String, Value == Any {
 
 /// Create GuiPadding with specified values
 private func createGuiPaddingWithValues(left: Int, top: Int, right: Int, bottom: Int) -> GuiPadding? {
-    // Try different GuiPadding constructor patterns based on iOS SDK version
-    
-    // Method 1: Try constructor with individual parameters
-    if let padding = tryGuiPaddingConstructor1(left: left, top: top, right: right, bottom: bottom) {
-        return padding
-    }
-    
-    // Method 2: Try constructor with all-same value and set individually
-    if let padding = tryGuiPaddingConstructor2(left: left, top: top, right: right, bottom: bottom) {
-        return padding
-    }
-    
-    // Method 3: Use default constructor and set properties if available
-    return tryGuiPaddingWithProperties(left: left, top: top, right: right, bottom: bottom)
-}
-
-/// Try GuiPadding constructor with individual parameters (most common pattern)
-private func tryGuiPaddingConstructor1(left: Int, top: Int, right: Int, bottom: Int) -> GuiPadding? {
+    // Try GuiPadding constructor with individual parameters (iOS SDK pattern)
     do {
-        // iOS SDK pattern: init(left:right:top:bottom:) with Int32 type
         return GuiPadding(left: Int32(left), right: Int32(right), top: Int32(top), bottom: Int32(bottom))
     } catch {
-        return nil
-    }
-}
-
-/// Try GuiPadding constructor with default only
-private func tryGuiPaddingConstructor2(left: Int, top: Int, right: Int, bottom: Int) -> GuiPadding? {
-    do {
-        // Try default constructor only (no single value constructor exists)
-        return GuiPadding()
-    } catch {
-        return nil
-    }
-}
-
-/// Try GuiPadding with default constructor as fallback
-private func tryGuiPaddingWithProperties(left: Int, top: Int, right: Int, bottom: Int) -> GuiPadding? {
-    // Simple fallback: try default constructor
-    do {
-        let padding = GuiPadding()
-        print("✅ GuiPadding created with default constructor - left: \(left), top: \(top), right: \(right), bottom: \(bottom)")
-        return padding
-    } catch {
+        // Fallback to default constructor
         print("⚠️ GuiPadding creation failed - left: \(left), top: \(top), right: \(right), bottom: \(bottom)")
-        return nil
+        return GuiPadding()
     }
 }
 
@@ -421,78 +381,13 @@ private func createTextStyle(fontSize: Int, fontColor: Int, strokeWidth: Int, st
     // Convert Int colors to UIColor
     let textUIColor = fontColor.toUIColor()
     
-    // Create TextStyle with available parameters
-    // iOS SDK constructor may vary between versions
-    
     // Try to create with fontSize and fontColor
-    // Note: Some iOS SDK versions may have read-only properties
-    // In that case, we may need to use a different approach
-    
-    // Method 1: Try parameterized constructor
-    if let style = createTextStyleWithParams(fontSize: fontSize, fontColor: textUIColor) {
-        return style
-    }
-    
-    // Method 2: Fallback to default and try to set properties
-    let style = TextStyle()
-    // Note: Properties may be read-only in iOS SDK
-    // We'll return the default style and log for debugging
-    print("⚠️ Using default TextStyle - fontSize: \(fontSize), color: \(String(format: "%02X", fontColor))")
-    
-    return style
-}
-
-/// Try to create TextStyle with parameters
-private func createTextStyleWithParams(fontSize: Int, fontColor: UIColor) -> TextStyle? {
-    // Try different iOS SDK constructor patterns
-    
-    // Method 1: Try basic constructor with fontSize and fontColor
-    if let style = tryTextStyleConstructor1(fontSize: fontSize, fontColor: fontColor) {
-        return style
-    }
-    
-    // Method 2: Try alternative constructor patterns
-    if let style = tryTextStyleConstructor2(fontSize: fontSize, fontColor: fontColor) {
-        return style
-    }
-    
-    // Method 3: Use default constructor and try to set properties
-    let style = TextStyle()
-    // Try to set properties if they exist and are settable
-    trySetTextStyleProperties(style: style, fontSize: fontSize, fontColor: fontColor)
-    
-    return style
-}
-
-private func tryTextStyleConstructor1(fontSize: Int, fontColor: UIColor) -> TextStyle? {
     do {
-        return TextStyle(fontSize: UInt(fontSize), fontColor: fontColor)
+        return TextStyle(fontSize: UInt(fontSize), fontColor: textUIColor)
     } catch {
-        return nil
-    }
-}
-
-private func tryTextStyleConstructor2(fontSize: Int, fontColor: UIColor) -> TextStyle? {
-    do {
-        // Alternative constructor pattern - may vary by iOS SDK version
+        // Fallback to default style
+        print("⚠️ Using default TextStyle - fontSize: \(fontSize), color: \(String(format: "%02X", fontColor))")
         return TextStyle()
-    } catch {
-        return nil
-    }
-}
-
-private func trySetTextStyleProperties(style: TextStyle, fontSize: Int, fontColor: UIColor) {
-    // Attempt to set properties if they are writable
-    // Note: Properties may be read-only in some iOS SDK versions
-    
-    // Try to use reflection or direct property setting
-    // This is a best-effort attempt
-    if style.responds(to: Selector("setFontSize:")) {
-        style.perform(Selector("setFontSize:"), with: UInt(fontSize))
-    }
-    
-    if style.responds(to: Selector("setFontColor:")) {
-        style.perform(Selector("setFontColor:"), with: fontColor)
     }
 }
 
@@ -567,17 +462,13 @@ private func createGuiAlignment(vertical: Int, horizontal: Int) -> GuiAlignment?
     let verticalAlignment = convertVerticalAlignment(vertical)
     let horizontalAlignment = convertHorizontalAlignment(horizontal)
     
-    // Try different GuiAlignment constructor patterns
-    if let alignment = tryGuiAlignmentConstructor1(vertical: verticalAlignment, horizontal: horizontalAlignment) {
-        return alignment
+    // Try GuiAlignment constructor with proper parameter names
+    do {
+        return GuiAlignment(vAlign: verticalAlignment, hAlign: horizontalAlignment)
+    } catch {
+        // Fallback to default alignment
+        return GuiAlignment()
     }
-    
-    if let alignment = tryGuiAlignmentConstructor2(vertical: verticalAlignment, horizontal: horizontalAlignment) {
-        return alignment
-    }
-    
-    // Fallback to default alignment
-    return tryGuiAlignmentDefault()
 }
 
 /// Convert Android vertical alignment values to iOS VerticalAlign enum
@@ -597,36 +488,5 @@ private func convertHorizontalAlignment(_ value: Int) -> HorizontalAlign {
     case 1: return .center
     case 2: return .right
     default: return .center // Default to center
-    }
-}
-
-/// Try GuiAlignment constructor with vertical and horizontal parameters
-private func tryGuiAlignmentConstructor1(vertical: VerticalAlign, horizontal: HorizontalAlign) -> GuiAlignment? {
-    do {
-        // Based on error message, iOS SDK expects vAlign:hAlign: parameters
-        return GuiAlignment(vAlign: vertical, hAlign: horizontal)
-    } catch {
-        return nil
-    }
-}
-
-/// Try alternative GuiAlignment constructor pattern
-private func tryGuiAlignmentConstructor2(vertical: VerticalAlign, horizontal: HorizontalAlign) -> GuiAlignment? {
-    do {
-        // Alternative constructor pattern if main one doesn't work
-        let alignment = GuiAlignment()
-        // Try to set properties if they are available and writable
-        return alignment
-    } catch {
-        return nil
-    }
-}
-
-/// Try default GuiAlignment constructor as fallback
-private func tryGuiAlignmentDefault() -> GuiAlignment? {
-    do {
-        return GuiAlignment()
-    } catch {
-        return nil
     }
 } 

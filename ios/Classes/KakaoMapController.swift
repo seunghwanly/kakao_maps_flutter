@@ -695,6 +695,7 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
                 let isVisible = infoWindowDict["isVisible"] as? Bool ?? true
                 
                 if isVisible {
+                    let _ = infoWindow.addTapEventHandler(target: self, handler: handleInfoWindowTapped)
                     let _ = guiManager.infoWindowLayer.addInfoWindow(infoWindow)
                     infoWindow.show()
                 }
