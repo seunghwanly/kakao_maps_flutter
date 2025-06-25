@@ -177,12 +177,6 @@ class KakaoMapController(
                         // We'll implement show/hide and position methods for consistency
                         Log.d("KakaoMapController", "Logo configuration provided: $config")
                     }
-
-                    // Set Camera Move End Listener (placeholder implementation)
-                    // Note: The exact camera listener API for Kakao Maps SDK may be different
-                    // This is a placeholder that should be replaced with the correct API call
-                    // when the proper camera listener method is available
-                    Log.d("KakaoMapController", "Camera move end listener setup placeholder")
                 }
 
                 override fun getPosition(): LatLng {
