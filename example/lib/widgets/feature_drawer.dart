@@ -13,6 +13,7 @@ class FeatureDrawer extends StatelessWidget {
     required this.onPoiVisibilityToggle,
     required this.onPoiClickabilityToggle,
     required this.onPoiScaleChange,
+    required this.onCameraMoveEndListenerToggle,
     required this.onCoordinateTest,
     required this.onPaddingSet,
     required this.onMapInfoGet,
@@ -20,6 +21,7 @@ class FeatureDrawer extends StatelessWidget {
     required this.isPoisVisible,
     required this.isPoisClickable,
     required this.poiScale,
+    required this.isCameraMoveEndListenerEnabled,
     required this.onInfoWindowAdd,
     required this.onInfoWindowRemove,
     required this.onInfoWindowsAddAll,
@@ -43,6 +45,7 @@ class FeatureDrawer extends StatelessWidget {
   final VoidCallback onPoiVisibilityToggle;
   final VoidCallback onPoiClickabilityToggle;
   final Future<void> Function(int) onPoiScaleChange;
+  final VoidCallback onCameraMoveEndListenerToggle;
   final VoidCallback onCoordinateTest;
   final VoidCallback onPaddingSet;
   final VoidCallback onMapInfoGet;
@@ -50,6 +53,7 @@ class FeatureDrawer extends StatelessWidget {
   final bool isPoisVisible;
   final bool isPoisClickable;
   final int poiScale;
+  final bool isCameraMoveEndListenerEnabled;
   final Future<void> Function(String, LatLng, String, {String? snippet})
       onInfoWindowAdd;
   final Future<void> Function(String) onInfoWindowRemove;
@@ -175,6 +179,31 @@ class FeatureDrawer extends StatelessWidget {
                   Navigator.of(context).pop();
                 },
               ),
+            ],
+          ),
+
+          /// Camera Event Listeners Section
+          KakaoDrawerSection(
+            title: '📷 Camera Event Listeners',
+            children: [
+              KakaoDrawerTile(
+                title: 'Toggle Camera Move End Listener',
+                subtitle: isCameraMoveEndListenerEnabled
+                    ? 'Currently: Enabled'
+                    : 'Currently: Disabled',
+                enabled: isMapReady,
+                onTap: () {
+                  onCameraMoveEndListenerToggle();
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          ),
+
+          /// POI Scale Section
+          KakaoDrawerSection(
+            title: '📏 POI Scale Controls',
+            children: [
               KakaoDrawerTile(
                 title: 'POI Scale: Small',
                 enabled: isMapReady,
