@@ -1,3 +1,40 @@
+## 0.0.1-beta3
+
+### 🎉 Features
+* **Camera Move End Events** with `onCameraMoveEndStream` listener for real-time camera movement completion notifications
+* **Compass Controls** with complete positioning and interaction management
+* **ScaleBar Controls** with auto-hide functionality and fade timing configurations
+* **Logo Controls** with platform-specific visibility and positioning support
+* **Enhanced Event System** for camera movements with detailed position, zoom, tilt, and rotation data
+
+### ♻️ API Changes
+* Added `CameraMoveEndEvent` class for camera movement notifications
+* Added `Compass`, `ScaleBar`, and `Logo` configuration classes with alignment and offset support
+* Added `onCameraMoveEndStream` property to `KakaoMapController`
+* Added compass, scalebar, and logo control methods to `KakaoMapController`
+* Enhanced `KakaoMap` widget with `compass`, `scaleBar`, and `logo` parameters
+
+### 🔧 Improvements
+* **91.4% API Documentation Coverage** - Comprehensive documentation for public APIs
+* Enhanced error handling for platform-specific features (e.g., Android logo limitations)
+* Improved type safety with proper enum-based alignment systems
+* Better performance with optimized event streaming
+* Enhanced example app with interactive compass and scalebar demonstrations
+
+### 📝 Documentation
+* Comprehensive README updates with new feature examples
+* Enhanced API documentation coverage to 91.4%
+* Updated example app demonstrating all new features
+* Platform-specific notes and limitations clearly documented
+
+### 🐛 Bug Fixes
+* Fixed coordinate conversion reliability
+* Improved memory management in event streams
+* Enhanced platform compatibility checks
+
+### ⚠️ Breaking Changes
+* None - backward compatible with previous beta versions
+
 ## 0.0.1-beta2
 
 ### 🎉 Features

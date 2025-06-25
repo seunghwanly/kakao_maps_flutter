@@ -1,3 +1,10 @@
+/// Map widget components and GUI elements for Kakao Maps.
+///
+/// This library contains all the UI components that can be used within
+/// Kakao Maps, including custom GUI elements for InfoWindows and
+/// other interactive map elements.
+library kakao_maps_flutter.map_widget;
+
 import 'package:kakao_maps_flutter/src/base/data.dart';
 import 'package:kakao_maps_flutter/src/data/lat_lng/lat_lng.dart';
 
