@@ -890,6 +890,24 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
         print("POI Tapped: \(poiID)")
     }
     
+    // MARK: - Camera Move End Event
+    func cameraDidStopped(kakaoMap: KakaoMap, by: MoveBy) {
+        guard let view = mapController.getView(kKakaoMapViewName) as? KakaoMap else {
+            return
+        }
+
+        let centerPoint = CGPoint(x: view.viewRect.width / 2, y: view.viewRect.height / 2)
+        let center = kakaoMap.getPosition(centerPoint)
+        let eventData: [String: Any] = [
+            "latitude": center.wgsCoord.latitude,
+            "longitude": center.wgsCoord.longitude,
+            "zoomLevel": kakaoMap.zoomLevel,
+            "tilt": kakaoMap.tiltAngle,
+            "rotation": kakaoMap.rotationAngle
+        ]
+        methodChannel.invokeMethod("onCameraMoveEnd", arguments: eventData)
+    }
+    
     // MARK: - Helper Methods
     
     /// Convert alignment string to GuiAlignment for compass positioning
