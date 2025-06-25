@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:kakao_maps_flutter/src/data/camera/camera_move_end_event.dart';
 import 'package:kakao_maps_flutter/src/data/data.dart'
     show
         CameraAnimation,
@@ -60,6 +61,13 @@ class KakaoMapController extends KakaoMapControllerPlatform {
   @override
   Stream<InfoWindowClickEvent> get onInfoWindowClickedStream =>
       _platform.onInfoWindowClickedStream;
+
+  /// Stream of camera move end events.
+  ///
+  /// Subscribe to this stream to receive notifications when the camera movement ends and the map settles.
+  @override
+  Stream<CameraMoveEndEvent> get onCameraMoveEndStream =>
+      _platform.onCameraMoveEndStream;
 
   @override
   Future<T> _callMethod<T>(KakaoMapMethodCall<T> methodCall) async {
