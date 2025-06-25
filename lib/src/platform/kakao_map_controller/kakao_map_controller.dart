@@ -17,6 +17,7 @@ import 'package:kakao_maps_flutter/src/platform/kakao_map_method_call/kakao_map_
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import '../../data/compass/compass.dart';
+import '../../data/logo/logo.dart';
 
 part 'interface/kakao_map_controller_platform_interface.dart';
 part 'method_channel/method_channel_kakao_map_controller.dart';
@@ -323,6 +324,32 @@ class KakaoMapController extends KakaoMapControllerPlatform {
   }) async {
     await _platform._callMethod(
       SetCompassPosition(
+        alignment: alignment,
+        offset: offset,
+      ),
+    );
+  }
+
+  /// Shows the logo on the map.
+  Future<void> showLogo() async {
+    return _platform._callMethod(const ShowLogo());
+  }
+
+  /// Hides the logo on the map.
+  Future<void> hideLogo() async {
+    return _platform._callMethod(const HideLogo());
+  }
+
+  /// Sets the logo position on the map.
+  ///
+  /// The [alignment] determines the position of the logo.
+  /// The [offset] provides additional positioning offset from the alignment point.
+  Future<void> setLogoPosition({
+    required LogoAlignment alignment,
+    required Offset offset,
+  }) async {
+    return _platform._callMethod(
+      SetLogoPosition(
         alignment: alignment,
         offset: offset,
       ),

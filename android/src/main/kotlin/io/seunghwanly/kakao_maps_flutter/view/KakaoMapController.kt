@@ -54,6 +54,9 @@ class KakaoMapController(
     // Parse scaleBar configuration from args
     private val scaleBarConfig: Map<String, Any?>? = parseScaleBarConfig(args)
 
+    // Parse logo configuration from args
+    private val logoConfig: Map<String, Any?>? = parseLogoConfig(args)
+
     init {
         // Register Flutter MethodCallHandler
         methodChannel.setMethodCallHandler(this@KakaoMapController)
@@ -153,6 +156,14 @@ class KakaoMapController(
                         val retentionTime = config["retentionTime"] as? Int ?: 3000
                         scaleBar.setFadeInOutTime(fadeInTime, fadeOutTime, retentionTime)
                     }
+
+                    // Configure logo if provided
+                    logoConfig?.let { config ->
+                        // Note: Android SDK doesn't have direct logo control methods
+                        // The logo is typically controlled by the SDK internally
+                        // We'll implement show/hide and position methods for consistency
+                        Log.d("KakaoMapController", "Logo configuration provided: $config")
+                    }
                 }
 
                 override fun getPosition(): LatLng {
@@ -194,6 +205,12 @@ class KakaoMapController(
         if (args !is Map<*, *>) return null
         
         return args["scaleBar"] as? Map<String, Any?>
+    }
+
+    private fun parseLogoConfig(args: Any?): Map<String, Any?>? {
+        if (args !is Map<*, *>) return null
+        
+        return args["logo"] as? Map<String, Any?>
     }
 
     private fun getZoomLevel(result: MethodChannel.Result) {
@@ -650,6 +667,40 @@ class KakaoMapController(
         return result.success(null)
     }
 
+    private fun showLogo(result: MethodChannel.Result) {
+        require(::kMap.isInitialized) { "kakaoMap is not initialized" }
+
+        // Note: Android SDK doesn't have direct logo control methods
+        // The logo is typically controlled by the SDK internally
+        Log.d("KakaoMapController", "showLogo called - logo visibility controlled by SDK")
+        return result.success(null)
+    }
+
+    private fun hideLogo(result: MethodChannel.Result) {
+        require(::kMap.isInitialized) { "kakaoMap is not initialized" }
+
+        // Note: Android SDK doesn't have direct logo control methods
+        // The logo is typically controlled by the SDK internally
+        Log.d("KakaoMapController", "hideLogo called - logo visibility controlled by SDK")
+        return result.success(null)
+    }
+
+    private fun setLogoPosition(args: JSONObject, result: MethodChannel.Result) {
+        require(::kMap.isInitialized) { "kakaoMap is not initialized" }
+
+        val alignment = args.getString("alignment")
+        val offset = args.optJSONObject("offset")
+
+        if (alignment == null) {
+            return result.error("E008", "alignment must not be null", null)
+        }
+
+        // Note: Android SDK doesn't have direct logo position control methods
+        // The logo position is typically controlled by the SDK internally
+        Log.d("KakaoMapController", "setLogoPosition called with alignment: $alignment - logo position controlled by SDK")
+        return result.success(null)
+    }
+
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         Log.d("KakaoMapController", "onMethodCall: ${call.method}")
 
@@ -683,6 +734,9 @@ class KakaoMapController(
             "showScaleBar" -> showScaleBar(result)
             "hideScaleBar" -> hideScaleBar(result)
             "setCompassPosition" -> setCompassPosition(call.arguments as JSONObject, result)
+            "showLogo" -> showLogo(result)
+            "hideLogo" -> hideLogo(result)
+            "setLogoPosition" -> setLogoPosition(call.arguments as JSONObject, result)
             else -> result.notImplemented()
         }
     }

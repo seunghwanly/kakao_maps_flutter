@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart' show Offset;
 import 'package:kakao_maps_flutter/src/data/data.dart';
 
@@ -463,6 +465,48 @@ final class SetCompassPosition extends KakaoMapMethodCall<void> {
 
   @override
   String get name => 'setCompassPosition';
+
+  @override
+  Map<String, Object?>? encode() => {
+        'alignment': alignment.name,
+        'offset': {
+          'dx': offset.dx,
+          'dy': offset.dy,
+        },
+      };
+}
+
+final class ShowLogo extends KakaoMapMethodCall<void> {
+  const ShowLogo();
+
+  @override
+  String get name => 'showLogo';
+
+  @override
+  Map<String, Object?>? encode() => null;
+}
+
+final class HideLogo extends KakaoMapMethodCall<void> {
+  const HideLogo();
+
+  @override
+  String get name => 'hideLogo';
+
+  @override
+  Map<String, Object?>? encode() => null;
+}
+
+final class SetLogoPosition extends KakaoMapMethodCall<void> {
+  const SetLogoPosition({
+    required this.alignment,
+    required this.offset,
+  });
+
+  final LogoAlignment alignment;
+  final Offset offset;
+
+  @override
+  String get name => 'setLogoPosition';
 
   @override
   Map<String, Object?>? encode() => {

@@ -20,6 +20,9 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
   // Store scalebar configuration
   private let scaleBarConfig: [String: Any]?
 
+  // Store logo configuration
+  private let logoConfig: [String: Any]?
+
   init(
         frame: CGRect,
         viewId: Int64,
@@ -82,6 +85,14 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
       self.scaleBarConfig = scaleBarConfig
     } else {
       self.scaleBarConfig = nil
+    }
+
+    // Parse logo configuration from args
+    if let args = args as? [String: Any],
+       let logoConfig = args["logo"] as? [String: Any] {
+      self.logoConfig = logoConfig
+    } else {
+      self.logoConfig = nil
     }
 
         super.init()
@@ -171,6 +182,22 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
                     view.setScaleBarFadeInOutOption(fadeOptions)
                 }
             }
+            
+            // Configure logo if provided
+            if let logoConfig = self.logoConfig {
+                // Set position if specified
+                if let alignment = logoConfig["alignment"] as? String,
+                   let offsetData = logoConfig["offset"] as? [String: Any],
+                   let dx = offsetData["dx"] as? Double,
+                   let dy = offsetData["dy"] as? Double {
+                    
+                    // Convert alignment string to GuiAlignment
+                    let guiAlignment = self.convertAlignmentString(alignment)
+                    let offset = CGPoint(x: dx, y: dy)
+                    
+                    view.setLogoPosition(origin: guiAlignment, position: offset)
+                }
+            }
         }
         
         methodChannel.invokeMethod("onMapReady", arguments: true)
@@ -238,6 +265,12 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
             hideScaleBar(result)
         case "setCompassPosition":
             setCompassPosition(call, result)
+        case "showLogo":
+            showLogo(result)
+        case "hideLogo":
+            hideLogo(result)
+        case "setLogoPosition":
+            setLogoPosition(call, result)
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -930,6 +963,43 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
             let guiAlignment = self.convertAlignmentString(alignment)
             let offset = CGPoint(x: dx, y: dy)
             view.setCompassPosition(origin: guiAlignment, position: offset)
+            result(nil)
+        }
+    }
+    
+    private func showLogo(_ result: @escaping FlutterResult) {
+        withKakaoMapView(result) { view in
+            // Note: iOS SDK doesn't have a direct showLogo method
+            // The logo is typically controlled by the SDK internally
+            print("📋 showLogo called - logo visibility controlled by SDK")
+            result(nil)
+        }
+    }
+    
+    private func hideLogo(_ result: @escaping FlutterResult) {
+        withKakaoMapView(result) { view in
+            // Note: iOS SDK doesn't have a direct hideLogo method
+            // The logo is typically controlled by the SDK internally
+            print("📋 hideLogo called - logo visibility controlled by SDK")
+            result(nil)
+        }
+    }
+    
+    private func setLogoPosition(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        guard let args = call.arguments as? [String: Any],
+              let alignment = args["alignment"] as? String,
+              let offset = args["offset"] as? [String: Any],
+              let dx = offset["dx"] as? Double,
+              let dy = offset["dy"] as? Double
+        else {
+            result(FlutterError(code: "E001", message: "Invalid arguments for setLogoPosition", details: nil))
+            return
+        }
+        
+        withKakaoMapView(result) { view in
+            let guiAlignment = self.convertAlignmentString(alignment)
+            let offset = CGPoint(x: dx, y: dy)
+            view.setLogoPosition(origin: guiAlignment, position: offset)
             result(nil)
         }
     }

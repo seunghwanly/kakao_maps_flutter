@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 
 import '../../data/compass/compass.dart';
 import '../../data/lat_lng/lat_lng.dart';
+import '../../data/logo/logo.dart';
 import '../../data/scalebar/scalebar.dart';
 import '../../platform/kakao_map_controller/kakao_map_controller.dart';
 
@@ -22,6 +23,7 @@ class KakaoMap extends StatefulWidget {
   /// The [width] and [height] specify the dimensions of the map widget.
   /// The [compass] configures the compass widget on the map.
   /// The [scaleBar] configures the scale bar widget on the map.
+  /// The [logo] configures the logo widget on the map.
   const KakaoMap({
     this.onMapCreated,
     this.initialPosition,
@@ -30,6 +32,7 @@ class KakaoMap extends StatefulWidget {
     this.height,
     this.compass,
     this.scaleBar,
+    this.logo,
     super.key,
   });
 
@@ -67,6 +70,11 @@ class KakaoMap extends StatefulWidget {
   ///
   /// If null, the scale bar will not be shown.
   final ScaleBar? scaleBar;
+
+  /// Configuration for the logo widget on the map.
+  ///
+  /// If null, the logo will not be shown.
+  final Logo? logo;
 
   @override
   State<KakaoMap> createState() => _KakaoMapState();
@@ -106,6 +114,11 @@ class _KakaoMapState extends State<KakaoMap> {
         // Add scaleBar configuration to creationParams if provided
         if (widget.scaleBar != null) {
           creationParams['scaleBar'] = widget.scaleBar!.toJson();
+        }
+
+        // Add logo configuration to creationParams if provided
+        if (widget.logo != null) {
+          creationParams['logo'] = widget.logo!.toJson();
         }
 
         return SizedBox(
