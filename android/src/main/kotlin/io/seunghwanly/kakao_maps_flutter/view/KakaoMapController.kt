@@ -6,6 +6,7 @@ import android.view.View
 import com.kakao.vectormap.KakaoMap
 import com.kakao.vectormap.KakaoMapReadyCallback
 import com.kakao.vectormap.LatLng
+import com.kakao.vectormap.MapGravity
 import com.kakao.vectormap.MapLifeCycleCallback
 import com.kakao.vectormap.MapView
 import com.kakao.vectormap.PoiScale
@@ -46,6 +47,15 @@ class KakaoMapController(
     
     // Parse initial zoom level from args
     private val initialLevel: Int? = parseInitialLevel(args)
+
+    // Parse compass configuration from args
+    private val compassConfig: Map<String, Any?>? = parseCompassConfig(args)
+
+    // Parse scaleBar configuration from args
+    private val scaleBarConfig: Map<String, Any?>? = parseScaleBarConfig(args)
+
+    // Parse logo configuration from args
+    private val logoConfig: Map<String, Any?>? = parseLogoConfig(args)
 
     init {
         // Register Flutter MethodCallHandler
@@ -108,6 +118,52 @@ class KakaoMapController(
 
                         true
                     }
+
+                    // Configure compass if provided
+                    compassConfig?.let { config ->
+                        val compass = kMap.getCompass()
+                        compass.show()
+                        
+                        // Set back to north on click if specified
+                        val isBackToNorthOnClick = config["isBackToNorthOnClick"] as? Boolean ?: true
+                        compass.setBackToNorthOnClick(isBackToNorthOnClick)
+                        
+                        // Set compass position if alignment is specified
+                        val alignment = config["alignment"] as? String
+                        val offset = config["offset"] as? Map<*, *>
+                        
+                        if (alignment != null) {
+                            val mapGravity = convertAlignmentToMapGravity(alignment)
+                            val offsetX = (offset?.get("dx") as? Number)?.toFloat() ?: 0f
+                            val offsetY = (offset?.get("dy") as? Number)?.toFloat() ?: 0f
+                            
+                            compass.setPosition(mapGravity, offsetX, offsetY)
+                        }
+                    }
+
+                    // Configure scalebar if provided
+                    scaleBarConfig?.let { config ->
+                        val scaleBar = kMap.getScaleBar()
+                        scaleBar.show()
+                        
+                        // Set auto hide if specified
+                        val isAutoHide = config["isAutoHide"] as? Boolean ?: false
+                        scaleBar.setAutoHide(isAutoHide)
+                        
+                        // Set fade in/out times if specified
+                        val fadeInTime = config["fadeInTime"] as? Int ?: 300
+                        val fadeOutTime = config["fadeOutTime"] as? Int ?: 300
+                        val retentionTime = config["retentionTime"] as? Int ?: 3000
+                        scaleBar.setFadeInOutTime(fadeInTime, fadeOutTime, retentionTime)
+                    }
+
+                    // Configure logo if provided
+                    logoConfig?.let { config ->
+                        // Note: Android SDK doesn't have direct logo control methods
+                        // The logo is typically controlled by the SDK internally
+                        // We'll implement show/hide and position methods for consistency
+                        Log.d("KakaoMapController", "Logo configuration provided: $config")
+                    }
                 }
 
                 override fun getPosition(): LatLng {
@@ -137,6 +193,24 @@ class KakaoMapController(
         if (args !is Map<*, *>) return null
         
         return args["initialLevel"] as? Int
+    }
+
+    private fun parseCompassConfig(args: Any?): Map<String, Any?>? {
+        if (args !is Map<*, *>) return null
+        
+        return args["compass"] as? Map<String, Any?>
+    }
+
+    private fun parseScaleBarConfig(args: Any?): Map<String, Any?>? {
+        if (args !is Map<*, *>) return null
+        
+        return args["scaleBar"] as? Map<String, Any?>
+    }
+
+    private fun parseLogoConfig(args: Any?): Map<String, Any?>? {
+        if (args !is Map<*, *>) return null
+        
+        return args["logo"] as? Map<String, Any?>
     }
 
     private fun getZoomLevel(result: MethodChannel.Result) {
@@ -537,6 +611,96 @@ class KakaoMapController(
         }
     }
 
+    private fun showCompass(result: MethodChannel.Result) {
+        require(::kMap.isInitialized) { "kakaoMap is not initialized" }
+
+        val compass = kMap.getCompass()
+        compass.show()
+
+        return result.success(null)
+    }
+
+    private fun hideCompass(result: MethodChannel.Result) {
+        require(::kMap.isInitialized) { "kakaoMap is not initialized" }
+
+        val compass = kMap.getCompass()
+        compass.hide()
+
+        return result.success(null)
+    }
+
+    private fun showScaleBar(result: MethodChannel.Result) {
+        require(::kMap.isInitialized) { "kakaoMap is not initialized" }
+
+        val scaleBar = kMap.getScaleBar()
+        scaleBar.show()
+
+        return result.success(null)
+    }
+
+    private fun hideScaleBar(result: MethodChannel.Result) {
+        require(::kMap.isInitialized) { "kakaoMap is not initialized" }
+
+        val scaleBar = kMap.getScaleBar()
+        scaleBar.hide()
+
+        return result.success(null)
+    }
+
+    private fun setCompassPosition(args: JSONObject, result: MethodChannel.Result) {
+        require(::kMap.isInitialized) { "kakaoMap is not initialized" }
+
+        val alignment = args.getString("alignment")
+        val offset = args.optJSONObject("offset")
+
+        if (alignment == null) {
+            return result.error("E008", "alignment must not be null", null)
+        }
+
+        val mapGravity = convertAlignmentToMapGravity(alignment)
+        val offsetX = (offset?.get("dx") as? Number)?.toFloat() ?: 0f
+        val offsetY = (offset?.get("dy") as? Number)?.toFloat() ?: 0f
+
+        val compass = kMap.getCompass()
+        compass.setPosition(mapGravity, offsetX, offsetY)
+
+        return result.success(null)
+    }
+
+    private fun showLogo(result: MethodChannel.Result) {
+        require(::kMap.isInitialized) { "kakaoMap is not initialized" }
+
+        // Note: Android SDK doesn't have direct logo control methods
+        // The logo is typically controlled by the SDK internally
+        Log.d("KakaoMapController", "showLogo called - logo visibility controlled by SDK")
+        return result.success(null)
+    }
+
+    private fun hideLogo(result: MethodChannel.Result) {
+        require(::kMap.isInitialized) { "kakaoMap is not initialized" }
+
+        // Note: Android SDK doesn't have direct logo control methods
+        // The logo is typically controlled by the SDK internally
+        Log.d("KakaoMapController", "hideLogo called - logo visibility controlled by SDK")
+        return result.success(null)
+    }
+
+    private fun setLogoPosition(args: JSONObject, result: MethodChannel.Result) {
+        require(::kMap.isInitialized) { "kakaoMap is not initialized" }
+
+        val alignment = args.getString("alignment")
+        val offset = args.optJSONObject("offset")
+
+        if (alignment == null) {
+            return result.error("E008", "alignment must not be null", null)
+        }
+
+        // Note: Android SDK doesn't have direct logo position control methods
+        // The logo position is typically controlled by the SDK internally
+        Log.d("KakaoMapController", "setLogoPosition called with alignment: $alignment - logo position controlled by SDK")
+        return result.success(null)
+    }
+
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         Log.d("KakaoMapController", "onMethodCall: ${call.method}")
 
@@ -565,6 +729,14 @@ class KakaoMapController(
             "removeInfoWindows" -> removeInfoWindows(call.arguments as JSONObject, result)
             "updateInfoWindow" -> updateInfoWindow(call.arguments as JSONObject, result)
             "clearInfoWindows" -> clearInfoWindows(result)
+            "showCompass" -> showCompass(result)
+            "hideCompass" -> hideCompass(result)
+            "showScaleBar" -> showScaleBar(result)
+            "hideScaleBar" -> hideScaleBar(result)
+            "setCompassPosition" -> setCompassPosition(call.arguments as JSONObject, result)
+            "showLogo" -> showLogo(result)
+            "hideLogo" -> hideLogo(result)
+            "setLogoPosition" -> setLogoPosition(call.arguments as JSONObject, result)
             else -> result.notImplemented()
         }
     }
@@ -576,5 +748,24 @@ class KakaoMapController(
     override fun dispose() {
         mapView.finish()
         methodChannel.setMethodCallHandler(null)
+    }
+
+    /**
+     * Convert alignment string to MapGravity constant for compass positioning
+     * Based on Android Kakao Maps SDK MapGravity constants
+     */
+    private fun convertAlignmentToMapGravity(alignment: String): Int {
+        return when (alignment) {
+            "topLeft" -> MapGravity.TOP or MapGravity.LEFT
+            "topRight" -> MapGravity.TOP or MapGravity.RIGHT
+            "bottomLeft" -> MapGravity.BOTTOM or MapGravity.LEFT
+            "bottomRight" -> MapGravity.BOTTOM or MapGravity.RIGHT
+            "center" -> MapGravity.CENTER
+            "topCenter" -> MapGravity.TOP or MapGravity.CENTER_HORIZONTAL
+            "bottomCenter" -> MapGravity.BOTTOM or MapGravity.CENTER_HORIZONTAL
+            "leftCenter" -> MapGravity.LEFT or MapGravity.CENTER_VERTICAL
+            "rightCenter" -> MapGravity.RIGHT or MapGravity.CENTER_VERTICAL
+            else -> MapGravity.TOP or MapGravity.RIGHT // Default to top-right
+        }
     }
 }

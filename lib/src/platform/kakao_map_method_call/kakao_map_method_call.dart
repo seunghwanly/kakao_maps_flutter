@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart' show Offset;
 import 'package:kakao_maps_flutter/src/data/data.dart';
 
@@ -410,4 +411,108 @@ final class ClearInfoWindows extends KakaoMapMethodCall<void> {
 
   @override
   Map<String, Object?>? encode() => null;
+}
+
+final class ShowCompass extends KakaoMapMethodCall<void> {
+  const ShowCompass();
+
+  @override
+  String get name => 'showCompass';
+
+  @override
+  Map<String, Object?>? encode() => null;
+}
+
+final class HideCompass extends KakaoMapMethodCall<void> {
+  const HideCompass();
+
+  @override
+  String get name => 'hideCompass';
+
+  @override
+  Map<String, Object?>? encode() => null;
+}
+
+final class ShowScaleBar extends KakaoMapMethodCall<void> {
+  const ShowScaleBar();
+
+  @override
+  String get name => 'showScaleBar';
+
+  @override
+  Map<String, Object?>? encode() => null;
+}
+
+final class HideScaleBar extends KakaoMapMethodCall<void> {
+  const HideScaleBar();
+
+  @override
+  String get name => 'hideScaleBar';
+
+  @override
+  Map<String, Object?>? encode() => null;
+}
+
+final class SetCompassPosition extends KakaoMapMethodCall<void> {
+  const SetCompassPosition({
+    required this.alignment,
+    required this.offset,
+  });
+
+  final CompassAlignment alignment;
+  final Offset offset;
+
+  @override
+  String get name => 'setCompassPosition';
+
+  @override
+  Map<String, Object?>? encode() => {
+        'alignment': alignment.name,
+        'offset': {
+          'dx': offset.dx,
+          'dy': offset.dy,
+        },
+      };
+}
+
+final class ShowLogo extends KakaoMapMethodCall<void> {
+  const ShowLogo();
+
+  @override
+  String get name => 'showLogo';
+
+  @override
+  Map<String, Object?>? encode() => null;
+}
+
+final class HideLogo extends KakaoMapMethodCall<void> {
+  const HideLogo();
+
+  @override
+  String get name => 'hideLogo';
+
+  @override
+  Map<String, Object?>? encode() => null;
+}
+
+final class SetLogoPosition extends KakaoMapMethodCall<void> {
+  const SetLogoPosition({
+    required this.alignment,
+    required this.offset,
+  });
+
+  final LogoAlignment alignment;
+  final Offset offset;
+
+  @override
+  String get name => 'setLogoPosition';
+
+  @override
+  Map<String, Object?>? encode() => {
+        'alignment': alignment.name,
+        'offset': {
+          'dx': offset.dx,
+          'dy': offset.dy,
+        },
+      };
 }
