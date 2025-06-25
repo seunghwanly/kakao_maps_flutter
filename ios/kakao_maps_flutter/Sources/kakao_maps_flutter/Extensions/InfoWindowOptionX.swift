@@ -243,7 +243,7 @@ private func createGuiPaddingWithValues(left: Int, top: Int, right: Int, bottom:
         return GuiPadding(left: Int32(left), right: Int32(right), top: Int32(top), bottom: Int32(bottom))
     } catch {
         // Fallback to default constructor
-        print("⚠️ GuiPadding creation failed - left: \(left), top: \(top), right: \(right), bottom: \(bottom)")
+        // GuiPadding creation failed - using default
         return GuiPadding()
     }
 }
@@ -395,7 +395,7 @@ private func createTextStyle(fontSize: Int, fontColor: Int, strokeWidth: Int, st
         return TextStyle(fontSize: UInt(fontSize), fontColor: textUIColor)
     } catch {
         // Fallback to default style
-        print("⚠️ Using default TextStyle - fontSize: \(fontSize), color: \(String(format: "%02X", fontColor))")
+        // Using default TextStyle
         return TextStyle()
     }
 }
@@ -455,7 +455,7 @@ extension GuiComponentBase {
         // Note: GuiComponentBase may not have tag property in iOS SDK
         // Store tag information for debugging/logging purposes
         if let tag = json["tag"], !(tag is NSNull) {
-            print("📋 GUI Component tag: \(tag) (iOS SDK may not support tag property)")
+            // Note: iOS SDK may not support tag property
         }
     }
 }

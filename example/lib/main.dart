@@ -16,7 +16,6 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load();
 
-  /// TODO: Replace with your own API key
   await KakaoMapsFlutter.init(
     dotenv.get('KAKAO_API_KEY'),
     webAPIKey: dotenv.maybeGet('KAKAO_WEB_API_KEY'),
