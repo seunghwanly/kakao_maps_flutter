@@ -14,6 +14,9 @@ A Flutter plugin for integrating Kakao Maps SDK v2, providing a native map exper
 | InfoWindow Management | ✅ | ✅ |
 | Custom GUI Components | ✅ | ✅ |
 | POI Controls | ✅ | ✅ |
+| Compass Controls | ✅ | ✅ |
+| ScaleBar Controls | ✅ | ✅ |
+| Logo Controls | ✅ | ✅ |
 | Coordinate Conversion | ✅ | ❌ |
 | Map Information | ✅ | ✅ |
 
@@ -61,6 +64,26 @@ A Flutter plugin for integrating Kakao Maps SDK v2, providing a native map exper
   - Regular (1)
   - Large (2)
   - XLarge (3)
+
+### 🧭 Compass Controls
+
+- Show/hide compass widget
+- Position compass with custom alignment and offset
+- Configure back-to-north functionality on click
+- Supported alignments: `topLeft`, `topRight`, `bottomLeft`, `bottomRight`, `center`, `topCenter`, `bottomCenter`, `leftCenter`, `rightCenter`
+
+### 📏 ScaleBar Controls
+
+- Show/hide scale bar widget
+- Configure auto-hide functionality
+- Customize fade in/out timing and retention duration
+- Position scale bar with custom alignment and offset
+
+### 🏷️ Logo Controls
+
+- Show/hide Kakao logo
+- Position logo with custom alignment and offset
+- Note: Logo position control is limited on Android due to SDK restrictions
 
 ### 🎥 Camera Controls
 
@@ -117,6 +140,24 @@ class MapScreen extends StatelessWidget {
         },
         initialPosition: LatLng(latitude: 37.5665, longitude: 126.9780), // Seoul City Hall
         initialLevel: 15, // Zoom level 15
+        // Optional: Configure compass, scalebar, and logo
+        compass: CompassOption(
+          alignment: 'topRight',
+          offset: Offset(16, 16),
+          isBackToNorthOnClick: true,
+        ),
+        scaleBar: ScaleBarOption(
+          alignment: 'bottomLeft',
+          offset: Offset(16, 16),
+          isAutoHide: false,
+          fadeInTime: 300,
+          fadeOutTime: 300,
+          retentionTime: 3000,
+        ),
+        logo: LogoOption(
+          alignment: 'bottomRight',
+          offset: Offset(16, 16),
+        ),
       ),
     );
   }
@@ -132,6 +173,9 @@ The `KakaoMap` widget accepts the following parameters:
 - `initialLevel`: Optional `int` that sets the initial zoom level of the map. Valid range is 1-21. If not provided, the map will use its default zoom level
 - `width`: Optional width of the map widget. If null, uses the maximum available width
 - `height`: Optional height of the map widget. If null, uses the maximum available height
+- `compass`: Optional `CompassOption` to configure the compass widget
+- `scaleBar`: Optional `ScaleBarOption` to configure the scale bar widget
+- `logo`: Optional `LogoOption` to configure the logo widget
 
 ### Map Operations
 
@@ -176,7 +220,46 @@ await controller.setPoiVisible(isVisible: true);
 await controller.setPoiScale(scale: 1); // Regular size
 ```
 
-4. InfoWindow Management:
+4. Compass Controls:
+
+```dart
+// Show/hide compass
+await controller.showCompass();
+await controller.hideCompass();
+
+// Set compass position
+await controller.setCompassPosition(
+  alignment: 'topRight',
+  offset: Offset(16, 16),
+);
+```
+
+5. ScaleBar Controls:
+
+```dart
+// Show/hide scale bar
+await controller.showScaleBar();
+await controller.hideScaleBar();
+
+// Configure scale bar (done through initial configuration)
+// Auto-hide, fade timing, and retention duration are set during map creation
+```
+
+6. Logo Controls:
+
+```dart
+// Show/hide logo
+await controller.showLogo();
+await controller.hideLogo();
+
+// Set logo position
+await controller.setLogoPosition(
+  alignment: 'bottomRight',
+  offset: Offset(16, 16),
+);
+```
+
+7. InfoWindow Management:
 
 ```dart
 // Add a simple text-based info window
@@ -228,7 +311,7 @@ await controller.removeInfoWindow(id: 'info_1');
 await controller.clearInfoWindows();
 ```
 
-5. Map Information:
+8. Map Information:
 
 ```dart
 // Get current map info
@@ -237,6 +320,54 @@ print('Zoom: ${mapInfo?.zoomLevel}');
 print('Rotation: ${mapInfo?.rotation}°');
 print('Tilt: ${mapInfo?.tilt}°');
 ```
+
+### Configuration Options
+
+#### CompassOption
+
+```dart
+CompassOption({
+  String alignment = 'topRight',  // Position alignment
+  Offset offset = Offset.zero,    // Offset from alignment position
+  bool isBackToNorthOnClick = true, // Enable back-to-north on click
+})
+```
+
+#### ScaleBarOption
+
+```dart
+ScaleBarOption({
+  String alignment = 'bottomLeft', // Position alignment
+  Offset offset = Offset.zero,     // Offset from alignment position
+  bool isAutoHide = false,         // Auto-hide functionality
+  int fadeInTime = 300,            // Fade in duration (ms)
+  int fadeOutTime = 300,           // Fade out duration (ms)
+  int retentionTime = 3000,        // Retention duration (ms)
+})
+```
+
+#### LogoOption
+
+```dart
+LogoOption({
+  String alignment = 'bottomRight', // Position alignment
+  Offset offset = Offset.zero,      // Offset from alignment position
+})
+```
+
+### Supported Alignments
+
+All widget positioning supports the following alignment values:
+
+- `topLeft`: Top-left corner
+- `topRight`: Top-right corner
+- `bottomLeft`: Bottom-left corner
+- `bottomRight`: Bottom-right corner
+- `center`: Center of the map
+- `topCenter`: Top center
+- `bottomCenter`: Bottom center
+- `leftCenter`: Left center
+- `rightCenter`: Right center
 
 ---
 
@@ -297,6 +428,9 @@ This will allow Gradle to find and download the Kakao Maps SDK for Android.
 
 ### ✅ Recently Implemented
 
+- **Compass Controls**: Complete support for compass widget with positioning and back-to-north functionality
+- **ScaleBar Controls**: Full control over scale bar widget with auto-hide and fade timing options
+- **Logo Controls**: Logo visibility and positioning controls (with platform-specific limitations)
 - **InfoWindow Management**: Complete support for text-based and GUI-based info windows
 - **Custom GUI Components**: Rich layout system with GuiText, GuiImage, and GuiLayout
 - **InfoWindow Events**: Click event handling and callbacks
