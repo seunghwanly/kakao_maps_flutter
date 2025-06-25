@@ -14,6 +14,12 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
   // Store initial zoom level
   private let initialLevel: Int?
 
+  // Store compass configuration
+  private let compassConfig: [String: Any]?
+  
+  // Store scalebar configuration
+  private let scaleBarConfig: [String: Any]?
+
   init(
         frame: CGRect,
         viewId: Int64,
@@ -62,6 +68,22 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
       self.initialLevel = nil
     }
 
+    // Parse compass configuration from args
+    if let args = args as? [String: Any],
+       let compassConfig = args["compass"] as? [String: Any] {
+      self.compassConfig = compassConfig
+    } else {
+      self.compassConfig = nil
+    }
+
+    // Parse scalebar configuration from args
+    if let args = args as? [String: Any],
+       let scaleBarConfig = args["scaleBar"] as? [String: Any] {
+      self.scaleBarConfig = scaleBarConfig
+    } else {
+      self.scaleBarConfig = nil
+    }
+
         super.init()
         
         self.methodChannel.setMethodCallHandler(onMethodCall)
@@ -104,6 +126,53 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
     
     func addViewSucceeded(_ viewName: String, viewInfoName: String) {
         print("✅ KakaoMap Attached")
+        
+        // Configure compass and scalebar if provided
+        withKakaoMapView({ _ in }) { view in
+            // Configure compass if provided
+            if let compassConfig = self.compassConfig {
+                view.showCompass()
+                
+                // Set position if specified
+                if let alignment = compassConfig["alignment"] as? String,
+                   let offsetData = compassConfig["offset"] as? [String: Any],
+                   let dx = offsetData["dx"] as? Double,
+                   let dy = offsetData["dy"] as? Double {
+                    
+                    // Convert alignment string to GuiAlignment
+                    let guiAlignment = self.convertAlignmentString(alignment)
+                    let offset = CGPoint(x: dx, y: dy)
+                    
+                    view.setCompassPosition(origin: guiAlignment, position: offset)
+                }
+                
+                // Note: iOS doesn't have a direct equivalent to setBackToNorthOnClick
+                // The compass behavior is controlled by the SDK internally
+            }
+            
+            // Configure scalebar if provided
+            if let scaleBarConfig = self.scaleBarConfig {
+                view.showScaleBar()
+                
+                // Set auto disappear if specified
+                if let isAutoHide = scaleBarConfig["isAutoHide"] as? Bool {
+                    view.setScaleBarAutoDisappear(isAutoHide)
+                }
+                
+                // Set fade in/out options if specified
+                if let fadeInTime = scaleBarConfig["fadeInTime"] as? Int,
+                   let fadeOutTime = scaleBarConfig["fadeOutTime"] as? Int,
+                   let retentionTime = scaleBarConfig["retentionTime"] as? Int {
+                    let fadeOptions = FadeInOutOptions(
+                        fadeInTime: UInt32(fadeInTime),
+                        fadeOutTime: UInt32(fadeOutTime),
+                        retentionTime: UInt32(retentionTime)
+                    )
+                    view.setScaleBarFadeInOutOption(fadeOptions)
+                }
+            }
+        }
+        
         methodChannel.invokeMethod("onMapReady", arguments: true)
     }
     
@@ -159,6 +228,16 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
             removeInfoWindows(call, result)
         case "clearInfoWindows":
             clearInfoWindows(result)
+        case "showCompass":
+            showCompass(result)
+        case "hideCompass":
+            hideCompass(result)
+        case "showScaleBar":
+            showScaleBar(result)
+        case "hideScaleBar":
+            hideScaleBar(result)
+        case "setCompassPosition":
+            setCompassPosition(call, result)
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -776,5 +855,82 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
         methodChannel.invokeMethod("onLabelClicked", arguments: eventData.toMap())
         
         print("POI Tapped: \(poiID)")
+    }
+    
+    // MARK: - Helper Methods
+    
+    /// Convert alignment string to GuiAlignment for compass positioning
+    private func convertAlignmentString(_ alignment: String) -> GuiAlignment {
+        switch alignment {
+        case "topLeft":
+            return GuiAlignment(vAlign: .top, hAlign: .left)
+        case "topRight":
+            return GuiAlignment(vAlign: .top, hAlign: .right)
+        case "bottomLeft":
+            return GuiAlignment(vAlign: .bottom, hAlign: .left)
+        case "bottomRight":
+            return GuiAlignment(vAlign: .bottom, hAlign: .right)
+        case "center":
+            return GuiAlignment(vAlign: .middle, hAlign: .center)
+        case "topCenter":
+            return GuiAlignment(vAlign: .top, hAlign: .center)
+        case "bottomCenter":
+            return GuiAlignment(vAlign: .bottom, hAlign: .center)
+        case "leftCenter":
+            return GuiAlignment(vAlign: .middle, hAlign: .left)
+        case "rightCenter":
+            return GuiAlignment(vAlign: .middle, hAlign: .right)
+        default:
+            return GuiAlignment(vAlign: .top, hAlign: .right) // Default to top-right
+        }
+    }
+    
+    // MARK: - Compass and ScaleBar Control Methods
+    
+    private func showCompass(_ result: @escaping FlutterResult) {
+        withKakaoMapView(result) { view in
+            view.showCompass()
+            result(nil)
+        }
+    }
+    
+    private func hideCompass(_ result: @escaping FlutterResult) {
+        withKakaoMapView(result) { view in
+            view.hideCompass()
+            result(nil)
+        }
+    }
+    
+    private func showScaleBar(_ result: @escaping FlutterResult) {
+        withKakaoMapView(result) { view in
+            view.showScaleBar()
+            result(nil)
+        }
+    }
+    
+    private func hideScaleBar(_ result: @escaping FlutterResult) {
+        withKakaoMapView(result) { view in
+            view.hideScaleBar()
+            result(nil)
+        }
+    }
+    
+    private func setCompassPosition(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        guard let args = call.arguments as? [String: Any],
+              let alignment = args["alignment"] as? String,
+              let offset = args["offset"] as? [String: Any],
+              let dx = offset["dx"] as? Double,
+              let dy = offset["dy"] as? Double
+        else {
+            result(FlutterError(code: "E001", message: "Invalid arguments for setCompassPosition", details: nil))
+            return
+        }
+        
+        withKakaoMapView(result) { view in
+            let guiAlignment = self.convertAlignmentString(alignment)
+            let offset = CGPoint(x: dx, y: dy)
+            view.setCompassPosition(origin: guiAlignment, position: offset)
+            result(nil)
+        }
     }
 }

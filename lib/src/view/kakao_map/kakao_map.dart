@@ -2,7 +2,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../data/compass/compass.dart';
 import '../../data/lat_lng/lat_lng.dart';
+import '../../data/scalebar/scalebar.dart';
 import '../../platform/kakao_map_controller/kakao_map_controller.dart';
 
 const String _$viewTypeId = 'kakao_map_view';
@@ -18,12 +20,16 @@ class KakaoMap extends StatefulWidget {
   /// The [initialPosition] sets the initial center position of the map.
   /// The [initialLevel] sets the initial zoom level of the map.
   /// The [width] and [height] specify the dimensions of the map widget.
+  /// The [compass] configures the compass widget on the map.
+  /// The [scaleBar] configures the scale bar widget on the map.
   const KakaoMap({
     this.onMapCreated,
     this.initialPosition,
     this.initialLevel,
     this.width,
     this.height,
+    this.compass,
+    this.scaleBar,
     super.key,
   });
 
@@ -51,6 +57,16 @@ class KakaoMap extends StatefulWidget {
   ///
   /// If null, uses the maximum available height.
   final double? height;
+
+  /// Configuration for the compass widget on the map.
+  ///
+  /// If null, the compass will not be shown.
+  final Compass? compass;
+
+  /// Configuration for the scale bar widget on the map.
+  ///
+  /// If null, the scale bar will not be shown.
+  final ScaleBar? scaleBar;
 
   @override
   State<KakaoMap> createState() => _KakaoMapState();
@@ -80,6 +96,16 @@ class _KakaoMapState extends State<KakaoMap> {
         // Add initialLevel to creationParams if provided
         if (widget.initialLevel != null) {
           creationParams['initialLevel'] = widget.initialLevel;
+        }
+
+        // Add compass configuration to creationParams if provided
+        if (widget.compass != null) {
+          creationParams['compass'] = widget.compass!.toJson();
+        }
+
+        // Add scaleBar configuration to creationParams if provided
+        if (widget.scaleBar != null) {
+          creationParams['scaleBar'] = widget.scaleBar!.toJson();
         }
 
         return SizedBox(

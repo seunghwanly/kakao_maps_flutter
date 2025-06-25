@@ -16,6 +16,8 @@ import 'package:kakao_maps_flutter/src/data/label/label_click_event.dart';
 import 'package:kakao_maps_flutter/src/platform/kakao_map_method_call/kakao_map_method_call.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
+import '../../data/compass/compass.dart';
+
 part 'interface/kakao_map_controller_platform_interface.dart';
 part 'method_channel/method_channel_kakao_map_controller.dart';
 
@@ -282,5 +284,48 @@ class KakaoMapController extends KakaoMapControllerPlatform {
   /// Removes all info windows from the map.
   Future<void> clearInfoWindows() async {
     await _platform._callMethod(const ClearInfoWindows());
+  }
+
+  /// Shows the compass on the map.
+  ///
+  /// The compass will be displayed according to its current configuration.
+  Future<void> showCompass() async {
+    await _platform._callMethod(const ShowCompass());
+  }
+
+  /// Hides the compass from the map.
+  ///
+  /// The compass will be hidden but its configuration is preserved.
+  Future<void> hideCompass() async {
+    await _platform._callMethod(const HideCompass());
+  }
+
+  /// Shows the scale bar on the map.
+  ///
+  /// The scale bar will be displayed according to its current configuration.
+  Future<void> showScaleBar() async {
+    await _platform._callMethod(const ShowScaleBar());
+  }
+
+  /// Hides the scale bar from the map.
+  ///
+  /// The scale bar will be hidden but its configuration is preserved.
+  Future<void> hideScaleBar() async {
+    await _platform._callMethod(const HideScaleBar());
+  }
+
+  /// Updates the compass position on the map.
+  ///
+  /// The compass will be repositioned according to the specified alignment and offset.
+  Future<void> setCompassPosition({
+    required CompassAlignment alignment,
+    required Offset offset,
+  }) async {
+    await _platform._callMethod(
+      SetCompassPosition(
+        alignment: alignment,
+        offset: offset,
+      ),
+    );
   }
 }

@@ -411,3 +411,65 @@ final class ClearInfoWindows extends KakaoMapMethodCall<void> {
   @override
   Map<String, Object?>? encode() => null;
 }
+
+final class ShowCompass extends KakaoMapMethodCall<void> {
+  const ShowCompass();
+
+  @override
+  String get name => 'showCompass';
+
+  @override
+  Map<String, Object?>? encode() => null;
+}
+
+final class HideCompass extends KakaoMapMethodCall<void> {
+  const HideCompass();
+
+  @override
+  String get name => 'hideCompass';
+
+  @override
+  Map<String, Object?>? encode() => null;
+}
+
+final class ShowScaleBar extends KakaoMapMethodCall<void> {
+  const ShowScaleBar();
+
+  @override
+  String get name => 'showScaleBar';
+
+  @override
+  Map<String, Object?>? encode() => null;
+}
+
+final class HideScaleBar extends KakaoMapMethodCall<void> {
+  const HideScaleBar();
+
+  @override
+  String get name => 'hideScaleBar';
+
+  @override
+  Map<String, Object?>? encode() => null;
+}
+
+final class SetCompassPosition extends KakaoMapMethodCall<void> {
+  const SetCompassPosition({
+    required this.alignment,
+    required this.offset,
+  });
+
+  final CompassAlignment alignment;
+  final Offset offset;
+
+  @override
+  String get name => 'setCompassPosition';
+
+  @override
+  Map<String, Object?>? encode() => {
+        'alignment': alignment.name,
+        'offset': {
+          'dx': offset.dx,
+          'dy': offset.dy,
+        },
+      };
+}

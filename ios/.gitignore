@@ -37,3 +37,8 @@ Icon?
 /Flutter/Generated.xcconfig
 /Flutter/ephemeral/
 /Flutter/flutter_export_environment.sh
+
+# Migrated to SPM
+kakao_maps_flutter/.build/
+kakao_maps_flutter/.swiftpm/
+kakao_maps_flutter/Package.resolved
