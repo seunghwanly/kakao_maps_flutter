@@ -16,7 +16,6 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load();
 
-  /// TODO: Replace with your own API key
   await KakaoMapsFlutter.init(
     dotenv.get('KAKAO_API_KEY'),
     webAPIKey: dotenv.maybeGet('KAKAO_WEB_API_KEY'),
@@ -56,6 +55,7 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
   KakaoMapController? mapController;
 
   StreamSubscription<LabelClickEvent>? labelClickSubscription;
+  StreamSubscription<CameraMoveEndEvent>? cameraMoveEndSubscription;
 
   final ValueNotifier<bool> mapReadyNotifier = ValueNotifier(false);
 
@@ -63,6 +63,7 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
   bool isPoisVisible = true;
   bool isPoisClickable = true;
   int poiScale = 1;
+  bool isCameraMoveEndListenerEnabled = true;
 
   /// 0: Small, 1: Regular, 2: Large, 3: XLarge
 
@@ -90,6 +91,7 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
   @override
   void dispose() {
     labelClickSubscription?.cancel();
+    cameraMoveEndSubscription?.cancel();
     mapReadyNotifier.removeListener(setupInitialMap);
     mapReadyNotifier.dispose();
     mapController?.dispose();
@@ -143,6 +145,7 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
           onPoiVisibilityToggle: onPoiVisibilityToggle,
           onPoiClickabilityToggle: onPoiClickabilityToggle,
           onPoiScaleChange: onPoiScaleChange,
+          onCameraMoveEndListenerToggle: onCameraMoveEndListenerToggle,
           onCoordinateTest: onCoordinateTest,
           onPaddingSet: onPaddingSet,
           onMapInfoGet: onMapInfoGet,
@@ -150,6 +153,7 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
           isPoisVisible: isPoisVisible,
           isPoisClickable: isPoisClickable,
           poiScale: poiScale,
+          isCameraMoveEndListenerEnabled: isCameraMoveEndListenerEnabled,
           onInfoWindowAdd: onInfoWindowAdd,
           onInfoWindowRemove: onInfoWindowRemove,
           onInfoWindowsAddAll: onInfoWindowsAddAll,
@@ -176,6 +180,13 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
     controller.onInfoWindowClickedStream.listen(
       onInfoWindowClicked,
     );
+
+    /// Listen to camera move end events only if enabled
+    if (isCameraMoveEndListenerEnabled) {
+      cameraMoveEndSubscription = controller.onCameraMoveEndStream.listen(
+        onCameraMoveEnd,
+      );
+    }
 
     if (mounted) setState(() => mapReadyNotifier.value = true);
   }
@@ -350,6 +361,30 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
     const scaleNames = ['Small', 'Regular', 'Large', 'XLarge'];
     final scaleName = scale < scaleNames.length ? scaleNames[scale] : 'Unknown';
     showSnackBar('📏 POI scale: $scaleName');
+  }
+
+  Future<void> onCameraMoveEndListenerToggle() async {
+    if (mapController == null) return;
+
+    final newEnabled = !isCameraMoveEndListenerEnabled;
+
+    if (newEnabled) {
+      /// Enable the listener
+      cameraMoveEndSubscription = mapController!.onCameraMoveEndStream.listen(
+        onCameraMoveEnd,
+      );
+    } else {
+      /// Disable the listener
+      await cameraMoveEndSubscription?.cancel();
+      cameraMoveEndSubscription = null;
+    }
+
+    if (!mounted) return;
+    setState(() => isCameraMoveEndListenerEnabled = newEnabled);
+
+    showSnackBar(
+      '📷 Camera move end listener ${newEnabled ? 'enabled' : 'disabled'}',
+    );
   }
 
   Future<void> onCoordinateTest() async {
@@ -783,5 +818,17 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
 
     final timeOfDay = isEvening ? 'evening' : 'day';
     showSnackBar('⏰ Time-based InfoWindow added ($timeOfDay theme)');
+  }
+
+  void onCameraMoveEnd(CameraMoveEndEvent event) {
+    showSnackBar(
+      '📍 Camera moved to:\n'
+      'Lat: ${event.latitude.toStringAsFixed(6)}\n'
+      'Lng: ${event.longitude.toStringAsFixed(6)}\n'
+      'Zoom: ${event.zoomLevel.toStringAsFixed(2)}\n'
+      'Tilt: ${event.tilt.toStringAsFixed(2)}°\n'
+      'Rotation: ${event.rotation.toStringAsFixed(2)}°',
+      duration: const Duration(seconds: 3),
+    );
   }
 }

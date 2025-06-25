@@ -10,13 +10,18 @@ This example project demonstrates the capabilities and features of the Kakao Map
 - Map center point retrieval
 - Status bar showing map state (ready/loading, zoom level, POI settings)
 
-### 🎥 Camera Movement
+### 🎥 Camera Movement & Events
 - Animated camera transitions to preset locations:
   - Seoul Station
   - Jamsil Station
   - Gangnam Station
 - Custom animation duration and elevation control
 - Support for both animated and instant camera movements
+- **Camera Move End Events**: Real-time notifications when camera movement completes
+  - Displays current position (latitude, longitude)
+  - Shows zoom level, tilt angle, and rotation
+  - Toggle functionality to enable/disable listener
+  - Works with both user gestures and programmatic movements
 
 ### 📌 Marker Management
 - Add/remove individual markers
@@ -91,6 +96,7 @@ lib/
 - Organized sections for different feature categories
 - Enable/disable controls based on map state
 - Clear visual feedback for current settings
+- **Camera Event Listeners** section with toggle for camera move end events
 
 ## Error Handling
 

@@ -5,6 +5,7 @@
 library kakao_maps_flutter.data;
 
 export 'camera/camera_animation.dart';
+export 'camera/camera_move_end_event.dart';
 export 'camera/camera_update.dart';
 export 'compass/compass.dart';
 export 'label/label_click_event.dart';

@@ -28,6 +28,12 @@ class MethodChannelKakaoMapController extends KakaoMapControllerPlatform {
             return;
           }
 
+          if (call.method == 'onCameraMoveEnd') {
+            final event = CameraMoveEndEvent.fromJson(call.arguments);
+            _instance.onCameraMoveEnd(event);
+            return;
+          }
+
           throw UnimplementedError(
             '[Flutter:MethodChannelKakaoMapController] ${call.method} not implemented',
           );

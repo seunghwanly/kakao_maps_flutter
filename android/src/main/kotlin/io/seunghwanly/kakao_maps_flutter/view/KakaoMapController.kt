@@ -41,10 +41,10 @@ class KakaoMapController(
     private val mapView: MapView = MapView(context)
 
     private lateinit var kMap: KakaoMap
-    
+
     // Parse initial position from args
     private val initialPosition: LatLng? = parseInitialPosition(args)
-    
+
     // Parse initial zoom level from args
     private val initialLevel: Int? = parseInitialLevel(args)
 
@@ -119,42 +119,55 @@ class KakaoMapController(
                         true
                     }
 
+                    kMap.setOnCameraMoveEndListener { kakaoMap, cameraPosition, gestureType ->
+                        // Notify Flutter about camera move end
+                        val event = mapOf(
+                            "latitude" to cameraPosition.position.latitude,
+                            "longitude" to cameraPosition.position.longitude,
+                            "zoomLevel" to cameraPosition.zoomLevel,
+                            "rotation" to cameraPosition.rotationAngle,
+                            "tilt" to cameraPosition.tiltAngle,
+                        )
+                        methodChannel.invokeMethod("onCameraMoveEnd", event)
+                    }
+
                     // Configure compass if provided
                     compassConfig?.let { config ->
-                        val compass = kMap.getCompass()
-                        compass.show()
-                        
+                        val compass = kMap.compass
+                        compass?.show()
+
                         // Set back to north on click if specified
-                        val isBackToNorthOnClick = config["isBackToNorthOnClick"] as? Boolean ?: true
-                        compass.setBackToNorthOnClick(isBackToNorthOnClick)
-                        
+                        val isBackToNorthOnClick =
+                            config["isBackToNorthOnClick"] as? Boolean != false
+                        compass?.isBackToNorthOnClick = isBackToNorthOnClick
+
                         // Set compass position if alignment is specified
                         val alignment = config["alignment"] as? String
                         val offset = config["offset"] as? Map<*, *>
-                        
+
                         if (alignment != null) {
                             val mapGravity = convertAlignmentToMapGravity(alignment)
                             val offsetX = (offset?.get("dx") as? Number)?.toFloat() ?: 0f
                             val offsetY = (offset?.get("dy") as? Number)?.toFloat() ?: 0f
-                            
-                            compass.setPosition(mapGravity, offsetX, offsetY)
+
+                            compass?.setPosition(mapGravity, offsetX, offsetY)
                         }
                     }
 
                     // Configure scalebar if provided
                     scaleBarConfig?.let { config ->
-                        val scaleBar = kMap.getScaleBar()
-                        scaleBar.show()
-                        
+                        val scaleBar = kMap.scaleBar
+                        scaleBar?.show()
+
                         // Set auto hide if specified
-                        val isAutoHide = config["isAutoHide"] as? Boolean ?: false
-                        scaleBar.setAutoHide(isAutoHide)
-                        
+                        val isAutoHide = config["isAutoHide"] as? Boolean == true
+                        scaleBar?.isAutoHide = isAutoHide
+
                         // Set fade in/out times if specified
                         val fadeInTime = config["fadeInTime"] as? Int ?: 300
                         val fadeOutTime = config["fadeOutTime"] as? Int ?: 300
                         val retentionTime = config["retentionTime"] as? Int ?: 3000
-                        scaleBar.setFadeInOutTime(fadeInTime, fadeOutTime, retentionTime)
+                        scaleBar?.setFadeInOutTime(fadeInTime, fadeOutTime, retentionTime)
                     }
 
                     // Configure logo if provided
@@ -170,7 +183,7 @@ class KakaoMapController(
                     // Return initialPosition if provided, otherwise use default
                     return initialPosition ?: LatLng.from(37.394726159, 127.111209047)
                 }
-                
+
                 override fun getZoomLevel(): Int {
                     // Return initialLevel if provided, otherwise use default
                     return initialLevel ?: 15
@@ -181,35 +194,35 @@ class KakaoMapController(
 
     private fun parseInitialPosition(args: Any?): LatLng? {
         if (args !is Map<*, *>) return null
-        
+
         val initialPositionMap = args["initialPosition"] as? Map<*, *> ?: return null
         val latitude = initialPositionMap["latitude"] as? Double ?: return null
         val longitude = initialPositionMap["longitude"] as? Double ?: return null
-        
+
         return LatLng.from(latitude, longitude)
     }
 
     private fun parseInitialLevel(args: Any?): Int? {
         if (args !is Map<*, *>) return null
-        
+
         return args["initialLevel"] as? Int
     }
 
     private fun parseCompassConfig(args: Any?): Map<String, Any?>? {
         if (args !is Map<*, *>) return null
-        
+
         return args["compass"] as? Map<String, Any?>
     }
 
     private fun parseScaleBarConfig(args: Any?): Map<String, Any?>? {
         if (args !is Map<*, *>) return null
-        
+
         return args["scaleBar"] as? Map<String, Any?>
     }
 
     private fun parseLogoConfig(args: Any?): Map<String, Any?>? {
         if (args !is Map<*, *>) return null
-        
+
         return args["logo"] as? Map<String, Any?>
     }
 
@@ -614,8 +627,8 @@ class KakaoMapController(
     private fun showCompass(result: MethodChannel.Result) {
         require(::kMap.isInitialized) { "kakaoMap is not initialized" }
 
-        val compass = kMap.getCompass()
-        compass.show()
+        val compass = kMap.compass
+        compass?.show()
 
         return result.success(null)
     }
@@ -623,8 +636,8 @@ class KakaoMapController(
     private fun hideCompass(result: MethodChannel.Result) {
         require(::kMap.isInitialized) { "kakaoMap is not initialized" }
 
-        val compass = kMap.getCompass()
-        compass.hide()
+        val compass = kMap.compass
+        compass?.hide()
 
         return result.success(null)
     }
@@ -632,8 +645,8 @@ class KakaoMapController(
     private fun showScaleBar(result: MethodChannel.Result) {
         require(::kMap.isInitialized) { "kakaoMap is not initialized" }
 
-        val scaleBar = kMap.getScaleBar()
-        scaleBar.show()
+        val scaleBar = kMap.scaleBar
+        scaleBar?.show()
 
         return result.success(null)
     }
@@ -641,8 +654,8 @@ class KakaoMapController(
     private fun hideScaleBar(result: MethodChannel.Result) {
         require(::kMap.isInitialized) { "kakaoMap is not initialized" }
 
-        val scaleBar = kMap.getScaleBar()
-        scaleBar.hide()
+        val scaleBar = kMap.scaleBar
+        scaleBar?.hide()
 
         return result.success(null)
     }
@@ -661,8 +674,8 @@ class KakaoMapController(
         val offsetX = (offset?.get("dx") as? Number)?.toFloat() ?: 0f
         val offsetY = (offset?.get("dy") as? Number)?.toFloat() ?: 0f
 
-        val compass = kMap.getCompass()
-        compass.setPosition(mapGravity, offsetX, offsetY)
+        val compass = kMap.compass
+        compass?.setPosition(mapGravity, offsetX, offsetY)
 
         return result.success(null)
     }
@@ -689,7 +702,7 @@ class KakaoMapController(
         require(::kMap.isInitialized) { "kakaoMap is not initialized" }
 
         val alignment = args.getString("alignment")
-        val offset = args.optJSONObject("offset")
+        args.optJSONObject("offset")
 
         if (alignment == null) {
             return result.error("E008", "alignment must not be null", null)
@@ -697,7 +710,10 @@ class KakaoMapController(
 
         // Note: Android SDK doesn't have direct logo position control methods
         // The logo position is typically controlled by the SDK internally
-        Log.d("KakaoMapController", "setLogoPosition called with alignment: $alignment - logo position controlled by SDK")
+        Log.d(
+            "KakaoMapController",
+            "setLogoPosition called with alignment: $alignment - logo position controlled by SDK"
+        )
         return result.success(null)
     }
 

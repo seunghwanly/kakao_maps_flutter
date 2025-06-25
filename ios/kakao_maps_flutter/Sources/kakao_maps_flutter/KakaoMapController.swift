@@ -7,23 +7,14 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
     private let mapController: KMController
     private let methodChannel: FlutterMethodChannel
     private let kKakaoMapViewName = "mapview"
-      
-    // Store initial position
-  private let initialPosition: MapPoint?
-  
-  // Store initial zoom level
-  private let initialLevel: Int?
-
-  // Store compass configuration
-  private let compassConfig: [String: Any]?
-  
-  // Store scalebar configuration
-  private let scaleBarConfig: [String: Any]?
-
-  // Store logo configuration
-  private let logoConfig: [String: Any]?
-
-  init(
+    
+    private let initialPosition: MapPoint?
+    private let initialLevel: Int?
+    private let compassConfig: [String: Any]?
+    private let scaleBarConfig: [String: Any]?
+    private let logoConfig: [String: Any]?
+    
+    init(
         frame: CGRect,
         viewId: Int64,
         args: Any?,
@@ -34,8 +25,7 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
         
         if let args = args as? [String: Any],
            let w = args["width"] as? NSNumber,
-           let h = args["height"] as? NSNumber
-        {
+           let h = args["height"] as? NSNumber {
             width = CGFloat(truncating: w)
             height = CGFloat(truncating: h)
         } else {
@@ -52,53 +42,47 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
             binaryMessenger: messenger,
             codec: FlutterJSONMethodCodec.sharedInstance()
         )
-            
-    // Parse initial position from args
-    if let args = args as? [String: Any],
-       let initialPositionData = args["initialPosition"] as? [String: Any],
-       let latitude = initialPositionData["latitude"] as? Double,
-       let longitude = initialPositionData["longitude"] as? Double {
-      self.initialPosition = MapPoint(longitude: longitude, latitude: latitude)
-    } else {
-      self.initialPosition = nil
-    }
-
-    // Parse initial zoom level from args
-    if let args = args as? [String: Any],
-       let level = args["initialLevel"] as? Int {
-      self.initialLevel = level
-    } else {
-      self.initialLevel = nil
-    }
-
-    // Parse compass configuration from args
-    if let args = args as? [String: Any],
-       let compassConfig = args["compass"] as? [String: Any] {
-      self.compassConfig = compassConfig
-    } else {
-      self.compassConfig = nil
-    }
-
-    // Parse scalebar configuration from args
-    if let args = args as? [String: Any],
-       let scaleBarConfig = args["scaleBar"] as? [String: Any] {
-      self.scaleBarConfig = scaleBarConfig
-    } else {
-      self.scaleBarConfig = nil
-    }
-
-    // Parse logo configuration from args
-    if let args = args as? [String: Any],
-       let logoConfig = args["logo"] as? [String: Any] {
-      self.logoConfig = logoConfig
-    } else {
-      self.logoConfig = nil
-    }
-
+        
+        if let args = args as? [String: Any],
+           let initialPositionData = args["initialPosition"] as? [String: Any],
+           let latitude = initialPositionData["latitude"] as? Double,
+           let longitude = initialPositionData["longitude"] as? Double {
+            self.initialPosition = MapPoint(longitude: longitude, latitude: latitude)
+        } else {
+            self.initialPosition = nil
+        }
+        
+        if let args = args as? [String: Any],
+           let level = args["initialLevel"] as? Int {
+            self.initialLevel = level
+        } else {
+            self.initialLevel = nil
+        }
+        
+        if let args = args as? [String: Any],
+           let compassConfig = args["compass"] as? [String: Any] {
+            self.compassConfig = compassConfig
+        } else {
+            self.compassConfig = nil
+        }
+        
+        if let args = args as? [String: Any],
+           let scaleBarConfig = args["scaleBar"] as? [String: Any] {
+            self.scaleBarConfig = scaleBarConfig
+        } else {
+            self.scaleBarConfig = nil
+        }
+        
+        if let args = args as? [String: Any],
+           let logoConfig = args["logo"] as? [String: Any] {
+            self.logoConfig = logoConfig
+        } else {
+            self.logoConfig = nil
+        }
+        
         super.init()
         
         self.methodChannel.setMethodCallHandler(onMethodCall)
-        
         self.mapController.delegate = self
         self.mapController.prepareEngine()
         self.mapController.activateEngine()
@@ -114,17 +98,13 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
     }
     
     func addViews() {
-        print("✅ addViews called!")
-        
-        // Use initialPosition if provided, otherwise use default
-    let defaultPosition = initialPosition ?? MapPoint(
+        let defaultPosition = initialPosition ?? MapPoint(
             longitude: 127.108678,
             latitude: 37.402001
         )
-            
-    // Use initialLevel if provided, otherwise use default
-    let defaultLevel = initialLevel ?? 7
-
+        
+        let defaultLevel = initialLevel ?? 7
+        
         let mapviewInfo = MapviewInfo(
             viewName: kKakaoMapViewName,
             viewInfoName: "map",
@@ -136,41 +116,28 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
     }
     
     func addViewSucceeded(_ viewName: String, viewInfoName: String) {
-        print("✅ KakaoMap Attached")
-        
-        // Configure compass and scalebar if provided
         withKakaoMapView({ _ in }) { view in
-            // Configure compass if provided
             if let compassConfig = self.compassConfig {
                 view.showCompass()
                 
-                // Set position if specified
                 if let alignment = compassConfig["alignment"] as? String,
                    let offsetData = compassConfig["offset"] as? [String: Any],
                    let dx = offsetData["dx"] as? Double,
                    let dy = offsetData["dy"] as? Double {
                     
-                    // Convert alignment string to GuiAlignment
                     let guiAlignment = self.convertAlignmentString(alignment)
                     let offset = CGPoint(x: dx, y: dy)
-                    
                     view.setCompassPosition(origin: guiAlignment, position: offset)
                 }
-                
-                // Note: iOS doesn't have a direct equivalent to setBackToNorthOnClick
-                // The compass behavior is controlled by the SDK internally
             }
             
-            // Configure scalebar if provided
             if let scaleBarConfig = self.scaleBarConfig {
                 view.showScaleBar()
                 
-                // Set auto disappear if specified
                 if let isAutoHide = scaleBarConfig["isAutoHide"] as? Bool {
                     view.setScaleBarAutoDisappear(isAutoHide)
                 }
                 
-                // Set fade in/out options if specified
                 if let fadeInTime = scaleBarConfig["fadeInTime"] as? Int,
                    let fadeOutTime = scaleBarConfig["fadeOutTime"] as? Int,
                    let retentionTime = scaleBarConfig["retentionTime"] as? Int {
@@ -183,18 +150,14 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
                 }
             }
             
-            // Configure logo if provided
             if let logoConfig = self.logoConfig {
-                // Set position if specified
                 if let alignment = logoConfig["alignment"] as? String,
                    let offsetData = logoConfig["offset"] as? [String: Any],
                    let dx = offsetData["dx"] as? Double,
                    let dy = offsetData["dy"] as? Double {
                     
-                    // Convert alignment string to GuiAlignment
                     let guiAlignment = self.convertAlignmentString(alignment)
                     let offset = CGPoint(x: dx, y: dy)
-                    
                     view.setLogoPosition(origin: guiAlignment, position: offset)
                 }
             }
@@ -204,7 +167,7 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
     }
     
     func addViewFailed(_ error: Error) {
-        print("❌ KakaoMap Attach Failed: \(error.localizedDescription)")
+        methodChannel.invokeMethod("onMapFailed", arguments: ["error": error.localizedDescription])
     }
     
     private func onMethodCall(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -298,9 +261,8 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
     private func createLabelLayer(_ layerID: String?) -> LabelLayer? {
         let view = mapController.getView(kKakaoMapViewName) as! KakaoMap
         let manager = view.getLabelManager()
-        let existingLayer = manager.getLabelLayer(
-            layerID: layerID ?? "PoiLayer"
-        )
+        let existingLayer = manager.getLabelLayer(layerID: layerID ?? "PoiLayer")
+        
         if existingLayer != nil {
             return existingLayer!
         }
@@ -310,7 +272,7 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
             competitionType: .none,
             competitionUnit: .symbolFirst,
             orderType: .rank,
-            zOrder: 10000  // 높은 zOrder 값으로 설정하여 기본 POI들보다 위에 표시
+            zOrder: 10000
         )
         return manager.addLabelLayer(option: layerOption)
     }
@@ -322,15 +284,14 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
         
         manager.removePoiStyle(styleID)
         
-        let iconStyle = PoiIconStyle(
-            symbol: image
-        )
+        let iconStyle = PoiIconStyle(symbol: image)
         let poiStyle = PoiStyle(
             styleID: styleID,
             styles: [
                 PerLevelPoiStyle(iconStyle: iconStyle, level: 11),
                 PerLevelPoiStyle(iconStyle: iconStyle, level: 21),
-            ])
+            ]
+        )
         manager.addPoiStyle(poiStyle)
         return styleID
     }
@@ -344,10 +305,8 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
     }
     
     private func setZoomLevel(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
-        guard
-            let args = call.arguments as? [String: Any],
-            let zoomLevel = args["level"] as? Int
-        else {
+        guard let args = call.arguments as? [String: Any],
+              let zoomLevel = args["level"] as? Int else {
             result(FlutterError(code: "E001", message: "Invalid arguments", details: nil))
             return
         }
@@ -360,34 +319,25 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
     }
     
     private func moveCamera(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
-        guard let args = call.arguments as? [String: Any] else {
+        guard let args = call.arguments as? [String: Any],
+              let cameraUpdateJson = args["cameraUpdate"] as? [String: Any] else {
             result(FlutterError(code: "E002", message: "Invalid arguments", details: nil))
             return
         }
         
-        // cameraUpdate 필드 먼저 파싱
-        guard let cameraUpdateJson = args["cameraUpdate"] as? [String: Any] else {
-            result(FlutterError(code: "E003", message: "cameraUpdate missing", details: nil))
-            return
-        }
-        
         withKakaoMapView(result) { view in
-            // CameraUpdate 생성
             guard let cameraUpdate = CameraUpdate.fromJson(cameraUpdateJson, mapView: view) else {
                 result(FlutterError(code: "E004", message: "Invalid cameraUpdate arguments", details: nil))
                 return
             }
             
-            // animation 필드 파싱 (optional)
             if let animationJson = args["animation"] as? [String: Any],
-               let animationOptions = CameraAnimationOptions.fromJson(animationJson)
-            {
+               let animationOptions = CameraAnimationOptions.fromJson(animationJson) {
                 view.animateCamera(cameraUpdate: cameraUpdate, options: animationOptions)
                 result(nil)
                 return
             }
             
-            // moveCamera 실행
             view.moveCamera(cameraUpdate)
             result(nil)
         }
@@ -399,48 +349,31 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
               let latLng = args["latLng"] as? [String: Any],
               let latitude = latLng["latitude"] as? Double,
               let longitude = latLng["longitude"] as? Double,
-              let base64EncodedImage = args["base64EncodedImage"] as? String
-        else {
+              let base64EncodedImage = args["base64EncodedImage"] as? String else {
             result(FlutterError(code: "E001", message: "Invalid arguments for addMarker", details: nil))
             return
         }
         
         withKakaoMapView(result) { view in
-            let point = MapPoint(
-                longitude: longitude, latitude: latitude
-            )
+            let point = MapPoint(longitude: longitude, latitude: latitude)
             
-            // 1️⃣ LabelLayer 가져오기 (없으면 생성)
             let labelLayer = createLabelLayer("PoiLayer")
-            
             guard let targetLayer = labelLayer else {
-                result(
-                    FlutterError(code: "E002", message: "Failed to get or create LabelLayer", details: nil))
+                result(FlutterError(code: "E002", message: "Failed to get or create LabelLayer", details: nil))
                 return
             }
             
-            // 2️⃣ Base64 -> UIImage
             guard let image = decodeBase64Image(base64EncodedImage) else {
                 result(FlutterError(code: "E003", message: "Invalid image data", details: nil))
                 return
             }
             
-            // 3️⃣ PoiOptions 설정
             let poiStyleID = createPoiStyleWithImage(image)
-            
-            let poiOption = PoiOptions(
-                styleID: poiStyleID,
-                poiID: id
-            )
-            
+            let poiOption = PoiOptions(styleID: poiStyleID, poiID: id)
             poiOption.clickable = true
-            poiOption.rank = 0  // 높은 rank 값으로 설정하여 렌더링 우선순위 증가
+            poiOption.rank = 0
             
-            // 4️⃣ Poi 추가
-            let poi = targetLayer.addPoi(
-                option: poiOption,
-                at: point
-            )
+            let poi = targetLayer.addPoi(option: poiOption, at: point)
             poi?.show()
             
             result(poi != nil)
@@ -449,43 +382,34 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
     
     private func removeMarker(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         guard let args = call.arguments as? [String: Any],
-              let id = args["id"] as? String
-        else {
-            result(
-                FlutterError(code: "E001", message: "Invalid arguments for removeMarker", details: nil))
+              let id = args["id"] as? String else {
+            result(FlutterError(code: "E001", message: "Invalid arguments for removeMarker", details: nil))
             return
         }
         
         withKakaoMapView(result) { view in
             let labelLayer = createLabelLayer("PoiLayer")
-            
             guard let targetLayer = labelLayer else {
-                result(
-                    FlutterError(code: "E002", message: "Failed to get or create LabelLayer", details: nil))
+                result(FlutterError(code: "E002", message: "Failed to get or create LabelLayer", details: nil))
                 return
             }
             
             targetLayer.removePoi(poiID: id)
-            
             result(nil)
         }
     }
     
-    
     private func addMarkers(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         guard let args = call.arguments as? [String: Any],
-              let markersArray = args["markers"] as? [[String: Any]]
-        else {
+              let markersArray = args["markers"] as? [[String: Any]] else {
             result(FlutterError(code: "E001", message: "Invalid arguments for addMarkers", details: nil))
             return
         }
         
         withKakaoMapView(result) { view in
             let labelLayer = createLabelLayer("PoiLayer")
-            
             guard let targetLayer = labelLayer else {
-                result(
-                    FlutterError(code: "E002", message: "Failed to get or create LabelLayer", details: nil))
+                result(FlutterError(code: "E002", message: "Failed to get or create LabelLayer", details: nil))
                 return
             }
             
@@ -495,8 +419,7 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
                       let latitude = latLng["latitude"] as? Double,
                       let longitude = latLng["longitude"] as? Double,
                       let base64EncodedImage = markerData["base64EncodedImage"] as? String,
-                      let image = decodeBase64Image(base64EncodedImage)
-                else {
+                      let image = decodeBase64Image(base64EncodedImage) else {
                     continue
                 }
                 
@@ -504,7 +427,7 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
                 let poiStyleID = createPoiStyleWithImage(image)
                 let poiOption = PoiOptions(styleID: poiStyleID, poiID: id)
                 poiOption.clickable = true
-                poiOption.rank = 0  // 높은 rank 값으로 설정하여 렌더링 우선순위 증가
+                poiOption.rank = 0
                 
                 let poi = targetLayer.addPoi(option: poiOption, at: point)
                 poi?.show()
@@ -516,19 +439,15 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
     
     private func removeMarkers(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         guard let args = call.arguments as? [String: Any],
-              let ids = args["ids"] as? [String]
-        else {
-            result(
-                FlutterError(code: "E001", message: "Invalid arguments for removeMarkers", details: nil))
+              let ids = args["ids"] as? [String] else {
+            result(FlutterError(code: "E001", message: "Invalid arguments for removeMarkers", details: nil))
             return
         }
         
         withKakaoMapView(result) { view in
             let labelLayer = createLabelLayer("PoiLayer")
-            
             guard let targetLayer = labelLayer else {
-                result(
-                    FlutterError(code: "E002", message: "Failed to get or create LabelLayer", details: nil))
+                result(FlutterError(code: "E002", message: "Failed to get or create LabelLayer", details: nil))
                 return
             }
             
@@ -550,7 +469,6 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
     
     private func getCenter(_ result: @escaping FlutterResult) {
         withKakaoMapView(result) { view in
-            // Get center of current viewport
             let centerPoint = CGPoint(x: view.viewRect.width / 2, y: view.viewRect.height / 2)
             let mapPoint = view.getPosition(centerPoint)
             
@@ -565,18 +483,14 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
         guard let args = call.arguments as? [String: Any],
               let position = args["position"] as? [String: Any],
               let latitude = position["latitude"] as? Double,
-              let longitude = position["longitude"] as? Double
-        else {
-            result(
-                FlutterError(code: "E001", message: "Invalid arguments for toScreenPoint", details: nil))
+              let longitude = position["longitude"] as? Double else {
+            result(FlutterError(code: "E001", message: "Invalid arguments for toScreenPoint", details: nil))
             return
         }
         
         withKakaoMapView(result) { view in
             let mapPoint = MapPoint(longitude: longitude, latitude: latitude)
             
-            // Note: iOS SDK doesn't have direct toScreenPoint method
-            // We'll need to implement this differently or return null if not supported
             result([
                 "dx": NSNull(),
                 "dy": NSNull(),
@@ -587,10 +501,8 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
     private func fromScreenPoint(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         guard let args = call.arguments as? [String: Any],
               let dx = args["dx"] as? Double,
-              let dy = args["dy"] as? Double
-        else {
-            result(
-                FlutterError(code: "E001", message: "Invalid arguments for fromScreenPoint", details: nil))
+              let dy = args["dy"] as? Double else {
+            result(FlutterError(code: "E001", message: "Invalid arguments for fromScreenPoint", details: nil))
             return
         }
         
@@ -607,10 +519,8 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
     
     private func setPoiVisible(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         guard let args = call.arguments as? [String: Any],
-              let isVisible = args["isVisible"] as? Bool
-        else {
-            result(
-                FlutterError(code: "E001", message: "Invalid arguments for setPoiVisible", details: nil))
+              let isVisible = args["isVisible"] as? Bool else {
+            result(FlutterError(code: "E001", message: "Invalid arguments for setPoiVisible", details: nil))
             return
         }
         
@@ -622,10 +532,8 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
     
     private func setPoiClickable(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         guard let args = call.arguments as? [String: Any],
-              let isClickable = args["isClickable"] as? Bool
-        else {
-            result(
-                FlutterError(code: "E001", message: "Invalid arguments for setPoiClickable", details: nil))
+              let isClickable = args["isClickable"] as? Bool else {
+            result(FlutterError(code: "E001", message: "Invalid arguments for setPoiClickable", details: nil))
             return
         }
         
@@ -637,15 +545,12 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
     
     private func setPoiScale(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         guard let args = call.arguments as? [String: Any],
-              let scale = args["scale"] as? Int
-        else {
+              let scale = args["scale"] as? Int else {
             result(FlutterError(code: "E001", message: "Invalid arguments for setPoiScale", details: nil))
             return
         }
         
         withKakaoMapView(result) { view in
-            // Convert int to PoiScaleType based on Android mapping:
-            // 0: SMALL, 1: REGULAR, 2: LARGE, 3: XLARGE
             let scaleType: PoiScaleType
             switch scale {
             case 0:
@@ -655,7 +560,7 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
             case 2:
                 scaleType = .large
             default:
-                scaleType = .regular  // Use regular as fallback since xlarge doesn't exist
+                scaleType = .regular
             }
             
             view.poiScale = scaleType
@@ -668,8 +573,7 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
               let left = args["left"] as? Int,
               let top = args["top"] as? Int,
               let right = args["right"] as? Int,
-              let bottom = args["bottom"] as? Int
-        else {
+              let bottom = args["bottom"] as? Int else {
             result(FlutterError(code: "E001", message: "Invalid arguments for setPadding", details: nil))
             return
         }
@@ -689,15 +593,12 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
     private func setViewport(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         guard let args = call.arguments as? [String: Any],
               let width = args["width"] as? Int,
-              let height = args["height"] as? Int
-        else {
+              let height = args["height"] as? Int else {
             result(FlutterError(code: "E001", message: "Invalid arguments for setViewport", details: nil))
             return
         }
         
         withKakaoMapView(result) { view in
-            // Note: iOS KakaoMapsSDK doesn't have direct setViewport method
-            // We'll update the view frame instead
             viewContainer.frame = CGRect(
                 x: viewContainer.frame.origin.x,
                 y: viewContainer.frame.origin.y,
@@ -710,10 +611,7 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
     
     private func getViewportBounds(_ result: @escaping FlutterResult) {
         withKakaoMapView(result) { view in
-            // Get current viewport bounds using corner coordinates
             let frame = view.viewRect
-            
-            // Get corners of viewport
             let topLeft = view.getPosition(CGPoint(x: 0, y: 0))
             let bottomRight = view.getPosition(CGPoint(x: frame.width, y: frame.height))
             
@@ -741,30 +639,24 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
     }
     
     // MARK: - InfoWindow Management
+    
     private var infoWindows: [String: InfoWindow] = [:]
     
     private func addInfoWindow(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         guard let args = call.arguments as? [String: Any] else {
-            result(
-                FlutterError(code: "E001", message: "Invalid arguments for addInfoWindow", details: nil))
+            result(FlutterError(code: "E001", message: "Invalid arguments for addInfoWindow", details: nil))
             return
         }
         
         withKakaoMapView(result) { view in
-            // Use the new extension method for clean InfoWindow creation
             guard let infoWindow = args.toNativeInfoWindow() else {
-                result(
-                    FlutterError(code: "E003", message: "Failed to create InfoWindow from arguments", details: nil))
+                result(FlutterError(code: "E003", message: "Failed to create InfoWindow from arguments", details: nil))
                 return
             }
             
-            // Set delegate for event handling
             infoWindow.delegate = self
-            
-            // Store InfoWindow reference for management
             infoWindows[infoWindow.name] = infoWindow
             
-            // Add to GUI manager and show if visible
             let guiManager = view.getGuiManager()
             let _ = guiManager.infoWindowLayer.addInfoWindow(infoWindow)
             infoWindow.show()
@@ -774,10 +666,8 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
     
     private func removeInfoWindow(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         guard let args = call.arguments as? [String: Any],
-              let id = args["id"] as? String
-        else {
-            result(
-                FlutterError(code: "E001", message: "Invalid arguments for removeInfoWindow", details: nil))
+              let id = args["id"] as? String else {
+            result(FlutterError(code: "E001", message: "Invalid arguments for removeInfoWindow", details: nil))
             return
         }
         
@@ -792,10 +682,8 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
     
     private func addInfoWindows(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         guard let args = call.arguments as? [String: Any],
-              let infoWindowOptions = args["infoWindowOptions"] as? [[String: Any]]
-        else {
-            result(
-                FlutterError(code: "E001", message: "Invalid arguments for addInfoWindows", details: nil))
+              let infoWindowOptions = args["infoWindowOptions"] as? [[String: Any]] else {
+            result(FlutterError(code: "E001", message: "Invalid arguments for addInfoWindows", details: nil))
             return
         }
         
@@ -803,18 +691,13 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
             let guiManager = view.getGuiManager()
             
             for infoWindowDict in infoWindowOptions {
-                // Use the new extension method for clean InfoWindow creation
                 guard let infoWindow = infoWindowDict.toNativeInfoWindow() else {
                     continue
                 }
                 
-                // Set delegate for event handling
                 infoWindow.delegate = self
-                
-                // Store InfoWindow reference for management
                 infoWindows[infoWindow.name] = infoWindow
                 
-                // Add to GUI manager and show if visible
                 let isVisible = infoWindowDict["isVisible"] as? Bool ?? true
                 
                 if isVisible {
@@ -828,11 +711,8 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
     
     private func removeInfoWindows(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         guard let args = call.arguments as? [String: Any],
-              let ids = args["ids"] as? [String]
-        else {
-            result(
-                FlutterError(code: "E001", message: "Invalid arguments for removeInfoWindows", details: nil)
-            )
+              let ids = args["ids"] as? [String] else {
+            result(FlutterError(code: "E001", message: "Invalid arguments for removeInfoWindows", details: nil))
             return
         }
         
@@ -858,10 +738,8 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
     }
     
     // MARK: - GuiEventDelegate
+    
     func guiDidTapped(_ gui: GuiBase, componentName: String) {
-        print("🎯 GUI Component Tapped: \(gui.name), Component: \(componentName)")
-        
-        // Handle InfoWindow clicks
         if let infoWindow = gui as? InfoWindow {
             let id = infoWindow.name
             
@@ -878,21 +756,31 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
     }
     
     // MARK: - KakaoMapEventDelegate
-    func poiDidTapped(
-        kakaoMap: KakaoMap, layerID: String, poiID: String, position: MapPoint
-    ) {
-        let eventData = LabelClickEvent(
-            labelId: poiID, latLng: position, layerId: layerID
-        )
-        
+    
+    func poiDidTapped(kakaoMap: KakaoMap, layerID: String, poiID: String, position: MapPoint) {
+        let eventData = LabelClickEvent(labelId: poiID, latLng: position, layerId: layerID)
         methodChannel.invokeMethod("onLabelClicked", arguments: eventData.toMap())
+    }
+    
+    func cameraDidStopped(kakaoMap: KakaoMap, by: MoveBy) {
+        guard let view = mapController.getView(kKakaoMapViewName) as? KakaoMap else {
+            return
+        }
         
-        print("POI Tapped: \(poiID)")
+        let centerPoint = CGPoint(x: view.viewRect.width / 2, y: view.viewRect.height / 2)
+        let center = kakaoMap.getPosition(centerPoint)
+        let eventData: [String: Any] = [
+            "latitude": center.wgsCoord.latitude,
+            "longitude": center.wgsCoord.longitude,
+            "zoomLevel": kakaoMap.zoomLevel,
+            "tilt": kakaoMap.tiltAngle,
+            "rotation": kakaoMap.rotationAngle
+        ]
+        methodChannel.invokeMethod("onCameraMoveEnd", arguments: eventData)
     }
     
     // MARK: - Helper Methods
     
-    /// Convert alignment string to GuiAlignment for compass positioning
     private func convertAlignmentString(_ alignment: String) -> GuiAlignment {
         switch alignment {
         case "topLeft":
@@ -914,7 +802,7 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
         case "rightCenter":
             return GuiAlignment(vAlign: .middle, hAlign: .right)
         default:
-            return GuiAlignment(vAlign: .top, hAlign: .right) // Default to top-right
+            return GuiAlignment(vAlign: .top, hAlign: .right)
         }
     }
     
@@ -953,8 +841,7 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
               let alignment = args["alignment"] as? String,
               let offset = args["offset"] as? [String: Any],
               let dx = offset["dx"] as? Double,
-              let dy = offset["dy"] as? Double
-        else {
+              let dy = offset["dy"] as? Double else {
             result(FlutterError(code: "E001", message: "Invalid arguments for setCompassPosition", details: nil))
             return
         }
@@ -969,18 +856,12 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
     
     private func showLogo(_ result: @escaping FlutterResult) {
         withKakaoMapView(result) { view in
-            // Note: iOS SDK doesn't have a direct showLogo method
-            // The logo is typically controlled by the SDK internally
-            print("📋 showLogo called - logo visibility controlled by SDK")
             result(nil)
         }
     }
     
     private func hideLogo(_ result: @escaping FlutterResult) {
         withKakaoMapView(result) { view in
-            // Note: iOS SDK doesn't have a direct hideLogo method
-            // The logo is typically controlled by the SDK internally
-            print("📋 hideLogo called - logo visibility controlled by SDK")
             result(nil)
         }
     }
@@ -990,8 +871,7 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
               let alignment = args["alignment"] as? String,
               let offset = args["offset"] as? [String: Any],
               let dx = offset["dx"] as? Double,
-              let dy = offset["dy"] as? Double
-        else {
+              let dy = offset["dy"] as? Double else {
             result(FlutterError(code: "E001", message: "Invalid arguments for setLogoPosition", details: nil))
             return
         }

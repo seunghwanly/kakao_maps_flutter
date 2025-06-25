@@ -10,6 +10,7 @@ A Flutter plugin for integrating Kakao Maps SDK v2, providing a native map exper
 | Feature | Android | iOS |
 |---------|---------|-----|
 | Camera Controls | ✅ | ✅ |
+| Camera Move End Events | ✅ | ✅ |
 | Marker Management | ✅ | ✅ |
 | InfoWindow Management | ✅ | ✅ |
 | Custom GUI Components | ✅ | ✅ |
@@ -92,6 +93,7 @@ A Flutter plugin for integrating Kakao Maps SDK v2, providing a native map exper
 - Auto elevation support
 - Consecutive movement control
 - Tilt and rotation adjustments
+- **Camera move end events** - Real-time notifications when camera movement completes
 
 ### 🔄 Coordinate Conversion
 
@@ -311,7 +313,22 @@ await controller.removeInfoWindow(id: 'info_1');
 await controller.clearInfoWindows();
 ```
 
-8. Map Information:
+8. Camera Event Listening:
+
+```dart
+// Listen to camera move end events
+controller.onCameraMoveEndStream.listen((event) {
+  print('Camera moved to: ${event.latitude}, ${event.longitude}');
+  print('Zoom: ${event.zoomLevel}');
+  print('Tilt: ${event.tilt}°');
+  print('Rotation: ${event.rotation}°');
+});
+
+// Note: The camera move end listener provides real-time updates when
+// the camera finishes moving, including user gestures and programmatic moves
+```
+
+9. Map Information:
 
 ```dart
 // Get current map info
@@ -400,9 +417,9 @@ This will allow Gradle to find and download the Kakao Maps SDK for Android.
 
 ### Upcoming Features
 
-1. Map Events and Callbacks
+1. Additional Map Events and Callbacks
    - Touch events
-   - Camera movement events
+   - Camera movement start events
 
 2. Advanced Marker Features
    - Custom marker views
@@ -432,6 +449,7 @@ This will allow Gradle to find and download the Kakao Maps SDK for Android.
 
 ### ✅ Recently Implemented
 
+- **Camera Move End Events**: Real-time camera movement completion notifications with position, zoom, tilt, and rotation data
 - **Compass Controls**: Complete support for compass widget with positioning and back-to-north functionality
 - **ScaleBar Controls**: Full control over scale bar widget with auto-hide and fade timing options
 - **Logo Controls**: Logo visibility and positioning controls (with platform-specific limitations)

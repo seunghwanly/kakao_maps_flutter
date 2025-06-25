@@ -29,10 +29,8 @@ public class KakaoMapsFlutterPlugin: NSObject, FlutterPlugin {
                let appKey = args["appKey"] as? String
             {
                 SDKInitializer.InitSDK(appKey: appKey)
-                print("✅ SDK initialized")
                 result(true)
             } else {
-                print("❌ SDK init failed")
                 result(FlutterError(code: "E001", message: "Missing appKey", details: nil))
             }
             
