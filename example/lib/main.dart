@@ -119,9 +119,6 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
       ),
       body: KakaoMap(
         onMapCreated: onMapCreated,
-        scaleBar: const ScaleBar(
-          isAutoHide: true,
-        ),
       ),
       floatingActionButton: ValueListenableBuilder<bool>(
         valueListenable: mapReadyNotifier,
