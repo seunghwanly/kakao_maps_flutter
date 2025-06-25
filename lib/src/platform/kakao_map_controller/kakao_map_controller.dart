@@ -331,12 +331,30 @@ class KakaoMapController extends KakaoMapControllerPlatform {
   }
 
   /// Shows the logo on the map.
+  ///
+  /// Throws [PlatformException] on Android because logo show/hide is only supported on iOS.
   Future<void> showLogo() async {
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      throw PlatformException(
+        code: 'UNSUPPORTED',
+        message:
+            'Logo show/hide is only supported on iOS. The Kakao Maps Android SDK requires the logo to always be visible.',
+      );
+    }
     return _platform._callMethod(const ShowLogo());
   }
 
   /// Hides the logo on the map.
+  ///
+  /// Throws [PlatformException] on Android because logo show/hide is only supported on iOS.
   Future<void> hideLogo() async {
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      throw PlatformException(
+        code: 'UNSUPPORTED',
+        message:
+            'Logo show/hide is only supported on iOS. The Kakao Maps Android SDK requires the logo to always be visible.',
+      );
+    }
     return _platform._callMethod(const HideLogo());
   }
 

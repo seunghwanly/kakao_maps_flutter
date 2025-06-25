@@ -81,9 +81,9 @@ A Flutter plugin for integrating Kakao Maps SDK v2, providing a native map exper
 
 ### 🏷️ Logo Controls
 
-- Show/hide Kakao logo
-- Position logo with custom alignment and offset
-- Note: Logo position control is limited on Android due to SDK restrictions
+- Show/hide Kakao logo (**iOS only**)
+- Position logo with custom alignment and offset (iOS & Android)
+- **Note:** On Android, the logo is always visible due to SDK policy. Show/hide is not supported and will throw an exception.
 
 ### 🎥 Camera Controls
 
@@ -248,11 +248,11 @@ await controller.hideScaleBar();
 6. Logo Controls:
 
 ```dart
-// Show/hide logo
+// Show/hide logo (iOS only; throws on Android)
 await controller.showLogo();
 await controller.hideLogo();
 
-// Set logo position
+// Set logo position (iOS & Android)
 await controller.setLogoPosition(
   alignment: 'bottomRight',
   offset: Offset(16, 16),
@@ -354,6 +354,10 @@ LogoOption({
   Offset offset = Offset.zero,      // Offset from alignment position
 })
 ```
+
+> **Platform Note:**
+> - `showLogo()` and `hideLogo()` are only supported on iOS. On Android, these methods will throw a `PlatformException` because the Kakao Maps Android SDK requires the logo to always be visible.
+> - `setLogoPosition()` is supported on both iOS and Android.
 
 ### Supported Alignments
 
