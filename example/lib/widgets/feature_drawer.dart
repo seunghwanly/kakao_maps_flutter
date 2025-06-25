@@ -351,6 +351,25 @@ class FeatureDrawer extends StatelessWidget {
           ),
 
           KakaoDrawerSection(
+            title: '🧭 Compass & ScaleBar',
+            children: [
+              KakaoDrawerTile(
+                title: 'Compass & ScaleBar Example',
+                subtitle: 'Interactive compass and scalebar demo',
+                enabled: true,
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          const CompassScaleBarExampleScreen(),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+
+          KakaoDrawerSection(
             title: '🌍 Static Map',
             children: [
               KakaoDrawerTile(

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Orientation;
@@ -7,9 +6,9 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:kakao_maps_flutter/kakao_maps_flutter.dart';
 
 import 'assets/example_assets.dart';
+import 'screens/compass_scalebar_example.dart';
+import 'screens/kakao_map_example_static_map_screen.dart';
 import 'widgets/widgets.dart';
-
-part 'screens/kakao_map_example_static_map_screen.dart';
 
 const String $title = 'KakaoMapsSDK v2 Flutter Demo';
 
@@ -40,6 +39,7 @@ class MyApp extends StatelessWidget {
       home: const KakaoMapExampleScreen(),
       routes: {
         '/static/map_1': (context) => const KakaoMapExampleStaticMapScreen(),
+        '/compass_scalebar': (context) => const CompassScaleBarExampleScreen(),
       },
     );
   }
@@ -119,6 +119,9 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
       ),
       body: KakaoMap(
         onMapCreated: onMapCreated,
+        scaleBar: const ScaleBar(
+          isAutoHide: true,
+        ),
       ),
       floatingActionButton: ValueListenableBuilder<bool>(
         valueListenable: mapReadyNotifier,

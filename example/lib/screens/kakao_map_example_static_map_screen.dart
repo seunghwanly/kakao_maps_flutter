@@ -1,4 +1,7 @@
-part of '../main.dart';
+import 'dart:math';
+
+import 'package:flutter/material.dart';
+import 'package:kakao_maps_flutter/kakao_maps_flutter.dart';
 
 class KakaoMapExampleStaticMapScreen extends StatelessWidget {
   const KakaoMapExampleStaticMapScreen({super.key});
