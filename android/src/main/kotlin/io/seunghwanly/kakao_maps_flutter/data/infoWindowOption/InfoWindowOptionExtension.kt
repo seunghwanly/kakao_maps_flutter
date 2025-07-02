@@ -66,6 +66,9 @@ fun JSONObject.toNativeInfoWindowOptions(): InfoWindowOptions? {
     // Set visibility
     options.isVisible = this.optBoolean("isVisible", true)
 
+    // Set zOrder
+    options.zOrder = this.optInt("zOrder", 0)
+
     // Handle custom body or fallback to text
     val hasCustomBody = this.optBoolean("hasCustomBody", false)
 
