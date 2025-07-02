@@ -121,6 +121,10 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
       ),
       body: KakaoMap(
         onMapCreated: onMapCreated,
+        initialPosition: const LatLng(
+          latitude: 37.5441,
+          longitude: 127.0558,
+        ),
       ),
       floatingActionButton: ValueListenableBuilder<bool>(
         valueListenable: mapReadyNotifier,
@@ -198,16 +202,6 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
 
     /// Set initial POI scale for better marker visibility
     await mapController!.setPoiScale(scale: poiScale);
-
-    /// Move to Seoul Station with animation
-    await mapController!.moveCamera(
-      cameraUpdate: CameraUpdate.fromLatLng(seoulStation),
-      animation: const CameraAnimation(
-        duration: 1500,
-        autoElevation: true,
-        isConsecutive: false,
-      ),
-    );
   }
 
   Future<void> onZoomIn() async {

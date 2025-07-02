@@ -43,23 +43,29 @@ class KakaoMapController(
     private lateinit var kMap: KakaoMap
 
     // Parse initial position from args
-    private val initialPosition: LatLng? = parseInitialPosition(args)
+    private var initialPosition: LatLng?
 
     // Parse initial zoom level from args
-    private val initialLevel: Int? = parseInitialLevel(args)
+    private var initialLevel: Int?
 
     // Parse compass configuration from args
-    private val compassConfig: Map<String, Any?>? = parseCompassConfig(args)
+    private var compassConfig: Map<String, Any?>?
 
     // Parse scaleBar configuration from args
-    private val scaleBarConfig: Map<String, Any?>? = parseScaleBarConfig(args)
+    private var scaleBarConfig: Map<String, Any?>?
 
     // Parse logo configuration from args
-    private val logoConfig: Map<String, Any?>? = parseLogoConfig(args)
+    private var logoConfig: Map<String, Any?>?
 
     init {
         // Register Flutter MethodCallHandler
         methodChannel.setMethodCallHandler(this@KakaoMapController)
+
+        initialPosition = parseInitialPosition(args)
+        initialLevel = parseInitialLevel(args)
+        compassConfig = parseCompassConfig(args)
+        scaleBarConfig = parseScaleBarConfig(args)
+        logoConfig = parseLogoConfig(args)
 
         // Init Kakao Map
         // https://apis.map.kakao.com/android_v2/docs/getting-started/quickstart/#3-지도-시작-및-kakaomap-객체-가져오기
@@ -192,10 +198,23 @@ class KakaoMapController(
         )
     }
 
-    private fun parseInitialPosition(args: Any?): LatLng? {
-        if (args !is Map<*, *>) return null
+    private fun JSONObject.toMap(): Map<String, Any?> =
+        keys().asSequence().associateWith { key ->
+            when (val value = this.get(key)) {
+                is JSONObject -> value.toMap()
+                else -> value
+            }
+        }
 
-        val initialPositionMap = args["initialPosition"] as? Map<*, *> ?: return null
+    private fun parseInitialPosition(args: Any?): LatLng? {
+        val data: Map<*, *>? = when (args) {
+            is Map<*, *> -> args
+            is JSONObject -> args.toMap()
+            else -> null
+        }
+        if (data == null) return null
+
+        val initialPositionMap = data["initialPosition"] as? Map<*, *> ?: return null
         val latitude = initialPositionMap["latitude"] as? Double ?: return null
         val longitude = initialPositionMap["longitude"] as? Double ?: return null
 
@@ -203,27 +222,71 @@ class KakaoMapController(
     }
 
     private fun parseInitialLevel(args: Any?): Int? {
-        if (args !is Map<*, *>) return null
+        val data: Map<*, *>? = when (args) {
+            is Map<*, *> -> args
+            is JSONObject -> args.toMap()
+            else -> null
+        }
+        if (data == null) return null
 
-        return args["initialLevel"] as? Int
+        return data["initialLevel"] as? Int
     }
 
     private fun parseCompassConfig(args: Any?): Map<String, Any?>? {
-        if (args !is Map<*, *>) return null
+        val data: Map<*, *>? = when (args) {
+            is Map<*, *> -> args
+            is JSONObject -> args.toMap()
+            else -> null
+        }
+        if (data == null) return null
 
-        return args["compass"] as? Map<String, Any?>
+        val compassRaw = data["compass"]
+        return when (compassRaw) {
+            is Map<*, *> -> compassRaw.entries.associate {
+                it.key.toString() to it.value
+            }
+
+            is JSONObject -> compassRaw.toMap()
+            else -> null
+        }
     }
 
     private fun parseScaleBarConfig(args: Any?): Map<String, Any?>? {
-        if (args !is Map<*, *>) return null
+        val data: Map<*, *>? = when (args) {
+            is Map<*, *> -> args
+            is JSONObject -> args.toMap()
+            else -> null
+        }
+        if (data == null) return null
 
-        return args["scaleBar"] as? Map<String, Any?>
+        val scaleBarRaw = data["scaleBar"]
+        return when (scaleBarRaw) {
+            is Map<*, *> -> scaleBarRaw.entries.associate {
+                it.key.toString() to it.value
+            }
+
+            is JSONObject -> scaleBarRaw.toMap()
+            else -> null
+        }
     }
 
     private fun parseLogoConfig(args: Any?): Map<String, Any?>? {
-        if (args !is Map<*, *>) return null
+        val data: Map<*, *>? = when (args) {
+            is Map<*, *> -> args
+            is JSONObject -> args.toMap()
+            else -> null
+        }
+        if (data == null) return null
 
-        return args["logo"] as? Map<String, Any?>
+        val logoRaw = data["logo"]
+        return when (logoRaw) {
+            is Map<*, *> -> logoRaw.entries.associate {
+                it.key.toString() to it.value
+            }
+
+            is JSONObject -> logoRaw.toMap()
+            else -> null
+        }
     }
 
     private fun getZoomLevel(result: MethodChannel.Result) {
