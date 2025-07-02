@@ -510,7 +510,8 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
         zOrder: id.contains('jamsil') ? 1000 : 0,
         body: id.contains('jamsil')
             ? const GuiImage.fromBase64(
-                base64EncodedImage: ExampleAssets.infoWindowBackgroundImage2x,)
+                base64EncodedImage: ExampleAssets.infoWindowBackgroundImage2x,
+              )
             : null,
       ),
     );
