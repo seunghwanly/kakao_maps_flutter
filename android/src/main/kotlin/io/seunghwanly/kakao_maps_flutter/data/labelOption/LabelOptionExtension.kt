@@ -15,5 +15,6 @@ fun JSONObject.toLabelOptionOrNull(): LabelOption? {
         this.getString("id"),
         this.getJSONObject("latLng").toLatLng(),
         this.optString("base64EncodedImage"),
+        this.optLong("rank", 0),
     )
 }

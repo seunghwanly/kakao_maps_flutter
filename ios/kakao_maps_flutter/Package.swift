@@ -4,7 +4,7 @@ import PackageDescription
 let package = Package(
   name: "kakao_maps_flutter",
   platforms: [
-    .iOS(.v13)
+    .iOS("13.0")
   ],
   products: [
     .library(

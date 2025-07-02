@@ -18,6 +18,7 @@ class LabelOption extends Data {
     required this.id,
     required this.latLng,
     required this.base64EncodedImage,
+    this.rank,
   });
 
   /// Creates a LabelOption from raw image bytes.
@@ -28,11 +29,13 @@ class LabelOption extends Data {
     required String id,
     required LatLng latLng,
     required Uint8List imageBytes,
+    int? rank,
   }) =>
       LabelOption(
         id: id,
         latLng: latLng,
         base64EncodedImage: base64.encode(imageBytes),
+        rank: rank,
       );
 
   /// The unique identifier for this label.
@@ -46,10 +49,18 @@ class LabelOption extends Data {
   /// If null, a default marker icon will be used.
   final String? base64EncodedImage;
 
+  /// 지도 렌더링 순위
+  ///
+  /// [rank] 값이 높을수록 높은 우선순위를 가집니다.
+  /// - Android: LabelOption 렌더링 순위
+  /// - iOS: PoiOption 렌더링 순위
+  final int? rank;
+
   @override
   Map<String, Object?> toJson() => <String, Object?>{
         'id': id,
         'latLng': latLng.toJson(),
         'base64EncodedImage': base64EncodedImage,
+        'rank': rank,
       };
 }

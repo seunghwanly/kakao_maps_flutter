@@ -268,6 +268,7 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
         id: id,
         latLng: position,
         base64EncodedImage: ExampleAssets.marker2x,
+        rank: 9999,
       ),
     );
     showSnackBar('📌 Marker "$id" added');
@@ -506,6 +507,11 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
         title: title,
         snippet: snippet,
         offset: const InfoWindowOffset(x: 0, y: -20),
+        zOrder: id.contains('jamsil') ? 1000 : 0,
+        body: id.contains('jamsil')
+            ? const GuiImage.fromBase64(
+                base64EncodedImage: ExampleAssets.infoWindowBackgroundImage2x,)
+            : null,
       ),
     );
     showSnackBar('💬 InfoWindow "$id" added');

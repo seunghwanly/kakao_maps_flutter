@@ -371,7 +371,7 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
             let poiStyleID = createPoiStyleWithImage(image)
             let poiOption = PoiOptions(styleID: poiStyleID, poiID: id)
             poiOption.clickable = true
-            poiOption.rank = 0
+            poiOption.rank = args["rank"] as? Int ?? 0
             
             let poi = targetLayer.addPoi(option: poiOption, at: point)
             poi?.show()
@@ -427,7 +427,7 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
                 let poiStyleID = createPoiStyleWithImage(image)
                 let poiOption = PoiOptions(styleID: poiStyleID, poiID: id)
                 poiOption.clickable = true
-                poiOption.rank = 0
+                poiOption.rank = args["rank"] as? Int ?? 0
                 
                 let poi = targetLayer.addPoi(option: poiOption, at: point)
                 poi?.show()

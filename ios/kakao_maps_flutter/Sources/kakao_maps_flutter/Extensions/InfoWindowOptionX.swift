@@ -19,6 +19,7 @@ extension Dictionary where Key == String, Value == Any {
         
         let infoWindow = InfoWindow(id)
         infoWindow.position = position
+        infoWindow.zOrder = self["zOrder"] as? Int ?? 0
         
         if hasCustomBody {
             // Handle custom GuiView body

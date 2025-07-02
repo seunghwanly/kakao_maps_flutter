@@ -15,6 +15,7 @@ class InfoWindowOption extends Data {
   /// The [isVisible] determines whether the info window should be shown initially.
   /// The [offset] allows positioning the info window relative to its anchor point.
   /// The [bodyOffset] allows positioning the body relative to its anchor point.
+  /// The [zOrder] is the rendering order of the [InfoWindow]
   const InfoWindowOption({
     required this.id,
     required this.latLng,
@@ -25,6 +26,7 @@ class InfoWindowOption extends Data {
     this.isVisible = true,
     this.offset = const InfoWindowOffset(x: 0, y: 0),
     this.bodyOffset = const InfoWindowOffset(x: 0, y: 0),
+    this.zOrder,
   });
 
   /// Creates a simple text-based InfoWindow (legacy style).
@@ -38,6 +40,7 @@ class InfoWindowOption extends Data {
     this.isVisible = true,
     this.offset = const InfoWindowOffset(x: 0, y: 0),
     this.bodyOffset = const InfoWindowOffset(x: 0, y: 0),
+    this.zOrder,
   })  : body = null,
         tail = null;
 
@@ -52,6 +55,7 @@ class InfoWindowOption extends Data {
     this.isVisible = true,
     this.offset = const InfoWindowOffset(x: 0, y: 0),
     this.bodyOffset = const InfoWindowOffset(x: 0, y: 0),
+    this.zOrder,
   })  : title = null,
         snippet = null;
 
@@ -87,6 +91,9 @@ class InfoWindowOption extends Data {
   /// Whether this InfoWindow uses custom GUI components.
   bool get hasCustomBody => body != null;
 
+  /// [LabelOption]과 렌더링 순위를 별도로 관리, [InfoWindowOption] 끼리만 서로 유효
+  final int? zOrder;
+
   @override
   Map<String, Object?> toJson() => <String, Object?>{
         'id': id,
@@ -99,6 +106,7 @@ class InfoWindowOption extends Data {
         'offset': offset.toJson(),
         'bodyOffset': bodyOffset.toJson(),
         'hasCustomBody': hasCustomBody,
+        'zOrder': zOrder,
       };
 }
 
