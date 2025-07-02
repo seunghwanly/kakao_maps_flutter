@@ -8,10 +8,10 @@ import kotlin.io.encoding.ExperimentalEncodingApi
 
 @ExperimentalEncodingApi
 data class LabelOption(
-    val id: String, val latLng: LatLng, val image: Bitmap?
+    val id: String, val latLng: LatLng, val image: Bitmap?, val rank: Long = 0,
 ) {
     constructor(
-        id: String, latLng: LatLng, image: String?,
+        id: String, latLng: LatLng, image: String?, rank: Long = 0,
     ) : this(
         id, latLng, if (image == null) {
             null

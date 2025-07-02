@@ -360,6 +360,7 @@ class KakaoMapController(
                 labelOption.latLng,
             )
         option.setStyles(labelStyles)
+        option.rank = labelOption.rank
 
         kMap.labelManager?.layer?.addLabel(option)
 
@@ -407,6 +408,7 @@ class KakaoMapController(
             val labelStyles = LabelStyles.from(labelStyle)
             val labelOption = LabelOptions.from(option.id, option.latLng)
             labelOption.setStyles(labelStyles)
+            labelOption.setRank(option.rank)
 
             layer.addLabel(labelOption)
         }
