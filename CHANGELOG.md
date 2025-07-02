@@ -1,3 +1,43 @@
+## 0.0.1-beta3+1
+
+### 🎉 Features
+* Added `zOrder` property to `InfoWindowOptions` for controlling InfoWindow rendering order
+* Added `rank` property to `LabelOption` for label rendering order and updated related functionalities
+
+### ♻️ API Changes
+* `InfoWindowOptions` now supports `zOrder` property for explicit rendering order
+* `LabelOption` now includes `rank` property; related methods updated to utilize `rank` for label ordering
+
+### 🔧 Improvements
+* Enhanced Android initial position, zoom level, compass, scale bar, and logo configuration parsing for better flexibility and error handling
+
+### 🐛 Bug Fixes
+* Fixed initialPosition parser on Android to support both Map and JSONObject types
+
+### ⚠️ Breaking Changes
+* None
+
+---
+
+## 0.0.1-beta3+1 (Korean)
+
+### 🎉 기능 추가
+* `InfoWindowOptions`에 `zOrder` 속성을 추가하여 InfoWindow의 렌더링 순서 제어 가능
+* `LabelOption`에 `rank` 속성 추가 및 관련 기능 업데이트로 라벨 렌더링 순서 지정 가능
+
+### ♻️ API 변경
+* `InfoWindowOptions`에 `zOrder` 속성 추가로 렌더링 순서 명시적 지정 가능
+* `LabelOption`에 `rank` 속성 추가 및 관련 메서드가 `rank`를 활용하여 라벨 정렬 지원
+
+### 🔧 개선 사항
+* Android에서 초기 위치, 줌 레벨, 나침반, 스케일바, 로고 설정 파싱 로직 개선 및 오류 처리 강화
+
+### 🐛 버그 수정
+* Android에서 initialPosition 파서가 Map과 JSONObject 타입 모두 지원하도록 수정
+
+### ⚠️ 주요 변경/호환성
+* 없음
+
 ## 0.0.1-beta3
 
 ### 🎉 Features
