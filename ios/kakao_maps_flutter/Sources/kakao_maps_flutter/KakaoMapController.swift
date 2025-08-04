@@ -413,6 +413,10 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
                 return
             }
             
+            
+            var poiOptions: [PoiOptions] = []
+            var poiPositions: [MapPoint] = []
+            
             for markerData in markersArray {
                 guard let id = markerData["id"] as? String,
                       let latLng = markerData["latLng"] as? [String: Any],
@@ -425,13 +429,26 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
                 
                 let point = MapPoint(longitude: longitude, latitude: latitude)
                 let poiStyleID = createPoiStyleWithImage(image)
-                let poiOption = PoiOptions(styleID: poiStyleID, poiID: id)
+                let poiOption = PoiOptions(
+                    styleID: poiStyleID,
+                    poiID: id
+                )
                 poiOption.clickable = true
                 poiOption.rank = args["rank"] as? Int ?? 0
                 
-                let poi = targetLayer.addPoi(option: poiOption, at: point)
-                poi?.show()
+                poiOptions.append(poiOption)
+                poiPositions.append(
+                    MapPoint(longitude: longitude, latitude: latitude)
+                )
             }
+            
+            let _ = targetLayer.addPois(
+                options: poiOptions,
+                at: poiPositions
+            )
+            let _ = targetLayer.showPois(
+                poiIDs: poiOptions.map(\.itemID!)
+            )
             
             result(nil)
         }
@@ -451,9 +468,7 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
                 return
             }
             
-            for id in ids {
-                targetLayer.removePoi(poiID: id)
-            }
+            targetLayer.removePois(poiIDs: ids)
             
             result(nil)
         }
@@ -689,7 +704,7 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
         
         withKakaoMapView(result) { view in
             let guiManager = view.getGuiManager()
-            
+
             for infoWindowDict in infoWindowOptions {
                 guard let infoWindow = infoWindowDict.toNativeInfoWindow() else {
                     continue
