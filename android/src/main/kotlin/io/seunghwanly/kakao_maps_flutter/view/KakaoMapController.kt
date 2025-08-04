@@ -14,6 +14,7 @@ import com.kakao.vectormap.camera.CameraAnimation
 import com.kakao.vectormap.camera.CameraPosition
 import com.kakao.vectormap.camera.CameraUpdate
 import com.kakao.vectormap.camera.CameraUpdateFactory
+import com.kakao.vectormap.label.Label
 import com.kakao.vectormap.label.LabelLayer
 import com.kakao.vectormap.label.LabelOptions
 import com.kakao.vectormap.label.LabelStyle
@@ -391,6 +392,8 @@ class KakaoMapController(
         val options = args.getJSONArray("markers")
         val layer = kMap.labelManager?.layer ?: return result.error("E002", "Layer is null", null)
 
+        val labelOptions: MutableList<LabelOptions>  = mutableListOf()
+
         for (i in 0 until options.length()) {
             val option = options.getJSONObject(i).toLabelOptionOrNull() ?: continue
 
@@ -410,8 +413,10 @@ class KakaoMapController(
             labelOption.setStyles(labelStyles)
             labelOption.setRank(option.rank)
 
-            layer.addLabel(labelOption)
+            labelOptions.add(labelOption)
         }
+
+        layer.addLabels(labelOptions)
 
         result.success(null)
     }
@@ -422,11 +427,15 @@ class KakaoMapController(
         val layer = kMap.labelManager?.layer ?: return result.error("E002", "Layer is null", null)
         val parsedIds = args.getJSONArray("ids")
 
+        val labels: MutableList<Label> = mutableListOf()
+
         for (i in 0 until parsedIds.length()) {
             val id = parsedIds.getString(i)
             val label = layer.getLabel(id) ?: continue
-            layer.remove(label)
+            labels.add(label)
         }
+
+        layer.remove(*labels.toTypedArray())
 
         result.success(null)
     }
