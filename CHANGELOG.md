@@ -1,39 +1,45 @@
-## 0.0.1-beta3+1
+## 0.0.1-beta3+2
 
 ### 🎉 Features
-* Added `zOrder` property to `InfoWindowOptions` for controlling InfoWindow rendering order
-* Added `rank` property to `LabelOption` for label rendering order and updated related functionalities
+* **Performance Optimization** for label and POI batch operations on both Android and iOS platforms
 
 ### ♻️ API Changes
-* `InfoWindowOptions` now supports `zOrder` property for explicit rendering order
-* `LabelOption` now includes `rank` property; related methods updated to utilize `rank` for label ordering
+* Enhanced Android label management with batch add/remove operations using `addLabels()` and `remove(*labels.toTypedArray())`
+* Improved iOS POI management with batch operations using `addPois()` and `removePois()`
 
 ### 🔧 Improvements
-* Enhanced Android initial position, zoom level, compass, scale bar, and logo configuration parsing for better flexibility and error handling
+* **Android Performance**: Optimized label operations by collecting all labels first, then performing batch operations
+* **iOS Performance**: Enhanced POI operations with batch processing for better memory efficiency
+* Updated iOS project configuration with improved CocoaPods integration
+* Enhanced iOS build phases for better framework embedding and resource management
 
 ### 🐛 Bug Fixes
-* Fixed initialPosition parser on Android to support both Map and JSONObject types
+* Fixed iOS project structure for better compatibility with latest Xcode versions
+* Improved iOS Podfile.lock management and dependency resolution
 
 ### ⚠️ Breaking Changes
 * None
 
 ---
 
-## 0.0.1-beta3+1 (Korean)
+## 0.0.1-beta3+2 (Korean)
 
 ### 🎉 기능 추가
-* `InfoWindowOptions`에 `zOrder` 속성을 추가하여 InfoWindow의 렌더링 순서 제어 가능
-* `LabelOption`에 `rank` 속성 추가 및 관련 기능 업데이트로 라벨 렌더링 순서 지정 가능
+* **성능 최적화** - Android와 iOS 플랫폼에서 라벨 및 POI 배치 작업 성능 향상
 
 ### ♻️ API 변경
-* `InfoWindowOptions`에 `zOrder` 속성 추가로 렌더링 순서 명시적 지정 가능
-* `LabelOption`에 `rank` 속성 추가 및 관련 메서드가 `rank`를 활용하여 라벨 정렬 지원
+* Android 라벨 관리 개선: `addLabels()` 및 `remove(*labels.toTypedArray())`를 사용한 배치 추가/제거 작업
+* iOS POI 관리 개선: `addPois()` 및 `removePois()`를 사용한 배치 작업
 
 ### 🔧 개선 사항
-* Android에서 초기 위치, 줌 레벨, 나침반, 스케일바, 로고 설정 파싱 로직 개선 및 오류 처리 강화
+* **Android 성능**: 모든 라벨을 먼저 수집한 후 배치 작업을 수행하여 라벨 작업 최적화
+* **iOS 성능**: 배치 처리를 통한 POI 작업 향상으로 메모리 효율성 개선
+* iOS 프로젝트 설정 업데이트로 CocoaPods 통합 개선
+* iOS 빌드 단계 개선으로 프레임워크 임베딩 및 리소스 관리 향상
 
 ### 🐛 버그 수정
-* Android에서 initialPosition 파서가 Map과 JSONObject 타입 모두 지원하도록 수정
+* 최신 Xcode 버전과의 호환성을 위한 iOS 프로젝트 구조 수정
+* iOS Podfile.lock 관리 및 의존성 해결 개선
 
 ### ⚠️ 주요 변경/호환성
 * 없음
