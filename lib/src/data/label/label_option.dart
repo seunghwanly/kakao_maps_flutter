@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:kakao_maps_flutter/src/base/data.dart';
@@ -19,6 +20,11 @@ class LabelOption extends Data {
     required this.latLng,
     required this.base64EncodedImage,
     this.rank,
+    this.text,
+    this.textColor,
+    this.strokeThickness,
+    this.strokeColor,
+    this.textSize,
   });
 
   /// Creates a LabelOption from raw image bytes.
@@ -56,11 +62,31 @@ class LabelOption extends Data {
   /// - iOS: PoiOption 렌더링 순위
   final int? rank;
 
+  /// 텍스트
+  final String? text;
+
+  /// 텍스트 색상
+  final Color? textColor;
+
+  /// 텍스트 테두리 두께
+  final int? strokeThickness;
+
+  /// 텍스트 테두리 색상
+  final Color? strokeColor;
+
+  /// 텍스트 크기
+  final int? textSize;
+
   @override
   Map<String, Object?> toJson() => <String, Object?>{
         'id': id,
         'latLng': latLng.toJson(),
         'base64EncodedImage': base64EncodedImage,
         'rank': rank,
+        'text': text,
+        'textColor': textColor?.toARGB32(),
+        'strokeThickness': strokeThickness,
+        'strokeColor': strokeColor?.toARGB32(),
+        'textSize': textSize,
       };
 }
