@@ -1,3 +1,27 @@
+## 0.0.1-beta3+3
+
+### 🎉 Features
+* Added text-related properties to `LabelOption` for enhanced label customization
+* Added `text`, `textColor`, `textSize`, `strokeThickness`, and `strokeColor` properties to support rich text labels
+
+### ♻️ API Changes
+* Enhanced `LabelOption` data class with text styling capabilities
+* Updated JSON conversion logic to handle new text properties
+* Improved POI style creation with text styling support on both iOS and Android
+
+### 🔧 Improvements
+* Enhanced iOS and Android POI style generation with text rendering
+* Updated constructor parameters for better text property handling
+* Improved text color and stroke color processing with ARGB32 conversion
+
+### 🐛 Bug Fixes
+* Fixed cache removal issues for better memory management
+
+### ⚠️ Breaking Changes
+* None
+
+---
+
 ## 0.0.1-beta3+2
 
 ### 🎉 Features
@@ -21,28 +45,6 @@
 * None
 
 ---
-
-## 0.0.1-beta3+2 (Korean)
-
-### 🎉 기능 추가
-* **성능 최적화** - Android와 iOS 플랫폼에서 라벨 및 POI 배치 작업 성능 향상
-
-### ♻️ API 변경
-* Android 라벨 관리 개선: `addLabels()` 및 `remove(*labels.toTypedArray())`를 사용한 배치 추가/제거 작업
-* iOS POI 관리 개선: `addPois()` 및 `removePois()`를 사용한 배치 작업
-
-### 🔧 개선 사항
-* **Android 성능**: 모든 라벨을 먼저 수집한 후 배치 작업을 수행하여 라벨 작업 최적화
-* **iOS 성능**: 배치 처리를 통한 POI 작업 향상으로 메모리 효율성 개선
-* iOS 프로젝트 설정 업데이트로 CocoaPods 통합 개선
-* iOS 빌드 단계 개선으로 프레임워크 임베딩 및 리소스 관리 향상
-
-### 🐛 버그 수정
-* 최신 Xcode 버전과의 호환성을 위한 iOS 프로젝트 구조 수정
-* iOS Podfile.lock 관리 및 의존성 해결 개선
-
-### ⚠️ 주요 변경/호환성
-* 없음
 
 ## 0.0.1-beta3
 
@@ -81,6 +83,8 @@
 ### ⚠️ Breaking Changes
 * None - backward compatible with previous beta versions
 
+---
+
 ## 0.0.1-beta2
 
 ### 🎉 Features
@@ -106,6 +110,8 @@
 * Added troubleshooting guide for Kakao Maps Android SDK dependency
 * Enhanced map widget parameters documentation
 
+---
+
 ## 0.0.1-beta1+2
 
 ### 🎉 Features
@@ -122,6 +128,8 @@
 * Code cleanup and organization
 * New example app with `KakaoMapExampleScreen`
 * Added marker assets and data structure refactoring
+
+---
 
 ## 0.0.1-beta1
 
