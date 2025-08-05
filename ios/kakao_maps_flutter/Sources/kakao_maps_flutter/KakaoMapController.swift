@@ -277,7 +277,13 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
         return manager.addLabelLayer(option: layerOption)
     }
     
-    private func createPoiStyleWithImage(_ image: UIImage) -> String {
+    private func createPoiStyleWithImage(
+        _ image: UIImage,
+        textColor: UIColor? = nil,
+        textSize: UInt?  = nil,
+        strokeThickness: UInt? = nil,
+        strokeColor: UIColor? = nil,
+    ) -> String {
         let styleID = "PerLevelStyle"
         let view = mapController.getView(kKakaoMapViewName) as! KakaoMap
         let manager = view.getLabelManager()
@@ -285,13 +291,36 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
         manager.removePoiStyle(styleID)
         
         let iconStyle = PoiIconStyle(symbol: image)
+        
+        let textStyle1 = PoiTextStyle(
+            textLineStyles: [
+                PoiTextLineStyle(
+                    textStyle: TextStyle(
+                        fontSize: textSize ?? 14,
+                        fontColor: textColor ?? UIColor.black,
+                        strokeThickness: strokeThickness ?? 2,
+                        strokeColor: strokeColor ??  UIColor.white,
+                    )
+                )
+            ]
+        )
+        
         let poiStyle = PoiStyle(
             styleID: styleID,
             styles: [
-                PerLevelPoiStyle(iconStyle: iconStyle, level: 11),
-                PerLevelPoiStyle(iconStyle: iconStyle, level: 21),
+                PerLevelPoiStyle(
+                    iconStyle: iconStyle,
+                    textStyle: textStyle1,
+                    level: 11
+                ),
+                PerLevelPoiStyle(
+                    iconStyle: iconStyle,
+                    textStyle: textStyle1,
+                    level: 21
+                ),
             ]
         )
+        
         manager.addPoiStyle(poiStyle)
         return styleID
     }
@@ -349,7 +378,8 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
               let latLng = args["latLng"] as? [String: Any],
               let latitude = latLng["latitude"] as? Double,
               let longitude = latLng["longitude"] as? Double,
-              let base64EncodedImage = args["base64EncodedImage"] as? String else {
+              let base64EncodedImage = args["base64EncodedImage"] as? String
+        else {
             result(FlutterError(code: "E001", message: "Invalid arguments for addMarker", details: nil))
             return
         }
@@ -368,10 +398,24 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
                 return
             }
             
-            let poiStyleID = createPoiStyleWithImage(image)
+            let textColor: UIColor? = (args["textColor"] as? Int).map { UIColor.fromArgb($0) }
+            let textSize = (args["textSize"] as? Int).map { UInt($0) }
+            let strokeThickness = (args["strokeThickness"] as? Int).map { UInt($0) }
+            let strokeColor: UIColor? = (args["strokeColor"] as? Int).map { UIColor.fromArgb($0) }
+            
+            let poiStyleID = createPoiStyleWithImage(
+                image,
+                textColor: textColor,
+                textSize: textSize,
+                strokeThickness: strokeThickness,
+                strokeColor: strokeColor
+            )
             let poiOption = PoiOptions(styleID: poiStyleID, poiID: id)
             poiOption.clickable = true
             poiOption.rank = args["rank"] as? Int ?? 0
+            if let poiText = args["text"] as? String {
+                poiOption.addText(PoiText(text: poiText, styleIndex: 0))
+            }
             
             let poi = targetLayer.addPoi(option: poiOption, at: point)
             poi?.show()
@@ -428,7 +472,19 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
                 }
                 
                 let point = MapPoint(longitude: longitude, latitude: latitude)
-                let poiStyleID = createPoiStyleWithImage(image)
+                
+                let textColor: UIColor? = (args["textColor"] as? Int).map { UIColor.fromArgb($0) }
+                let textSize = (args["textSize"] as? Int).map { UInt($0) }
+                let strokeThickness = (args["strokeThickness"] as? Int).map { UInt($0) }
+                let strokeColor: UIColor? = (args["strokeColor"] as? Int).map { UIColor.fromArgb($0) }
+                
+                let poiStyleID = createPoiStyleWithImage(
+                    image,
+                    textColor: textColor,
+                    textSize: textSize,
+                    strokeThickness: strokeThickness,
+                    strokeColor: strokeColor
+                )
                 let poiOption = PoiOptions(
                     styleID: poiStyleID,
                     poiID: id
