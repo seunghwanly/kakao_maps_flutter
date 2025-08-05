@@ -710,9 +710,7 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
     }
     
     // MARK: - InfoWindow Management
-    
-    private var infoWindows: [String: InfoWindow] = [:]
-    
+
     private func addInfoWindow(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         guard let args = call.arguments as? [String: Any] else {
             result(FlutterError(code: "E001", message: "Invalid arguments for addInfoWindow", details: nil))
@@ -726,7 +724,6 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
             }
             
             infoWindow.delegate = self
-            infoWindows[infoWindow.name] = infoWindow
             
             let guiManager = view.getGuiManager()
             let _ = guiManager.infoWindowLayer.addInfoWindow(infoWindow)
@@ -743,10 +740,11 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
         }
         
         withKakaoMapView(result) { view in
-            if let infoWindow = infoWindows[id] {
-                infoWindow.hide()
-                infoWindows.removeValue(forKey: id)
-            }
+            let guiManager = view.getGuiManager()
+            let _ = guiManager.infoWindowLayer.removeInfoWindow(
+                guiName: id
+            )
+            
             result(nil)
         }
     }
@@ -767,7 +765,6 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
                 }
                 
                 infoWindow.delegate = self
-                infoWindows[infoWindow.name] = infoWindow
                 
                 let isVisible = infoWindowDict["isVisible"] as? Bool ?? true
                 
@@ -788,11 +785,10 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
         }
         
         withKakaoMapView(result) { view in
+            let guiManager = view.getGuiManager()
+            
             for id in ids {
-                if let infoWindow = infoWindows[id] {
-                    infoWindow.hide()
-                    infoWindows.removeValue(forKey: id)
-                }
+                let _ = guiManager.infoWindowLayer.removeInfoWindow(guiName: id)
             }
             result(nil)
         }
@@ -800,10 +796,8 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
     
     private func clearInfoWindows(_ result: @escaping FlutterResult) {
         withKakaoMapView(result) { view in
-            for (_, infoWindow) in infoWindows {
-                infoWindow.hide()
-            }
-            infoWindows.removeAll()
+            let guiManager = view.getGuiManager()
+            let _ = guiManager.infoWindowLayer.clear()
             result(nil)
         }
     }
