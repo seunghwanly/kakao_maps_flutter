@@ -23,8 +23,8 @@ data class LabelOption(
         latLng: LatLng,
         image: String?,
         rank: Long = 0,
-        text: text,
-        textColor: textColor,
+        text: String?,
+        textColor: Int?,
         textSize: Int?,
         strokeThickness: Int?,
         strokeColor: Int?
