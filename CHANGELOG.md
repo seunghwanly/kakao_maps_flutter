@@ -1,3 +1,17 @@
+## 0.0.1-beta3+5
+
+### 🐛 Bug Fixes
+* (iOS) Removed separate comma
+
+---
+
+## 0.0.1-beta3+4
+
+### 🐛 Bug Fixes
+* (Android) Added type on constructor
+
+---
+
 ## 0.0.1-beta3+3
 
 ### 🎉 Features

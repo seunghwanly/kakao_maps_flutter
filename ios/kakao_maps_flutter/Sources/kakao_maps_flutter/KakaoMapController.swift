@@ -280,9 +280,9 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
     private func createPoiStyleWithImage(
         _ image: UIImage,
         textColor: UIColor? = nil,
-        textSize: UInt?  = nil,
+        textSize: UInt? = nil,
         strokeThickness: UInt? = nil,
-        strokeColor: UIColor? = nil,
+        strokeColor: UIColor? = nil
     ) -> String {
         let styleID = "PerLevelStyle"
         let view = mapController.getView(kKakaoMapViewName) as! KakaoMap
@@ -299,7 +299,7 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
                         fontSize: textSize ?? 14,
                         fontColor: textColor ?? UIColor.black,
                         strokeThickness: strokeThickness ?? 2,
-                        strokeColor: strokeColor ??  UIColor.white,
+                        strokeColor: strokeColor ?? UIColor.white
                     )
                 )
             ]
@@ -317,7 +317,7 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
                     iconStyle: iconStyle,
                     textStyle: textStyle1,
                     level: 21
-                ),
+                )
             ]
         )
         
@@ -378,8 +378,7 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
               let latLng = args["latLng"] as? [String: Any],
               let latitude = latLng["latitude"] as? Double,
               let longitude = latLng["longitude"] as? Double,
-              let base64EncodedImage = args["base64EncodedImage"] as? String
-        else {
+              let base64EncodedImage = args["base64EncodedImage"] as? String else {
             result(FlutterError(code: "E001", message: "Invalid arguments for addMarker", details: nil))
             return
         }
@@ -456,7 +455,6 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
                 result(FlutterError(code: "E002", message: "Failed to get or create LabelLayer", details: nil))
                 return
             }
-            
             
             var poiOptions: [PoiOptions] = []
             var poiPositions: [MapPoint] = []
@@ -545,7 +543,7 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
             
             result([
                 "latitude": mapPoint.wgsCoord.latitude,
-                "longitude": mapPoint.wgsCoord.longitude,
+                "longitude": mapPoint.wgsCoord.longitude
             ])
         }
     }
@@ -564,7 +562,7 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
             
             result([
                 "dx": NSNull(),
-                "dy": NSNull(),
+                "dy": NSNull()
             ])
         }
     }
@@ -583,7 +581,7 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
             
             result([
                 "latitude": mapPoint.wgsCoord.latitude,
-                "longitude": mapPoint.wgsCoord.longitude,
+                "longitude": mapPoint.wgsCoord.longitude
             ])
         }
     }
@@ -689,12 +687,12 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
             result([
                 "southwest": [
                     "latitude": bottomRight.wgsCoord.latitude,
-                    "longitude": topLeft.wgsCoord.longitude,
+                    "longitude": topLeft.wgsCoord.longitude
                 ],
                 "northeast": [
                     "latitude": topLeft.wgsCoord.latitude,
-                    "longitude": bottomRight.wgsCoord.longitude,
-                ],
+                    "longitude": bottomRight.wgsCoord.longitude
+                ]
             ])
         }
     }
@@ -704,13 +702,13 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
             result([
                 "zoomLevel": view.zoomLevel,
                 "rotation": view.rotationAngle,
-                "tilt": view.tiltAngle,
+                "tilt": view.tiltAngle
             ])
         }
     }
     
     // MARK: - InfoWindow Management
-
+    
     private func addInfoWindow(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         guard let args = call.arguments as? [String: Any] else {
             result(FlutterError(code: "E001", message: "Invalid arguments for addInfoWindow", details: nil))
@@ -812,8 +810,8 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
                 "infoWindowId": id,
                 "latLng": [
                     "latitude": infoWindow.position?.wgsCoord.latitude ?? 0.0,
-                    "longitude": infoWindow.position?.wgsCoord.longitude ?? 0.0,
-                ],
+                    "longitude": infoWindow.position?.wgsCoord.longitude ?? 0.0
+                ]
             ]
             
             methodChannel.invokeMethod("onInfoWindowClicked", arguments: eventData)
