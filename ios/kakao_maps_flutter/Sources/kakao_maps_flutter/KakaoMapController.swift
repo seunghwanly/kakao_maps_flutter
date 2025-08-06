@@ -282,7 +282,7 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
         textColor: UIColor? = nil,
         textSize: UInt?  = nil,
         strokeThickness: UInt? = nil,
-        strokeColor: UIColor? = nil,
+        strokeColor: UIColor? = nil
     ) -> String {
         let styleID = "PerLevelStyle"
         let view = mapController.getView(kKakaoMapViewName) as! KakaoMap
