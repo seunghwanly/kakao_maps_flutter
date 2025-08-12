@@ -67,7 +67,7 @@ class KakaoMapController(
     private var registeredLabelStylesIds = Collections.synchronizedSet(mutableSetOf<String>())
 
     // LOD layers registry (logical layerId -> SDK LodLabelLayer)
-    private val lodLayers: MutableMap<String, LodLabelLayer> = mutableMapOf()
+    private val lodLayers: MutableMap<String, LodLabelLayer> = Collections.synchronizedMap(mutableMapOf())
 
     init {
         // Register Flutter MethodCallHandler
