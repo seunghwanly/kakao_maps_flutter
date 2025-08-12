@@ -16,6 +16,8 @@ import com.kakao.vectormap.camera.CameraPosition
 import com.kakao.vectormap.camera.CameraUpdate
 import com.kakao.vectormap.camera.CameraUpdateFactory
 import com.kakao.vectormap.label.Label
+import com.kakao.vectormap.label.LodLabel
+import com.kakao.vectormap.label.LodLabelLayer
 import com.kakao.vectormap.label.LabelLayer
 import com.kakao.vectormap.label.LabelOptions
 import com.kakao.vectormap.label.LabelStyle
@@ -33,6 +35,7 @@ import io.seunghwanly.kakao_maps_flutter.data.labelOption.toLabelOptionOrNull
 import io.seunghwanly.kakao_maps_flutter.data.latLng.toLatLng
 import org.json.JSONObject
 import org.json.JSONArray
+import java.util.Collections
 import kotlin.io.encoding.ExperimentalEncodingApi
 import kotlin.io.encoding.Base64
 
@@ -61,7 +64,10 @@ class KakaoMapController(
     // Parse logo configuration from args
     private var logoConfig: Map<String, Any?>?
 
-    private var registeredLabelStylesIds = mutableSetOf<String>()
+    private var registeredLabelStylesIds = Collections.synchronizedSet(mutableSetOf<String>())
+
+    // LOD layers registry (logical layerId -> SDK LodLabelLayer)
+    private val lodLayers: MutableMap<String, LodLabelLayer> = Collections.synchronizedMap(mutableMapOf())
 
     init {
         // Register Flutter MethodCallHandler
@@ -481,6 +487,207 @@ class KakaoMapController(
         return result.success(null)
     }
 
+    // ===== LOD Marker (LodLabel) helpers =====
+    private fun getOrCreateLodLayer(layerId: String): LodLabelLayer? {
+        // If exists, return
+        lodLayers[layerId]?.let { return it }
+
+        // Acquire SDK default Lod layer (Android SDK exposes a single Lod layer)
+        val sdkLayer = kMap.labelManager?.lodLayer
+            ?: kMap.labelManager?.getLodLayer() // fallback if property not available
+            ?: return null
+
+        lodLayers[layerId] = sdkLayer
+        return sdkLayer
+    }
+
+    private fun addLodMarkerLayer(args: JSONObject, result: MethodChannel.Result) {
+        require(::kMap.isInitialized) { "kakaoMap is not initialized" }
+
+        val layerId = args.optString("layerId", "")
+        if (layerId.isEmpty()) {
+            return result.error("E001", "layerId must not be empty", null)
+        }
+
+        val layer = getOrCreateLodLayer(layerId)
+            ?: return result.error("E002", "Failed to acquire LodLabelLayer", null)
+
+        // Apply zOrder if provided
+        if (args.has("zOrder") && !args.isNull("zOrder")) {
+            layer.setZOrder(args.optInt("zOrder", layer.zOrder))
+        }
+        // clickable default true
+        if (args.has("clickable")) {
+            layer.setClickable(args.optBoolean("clickable", true))
+        }
+
+        return result.success(null)
+    }
+
+    private fun removeLodMarkerLayer(args: JSONObject, result: MethodChannel.Result) {
+        require(::kMap.isInitialized) { "kakaoMap is not initialized" }
+
+        val layerId = args.optString("layerId", "")
+        if (layerId.isEmpty()) {
+            return result.error("E001", "layerId must not be empty", null)
+        }
+        val layer = lodLayers.remove(layerId) ?: return result.success(null)
+        layer.removeAll()
+        return result.success(null)
+    }
+
+    @OptIn(ExperimentalEncodingApi::class)
+    private fun addLodMarker(args: JSONObject, result: MethodChannel.Result) {
+        require(::kMap.isInitialized) { "kakaoMap is not initialized" }
+
+        val layerId = args.optString("layerId", "")
+        val optionJson = args.optJSONObject("option")
+            ?: return result.error("E001", "option must not be null", null)
+        val option = optionJson.toLabelOptionOrNull()
+            ?: return result.error("E001", "invalid option", null)
+
+        val layer = getOrCreateLodLayer(layerId)
+            ?: return result.error("E002", "Failed to acquire LodLabelLayer", null)
+
+        // Resolve styles
+        val styleId: String? = optionJson.optString("styleId", "").takeIf { optionJson.has("styleId") && it.isNotBlank() }
+        val labelStyles: LabelStyles = when {
+            styleId != null -> (kMap.labelManager?.getLabelStyles(styleId)) ?: LabelStyles.from(
+                LabelStyle.from(LabelTextStyle.from(10, 0xFF000000.toInt()))
+            )
+            else -> LabelStyles.from(LabelStyle.from(LabelTextStyle.from(10, 0xFF000000.toInt())))
+        }
+
+        val labelOptions = LabelOptions.from(option.id, option.latLng)
+        labelOptions.setStyles(labelStyles)
+        labelOptions.setRank(option.rank)
+
+        // Replace if exists
+        if (layer.hasLabel(option.id)) {
+            layer.getLabel(option.id)?.remove()
+        }
+
+        val created: LodLabel? = layer.addLodLabel(labelOptions)
+        created?.show()
+        return result.success(created != null)
+    }
+
+    @OptIn(ExperimentalEncodingApi::class)
+    private fun addLodMarkers(args: JSONObject, result: MethodChannel.Result) {
+        require(::kMap.isInitialized) { "kakaoMap is not initialized" }
+
+        val layerId = args.optString("layerId", "")
+        val optionsArr = args.optJSONArray("options")
+            ?: return result.error("E001", "options must not be null", null)
+
+        val layer = getOrCreateLodLayer(layerId)
+            ?: return result.error("E002", "Failed to acquire LodLabelLayer", null)
+
+        val list = mutableListOf<LabelOptions>()
+
+        for (i in 0 until optionsArr.length()) {
+            val item = optionsArr.optJSONObject(i) ?: continue
+            val option = item.toLabelOptionOrNull() ?: continue
+
+            if (layer.hasLabel(option.id)) {
+                layer.getLabel(option.id)?.remove()
+            }
+
+            val styleId: String? = item.optString("styleId", "").takeIf { item.has("styleId") && it.isNotBlank() }
+            val labelStyles: LabelStyles = when {
+                styleId != null -> (kMap.labelManager?.getLabelStyles(styleId)) ?: LabelStyles.from(
+                    LabelStyle.from(LabelTextStyle.from(10, 0xFF000000.toInt()))
+                )
+                else -> LabelStyles.from(LabelStyle.from(LabelTextStyle.from(10, 0xFF000000.toInt())))
+            }
+
+            val labelOption = LabelOptions.from(option.id, option.latLng)
+            labelOption.setStyles(labelStyles)
+            labelOption.setRank(option.rank)
+            list.add(labelOption)
+        }
+
+        val created = layer.addLodLabels(list)
+        // Optionally show all
+        layer.showAllLodLabels()
+        return result.success(created != null)
+    }
+
+    private fun removeLodMarkers(args: JSONObject, result: MethodChannel.Result) {
+        require(::kMap.isInitialized) { "kakaoMap is not initialized" }
+        val layerId = args.optString("layerId", "")
+        val ids = args.optJSONArray("ids") ?: return result.error("E001", "ids must not be null", null)
+        val layer = lodLayers[layerId] ?: return result.success(null)
+
+        val labels = mutableListOf<LodLabel>()
+        for (i in 0 until ids.length()) {
+            val id = ids.getString(i)
+            val label = layer.getLabel(id) ?: continue
+            labels.add(label)
+        }
+        if (labels.isNotEmpty()) layer.remove(*labels.toTypedArray())
+        return result.success(null)
+    }
+
+    private fun clearAllLodMarkers(args: JSONObject, result: MethodChannel.Result) {
+        require(::kMap.isInitialized) { "kakaoMap is not initialized" }
+        val layerId = args.optString("layerId", "")
+        val layer = lodLayers[layerId] ?: return result.success(null)
+        layer.removeAll()
+        return result.success(null)
+    }
+
+    private fun showAllLodMarkers(args: JSONObject, result: MethodChannel.Result) {
+        require(::kMap.isInitialized) { "kakaoMap is not initialized" }
+        val layerId = args.optString("layerId", "")
+        val layer = lodLayers[layerId] ?: return result.success(null)
+        layer.showAllLodLabels()
+        return result.success(null)
+    }
+
+    private fun hideAllLodMarkers(args: JSONObject, result: MethodChannel.Result) {
+        require(::kMap.isInitialized) { "kakaoMap is not initialized" }
+        val layerId = args.optString("layerId", "")
+        val layer = lodLayers[layerId] ?: return result.success(null)
+        layer.hideAllLodLabels()
+        return result.success(null)
+    }
+
+    private fun showLodMarkers(args: JSONObject, result: MethodChannel.Result) {
+        require(::kMap.isInitialized) { "kakaoMap is not initialized" }
+        val layerId = args.optString("layerId", "")
+        val ids = args.optJSONArray("ids") ?: return result.error("E001", "ids must not be null", null)
+        val layer = lodLayers[layerId] ?: return result.success(null)
+
+        for (i in 0 until ids.length()) {
+            val id = ids.getString(i)
+            layer.getLabel(id)?.show()
+        }
+        return result.success(null)
+    }
+
+    private fun hideLodMarkers(args: JSONObject, result: MethodChannel.Result) {
+        require(::kMap.isInitialized) { "kakaoMap is not initialized" }
+        val layerId = args.optString("layerId", "")
+        val ids = args.optJSONArray("ids") ?: return result.error("E001", "ids must not be null", null)
+        val layer = lodLayers[layerId] ?: return result.success(null)
+
+        for (i in 0 until ids.length()) {
+            val id = ids.getString(i)
+            layer.getLabel(id)?.hide()
+        }
+        return result.success(null)
+    }
+
+    private fun setLodMarkerLayerClickable(args: JSONObject, result: MethodChannel.Result) {
+        require(::kMap.isInitialized) { "kakaoMap is not initialized" }
+        val layerId = args.optString("layerId", "")
+        val clickable = args.optBoolean("clickable", true)
+        val layer = lodLayers[layerId] ?: return result.success(null)
+        layer.setClickable(clickable)
+        return result.success(null)
+    }
+
     // Marker styles registration (Flutter -> Native)
     @OptIn(ExperimentalEncodingApi::class)
     private fun registerMarkerStyles(args: Any?, result: MethodChannel.Result) {
@@ -598,7 +805,6 @@ class KakaoMapController(
         registeredLabelStylesIds.forEach { id ->
             kMap.labelManager?.getLabelStyles(id)?.styles = arrayOf()
             kMap.labelManager?.getLabelStyles(id)?.styleId = ""
-            registeredLabelStylesIds.remove(id)
         }
         registeredLabelStylesIds.clear()
         return result.success(null)
@@ -986,6 +1192,18 @@ class KakaoMapController(
             "showLogo" -> showLogo(result)
             "hideLogo" -> hideLogo(result)
             "setLogoPosition" -> setLogoPosition(call.arguments as JSONObject, result)
+            // LOD Marker (LodLabel) APIs
+            "addLodMarkerLayer" -> addLodMarkerLayer(asJSONObject(call.arguments), result)
+            "removeLodMarkerLayer" -> removeLodMarkerLayer(asJSONObject(call.arguments), result)
+            "addLodMarker" -> addLodMarker(asJSONObject(call.arguments), result)
+            "addLodMarkers" -> addLodMarkers(asJSONObject(call.arguments), result)
+            "removeLodMarkers" -> removeLodMarkers(asJSONObject(call.arguments), result)
+            "clearAllLodMarkers" -> clearAllLodMarkers(asJSONObject(call.arguments), result)
+            "showAllLodMarkers" -> showAllLodMarkers(asJSONObject(call.arguments), result)
+            "hideAllLodMarkers" -> hideAllLodMarkers(asJSONObject(call.arguments), result)
+            "showLodMarkers" -> showLodMarkers(asJSONObject(call.arguments), result)
+            "hideLodMarkers" -> hideLodMarkers(asJSONObject(call.arguments), result)
+            "setLodMarkerLayerClickable" -> setLodMarkerLayerClickable(asJSONObject(call.arguments), result)
             else -> result.notImplemented()
         }
     }

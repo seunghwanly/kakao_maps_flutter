@@ -32,6 +32,11 @@ class FeatureDrawer extends StatelessWidget {
     required this.onGuiInfoWindowIconText,
     required this.onGuiInfoWindowAndroidSDK,
     required this.onGuiInfoWindowTimeBased,
+    required this.onLodCreateLayer,
+    required this.onLodAddMany,
+    required this.onLodShowAll,
+    required this.onLodHideAll,
+    required this.onLodClear,
     super.key,
   });
 
@@ -65,6 +70,12 @@ class FeatureDrawer extends StatelessWidget {
   final VoidCallback onGuiInfoWindowIconText;
   final VoidCallback onGuiInfoWindowAndroidSDK;
   final VoidCallback onGuiInfoWindowTimeBased;
+  // LOD Markers
+  final VoidCallback onLodCreateLayer;
+  final VoidCallback onLodAddMany;
+  final VoidCallback onLodShowAll;
+  final VoidCallback onLodHideAll;
+  final VoidCallback onLodClear;
 
   @override
   Widget build(BuildContext context) {
@@ -373,6 +384,53 @@ class FeatureDrawer extends StatelessWidget {
                 enabled: isMapReady,
                 onTap: () {
                   onGuiInfoWindowTimeBased();
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          ),
+
+          /// LOD Markers Section
+          KakaoDrawerSection(
+            title: '⚡ LOD Markers (fast large set)',
+            children: [
+              KakaoDrawerTile(
+                title: 'Create LOD Layer',
+                enabled: isMapReady,
+                onTap: () {
+                  onLodCreateLayer();
+                  Navigator.of(context).pop();
+                },
+              ),
+              KakaoDrawerTile(
+                title: 'Add 1000 LOD Markers',
+                enabled: isMapReady,
+                onTap: () {
+                  onLodAddMany();
+                  Navigator.of(context).pop();
+                },
+              ),
+              KakaoDrawerTile(
+                title: 'Show All LOD Markers',
+                enabled: isMapReady,
+                onTap: () {
+                  onLodShowAll();
+                  Navigator.of(context).pop();
+                },
+              ),
+              KakaoDrawerTile(
+                title: 'Hide All LOD Markers',
+                enabled: isMapReady,
+                onTap: () {
+                  onLodHideAll();
+                  Navigator.of(context).pop();
+                },
+              ),
+              KakaoDrawerTile(
+                title: 'Clear LOD Markers',
+                enabled: isMapReady,
+                onTap: () {
+                  onLodClear();
                   Navigator.of(context).pop();
                 },
               ),
