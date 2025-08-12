@@ -193,6 +193,11 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
           onGuiInfoWindowIconText: onGuiInfoWindowIconText,
           onGuiInfoWindowAndroidSDK: onGuiInfoWindowAndroidSDK,
           onGuiInfoWindowTimeBased: onGuiInfoWindowTimeBased,
+          onLodCreateLayer: onLodCreateLayer,
+          onLodAddMany: onLodAddMany,
+          onLodShowAll: onLodShowAll,
+          onLodHideAll: onLodHideAll,
+          onLodClear: onLodClear,
         ),
       ),
     );
@@ -229,6 +234,9 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
     await mapController!.setPoiScale(scale: poiScale);
 
     await mapController!.registerMarkerStyles(styles: markerStyles);
+
+    // Optionally prepare LOD layer immediately (iOS fully; Android zOrder only)
+    await onLodCreateLayer();
   }
 
   Future<void> onZoomIn() async {
@@ -493,6 +501,60 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
       'NE: ${bounds.northeast.latitude.toStringAsFixed(4)}, ${bounds.northeast.longitude.toStringAsFixed(4)}',
       duration: const Duration(seconds: 4),
     );
+  }
+
+  // ===== LOD marker demo =====
+  static const String lodLayerId = 'demo_lod_layer';
+
+  Future<void> onLodCreateLayer() async {
+    if (mapController == null) return;
+    await mapController!.addLodMarkerLayer(
+      options: const LodMarkerLayerOptions(
+        layerId: lodLayerId,
+        zOrder: 0,
+        radius: 20,
+      ),
+    );
+  }
+
+  Future<void> onLodAddMany() async {
+    if (mapController == null) return;
+    // 1000 random around Jamsil
+    const base = jamsilStation;
+    final options = List<LabelOption>.generate(1000, (i) {
+      final dx = (i % 50) * 0.0002;
+      final dy = (i ~/ 50) * 0.0002;
+      return LabelOption(
+        id: 'lod_$i',
+        latLng: LatLng(
+          latitude: base.latitude + dy,
+          longitude: base.longitude + dx,
+        ),
+        styleId: 'default_marker_style_001',
+        rank: i + 1,
+        text: 'L$i',
+      );
+    });
+    await mapController!.addLodMarkers(options: options, layerId: lodLayerId);
+    showSnackBar('⚡ Added 1000 LOD markers');
+  }
+
+  Future<void> onLodShowAll() async {
+    if (mapController == null) return;
+    await mapController!.showAllLodMarkers(layerId: lodLayerId);
+    showSnackBar('👁️ Show all LOD markers');
+  }
+
+  Future<void> onLodHideAll() async {
+    if (mapController == null) return;
+    await mapController!.hideAllLodMarkers(layerId: lodLayerId);
+    showSnackBar('🙈 Hide all LOD markers');
+  }
+
+  Future<void> onLodClear() async {
+    if (mapController == null) return;
+    await mapController!.clearAllLodMarkers(layerId: lodLayerId);
+    showSnackBar('🧹 Cleared LOD markers');
   }
 
   void showSnackBar(String message, {Duration? duration}) {
