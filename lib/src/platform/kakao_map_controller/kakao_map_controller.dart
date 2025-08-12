@@ -318,6 +318,23 @@ class KakaoMapController extends KakaoMapControllerPlatform {
     await _platform._callMethod(const ClearInfoWindows());
   }
 
+  /// InfoWindow 레이어 전체의 표시 여부를 설정합니다.
+  ///
+  /// 호출 시점까지 추가된 모든 InfoWindow를 일괄 hide/show 합니다.
+  Future<void> setInfoWindowLayerVisible({required bool visible}) async {
+    await _platform._callMethod(SetInfoWindowLayerVisible(visible: visible));
+  }
+
+  /// 특정 InfoWindow의 표시 여부를 설정합니다.
+  ///
+  /// 해당 ID의 InfoWindow가 존재할 경우 hide/show 합니다.
+  Future<void> setInfoWindowVisible({
+    required String id,
+    required bool visible,
+  }) async {
+    await _platform._callMethod(SetInfoWindowVisible(id: id, visible: visible));
+  }
+
   /// Shows the compass on the map.
   ///
   /// The compass will be displayed according to its current configuration.

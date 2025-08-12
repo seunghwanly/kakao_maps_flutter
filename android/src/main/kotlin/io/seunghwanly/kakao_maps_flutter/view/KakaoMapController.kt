@@ -1060,6 +1060,41 @@ class KakaoMapController(
         }
     }
 
+    private fun setInfoWindowLayerVisible(args: JSONObject, result: MethodChannel.Result) {
+        require(::kMap.isInitialized) { "kakaoMap is not initialized" }
+
+        try {
+            val visible = args.optBoolean("visible", true)
+            val layer = kMap.mapWidgetManager?.infoWindowLayer
+            layer?.setVisible(visible)
+            // 현재 등록된 모든 InfoWindow에 대해 show/hide를 호출하여 상태를 일치시킴
+            val all = layer?.getAllInfoWindows()
+            if (all != null) {
+                for (win in all) {
+                    if (visible) win.show() else win.hide()
+                }
+            }
+            return result.success(null)
+        } catch (e: Exception) {
+            return result.error("E011", "Error setting InfoWindowLayer visibility: ${e.message}", null)
+        }
+    }
+
+    private fun setInfoWindowVisible(args: JSONObject, result: MethodChannel.Result) {
+        require(::kMap.isInitialized) { "kakaoMap is not initialized" }
+
+        try {
+            val id = args.getString("id")
+            val visible = args.optBoolean("visible", true)
+            val infoWindow = kMap.mapWidgetManager?.infoWindowLayer?.getInfoWindow(id)
+            if (infoWindow == null) return result.success(null)
+            if (visible) infoWindow.show() else infoWindow.hide()
+            return result.success(null)
+        } catch (e: Exception) {
+            return result.error("E012", "Error setting InfoWindow visibility: ${e.message}", null)
+        }
+    }
+
     private fun showCompass(result: MethodChannel.Result) {
         require(::kMap.isInitialized) { "kakaoMap is not initialized" }
 
@@ -1184,6 +1219,8 @@ class KakaoMapController(
             "removeInfoWindows" -> removeInfoWindows(asJSONObject(call.arguments), result)
             "updateInfoWindow" -> updateInfoWindow(asJSONObject(call.arguments), result)
             "clearInfoWindows" -> clearInfoWindows(result)
+            "setInfoWindowLayerVisible" -> setInfoWindowLayerVisible(asJSONObject(call.arguments), result)
+            "setInfoWindowVisible" -> setInfoWindowVisible(asJSONObject(call.arguments), result)
             "showCompass" -> showCompass(result)
             "hideCompass" -> hideCompass(result)
             "showScaleBar" -> showScaleBar(result)

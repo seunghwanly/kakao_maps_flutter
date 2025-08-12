@@ -227,6 +227,10 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
             removeInfoWindows(call, result)
         case "clearInfoWindows":
             clearInfoWindows(result)
+        case "setInfoWindowLayerVisible":
+            setInfoWindowLayerVisible(call, result)
+        case "setInfoWindowVisible":
+            setInfoWindowVisible(call, result)
         case "showCompass":
             showCompass(result)
         case "hideCompass":
@@ -1052,6 +1056,38 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
         withKakaoMapView(result) { view in
             let guiManager = view.getGuiManager()
             let _ = guiManager.infoWindowLayer.clear()
+            result(nil)
+        }
+    }
+
+    private func setInfoWindowLayerVisible(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        guard let args = call.arguments as? [String: Any], let visible = args["visible"] as? Bool else {
+            result(FlutterError(code: "E001", message: "Invalid arguments for setInfoWindowLayerVisible", details: nil))
+            return
+        }
+        withKakaoMapView(result) { view in
+            let guiManager = view.getGuiManager()
+            guiManager.infoWindowLayer.visible = visible
+            // 보조적으로 현재 등록된 InfoWindow 들의 show/hide 상태를 visible에 맞춰 정렬
+            if let all = guiManager.infoWindowLayer.getAllInfoWindows() {
+                for win in all {
+                    if visible { win.show() } else { win.hide() }
+                }
+            }
+            result(nil)
+        }
+    }
+
+    private func setInfoWindowVisible(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        guard let args = call.arguments as? [String: Any], let id = args["id"] as? String, let visible = args["visible"] as? Bool else {
+            result(FlutterError(code: "E001", message: "Invalid arguments for setInfoWindowVisible", details: nil))
+            return
+        }
+        withKakaoMapView(result) { view in
+            let guiManager = view.getGuiManager()
+            if let win = guiManager.infoWindowLayer.getInfoWindow(guiName: id) {
+                if visible { win.show() } else { win.hide() }
+            }
             result(nil)
         }
     }

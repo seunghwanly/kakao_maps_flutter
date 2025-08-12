@@ -187,6 +187,10 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
           onInfoWindowRemove: onInfoWindowRemove,
           onInfoWindowsAddAll: onInfoWindowsAddAll,
           onInfoWindowsClear: onInfoWindowsClear,
+          onInfoWindowLayerShow: onInfoWindowLayerShow,
+          onInfoWindowLayerHide: onInfoWindowLayerHide,
+          onShowSeoulInfoWindow: onShowSeoulInfoWindow,
+          onHideSeoulInfoWindow: onHideSeoulInfoWindow,
           onStaticMapButtonPressed: onStaticMapButtonPressed,
           onGuiInfoWindowCustomBubble: onGuiInfoWindowCustomBubble,
           onGuiInfoWindowComplex: onGuiInfoWindowComplex,
@@ -619,6 +623,31 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
 
     await mapController!.clearInfoWindows();
     showSnackBar('🧹 All InfoWindows cleared');
+  }
+
+  // ===== New: InfoWindow visibility demo =====
+  Future<void> onInfoWindowLayerShow() async {
+    if (mapController == null) return;
+    await mapController!.setInfoWindowLayerVisible(visible: true);
+    showSnackBar('👁️ InfoWindow layer: visible');
+  }
+
+  Future<void> onInfoWindowLayerHide() async {
+    if (mapController == null) return;
+    await mapController!.setInfoWindowLayerVisible(visible: false);
+    showSnackBar('🙈 InfoWindow layer: hidden');
+  }
+
+  Future<void> onShowSeoulInfoWindow() async {
+    if (mapController == null) return;
+    await mapController!.setInfoWindowVisible(id: 'seoul_info', visible: true);
+    showSnackBar('👁️ Show "seoul_info"');
+  }
+
+  Future<void> onHideSeoulInfoWindow() async {
+    if (mapController == null) return;
+    await mapController!.setInfoWindowVisible(id: 'seoul_info', visible: false);
+    showSnackBar('🙈 Hide "seoul_info"');
   }
 
   Future<void> onInfoWindowsAddAll() async {
