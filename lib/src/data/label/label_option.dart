@@ -1,7 +1,3 @@
-import 'dart:convert';
-import 'dart:ui';
-
-import 'package:flutter/foundation.dart';
 import 'package:kakao_maps_flutter/src/base/data.dart';
 
 import '../lat_lng/lat_lng.dart';
@@ -14,35 +10,13 @@ class LabelOption extends Data {
   ///
   /// The [id] is a unique identifier for this label.
   /// The [latLng] specifies the geographic position of the label.
-  /// The [base64EncodedImage] is optional image data encoded in base64.
   const LabelOption({
     required this.id,
     required this.latLng,
-    required this.base64EncodedImage,
+    this.styleId,
     this.rank,
     this.text,
-    this.textColor,
-    this.strokeThickness,
-    this.strokeColor,
-    this.textSize,
   });
-
-  /// Creates a LabelOption from raw image bytes.
-  ///
-  /// The [imageBytes] will be automatically encoded to base64.
-  /// This is a convenience constructor for creating labels with image data.
-  factory LabelOption.fromImageBytes({
-    required String id,
-    required LatLng latLng,
-    required Uint8List imageBytes,
-    int? rank,
-  }) =>
-      LabelOption(
-        id: id,
-        latLng: latLng,
-        base64EncodedImage: base64.encode(imageBytes),
-        rank: rank,
-      );
 
   /// The unique identifier for this label.
   final String id;
@@ -50,10 +24,11 @@ class LabelOption extends Data {
   /// The geographic position where this label should be displayed.
   final LatLng latLng;
 
-  /// The base64-encoded image data for this label's icon.
+  /// 스타일 사전 등록 방식 사용 시 참조할 스타일 ID
   ///
-  /// If null, a default marker icon will be used.
-  final String? base64EncodedImage;
+  /// iOS의 `PoiStyle`, Android의 `LabelStyles`에 해당하며, 사전에 등록된 스타일을 참조합니다.
+  /// 제공되면 플랫폼 단에서 이 `styleId`를 우선 사용합니다.
+  final String? styleId;
 
   /// 지도 렌더링 순위
   ///
@@ -65,28 +40,12 @@ class LabelOption extends Data {
   /// 텍스트
   final String? text;
 
-  /// 텍스트 색상
-  final Color? textColor;
-
-  /// 텍스트 테두리 두께
-  final int? strokeThickness;
-
-  /// 텍스트 테두리 색상
-  final Color? strokeColor;
-
-  /// 텍스트 크기
-  final int? textSize;
-
   @override
   Map<String, Object?> toJson() => <String, Object?>{
         'id': id,
         'latLng': latLng.toJson(),
-        'base64EncodedImage': base64EncodedImage,
+        'styleId': styleId,
         'rank': rank,
         'text': text,
-        'textColor': textColor?.toARGB32(),
-        'strokeThickness': strokeThickness,
-        'strokeColor': strokeColor?.toARGB32(),
-        'textSize': textSize,
       };
 }

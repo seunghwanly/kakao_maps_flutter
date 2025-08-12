@@ -14,12 +14,7 @@ fun JSONObject.toLabelOptionOrNull(): LabelOption? {
     return LabelOption(
         this.getString("id"),
         this.getJSONObject("latLng").toLatLng(),
-        this.optString("base64EncodedImage"),
         this.optLong("rank", 0),
-        text = this.optString("text").takeIf { it.isNotEmpty() },
-        textColor = this.optInt("textColor").takeIf { this.has("textColor") },
-        textSize = this.optInt("textSize").takeIf { this.has("textSize") },
-        strokeThickness = this.optInt("strokeThickness").takeIf { this.has("strokeThickness") },
-        strokeColor = this.optInt("strokeColor").takeIf { this.has("strokeColor") }
+        text = this.optString("text").takeIf { it.isNotEmpty() }
     )
 }

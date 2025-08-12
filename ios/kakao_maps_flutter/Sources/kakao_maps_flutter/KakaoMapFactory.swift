@@ -23,6 +23,6 @@ class KakaoMapFactory: NSObject, FlutterPlatformViewFactory {
     }
 
     func createArgsCodec() -> FlutterMessageCodec & NSObjectProtocol {
-        return FlutterJSONMessageCodec.sharedInstance()
+        return FlutterStandardMessageCodec.sharedInstance()
     }
 }

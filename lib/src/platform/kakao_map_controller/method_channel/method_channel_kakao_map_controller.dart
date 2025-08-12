@@ -8,7 +8,6 @@ class MethodChannelKakaoMapController extends KakaoMapControllerPlatform {
   factory MethodChannelKakaoMapController.create(int viewId) {
     final channel = MethodChannel(
       'view.method_channel.kakao_maps_flutter#$viewId',
-      const JSONMethodCodec(),
     )..setMethodCallHandler(
         (call) async {
           if (call.method == 'onMapReady') {
