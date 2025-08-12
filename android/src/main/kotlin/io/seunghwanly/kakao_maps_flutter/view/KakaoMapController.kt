@@ -33,6 +33,7 @@ import io.seunghwanly.kakao_maps_flutter.data.labelOption.toLabelOptionOrNull
 import io.seunghwanly.kakao_maps_flutter.data.latLng.toLatLng
 import org.json.JSONObject
 import org.json.JSONArray
+import java.util.Collections
 import kotlin.io.encoding.ExperimentalEncodingApi
 import kotlin.io.encoding.Base64
 
@@ -61,7 +62,7 @@ class KakaoMapController(
     // Parse logo configuration from args
     private var logoConfig: Map<String, Any?>?
 
-    private var registeredLabelStylesIds = mutableSetOf<String>()
+    private var registeredLabelStylesIds = Collections.synchronizedSet(mutableSetOf<String>())
 
     init {
         // Register Flutter MethodCallHandler
@@ -598,7 +599,6 @@ class KakaoMapController(
         registeredLabelStylesIds.forEach { id ->
             kMap.labelManager?.getLabelStyles(id)?.styles = arrayOf()
             kMap.labelManager?.getLabelStyles(id)?.styleId = ""
-            registeredLabelStylesIds.remove(id)
         }
         registeredLabelStylesIds.clear()
         return result.success(null)
