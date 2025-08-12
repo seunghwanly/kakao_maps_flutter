@@ -15,6 +15,7 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
     private let scaleBarConfig: [String: Any]?
     private let logoConfig: [String: Any]?
     private var poiStyleRegistry: [String: PoiStyle] = [:]
+    private var lodLabelLayers: [String: LodLabelLayer] = [:]
     
     init(
         frame: CGRect,
@@ -242,6 +243,29 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
             hideLogo(result)
         case "setLogoPosition":
             setLogoPosition(call, result)
+        // LOD Marker APIs
+        case "addLodMarkerLayer":
+            addLodMarkerLayer(call, result)
+        case "removeLodMarkerLayer":
+            removeLodMarkerLayer(call, result)
+        case "addLodMarker":
+            addLodMarker(call, result)
+        case "addLodMarkers":
+            addLodMarkers(call, result)
+        case "removeLodMarkers":
+            removeLodMarkers(call, result)
+        case "clearAllLodMarkers":
+            clearAllLodMarkers(call, result)
+        case "showAllLodMarkers":
+            showAllLodMarkers(call, result)
+        case "hideAllLodMarkers":
+            hideAllLodMarkers(call, result)
+        case "showLodMarkers":
+            showLodMarkers(call, result)
+        case "hideLodMarkers":
+            hideLodMarkers(call, result)
+        case "setLodMarkerLayerClickable":
+            setLodMarkerLayerClickable(call, result)
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -292,6 +316,224 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
     private func getZoomLevel(_ result: @escaping FlutterResult) {
         withKakaoMapView(result) { view in
             result(view.zoomLevel)
+        }
+    }
+
+    // MARK: - LOD Marker Helpers (LodLabel/LodPoi)
+    private func getOrCreateLodLabelLayer(_ options: [String: Any]) -> LodLabelLayer? {
+        guard let view = mapController.getView(kKakaoMapViewName) as? KakaoMap else { return nil }
+        let manager = view.getLabelManager()
+        guard let layerId = options["layerId"] as? String else { return nil }
+        if let existing = lodLabelLayers[layerId] { return existing }
+
+        let compType: CompetitionType = {
+            switch (options["competitionType"] as? String) ?? "none" {
+            case "upper": return .upper
+            case "same": return .same
+            case "lower": return .lower
+            case "background": return .all
+            default: return .none
+            }
+        }()
+        let compUnit: CompetitionUnit = {
+            switch (options["competitionUnit"] as? String) ?? "symbolFirst" {
+            case "poi": return .poi
+            default: return .symbolFirst
+            }
+        }()
+        let orderType: OrderingType = {
+            switch (options["orderType"] as? String) ?? "rank" {
+            case "closerFromLeftBottom": return .closerFromLeftBottom
+            default: return .rank
+            }
+        }()
+        let zOrder = options["zOrder"] as? Int ?? 0
+        let radius = (options["radius"] as? NSNumber)?.doubleValue ?? 20.0
+
+        let layerOptions = LodLabelLayerOptions(
+            layerID: layerId,
+            competitionType: compType,
+            competitionUnit: compUnit,
+            orderType: orderType,
+            zOrder: zOrder,
+            radius: Float(radius)
+        )
+        let layer = manager.addLodLabelLayer(option: layerOptions)
+        if let layer = layer { lodLabelLayers[layerId] = layer }
+        return layer
+    }
+
+    private func addLodMarkerLayer(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        guard let options = call.arguments as? [String: Any] else {
+            result(FlutterError(code: "E001", message: "Invalid arguments for addLodMarkerLayer", details: nil))
+            return
+        }
+        _ = getOrCreateLodLabelLayer(options)
+        result(nil)
+    }
+
+    private func removeLodMarkerLayer(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        guard let args = call.arguments as? [String: Any], let layerId = args["layerId"] as? String else {
+            result(FlutterError(code: "E001", message: "Invalid arguments for removeLodMarkerLayer", details: nil))
+            return
+        }
+        if let layer = lodLabelLayers.removeValue(forKey: layerId) {
+            layer.clearAllItems()
+            layer.clearAllExitTransitionLodPois()
+        }
+        result(nil)
+    }
+
+    private func addLodMarker(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        guard let args = call.arguments as? [String: Any],
+              let layerId = args["layerId"] as? String,
+              let option = args["option"] as? [String: Any],
+              let id = option["id"] as? String,
+              let latLng = option["latLng"] as? [String: Any],
+              let latitude = latLng["latitude"] as? Double,
+              let longitude = latLng["longitude"] as? Double else {
+            result(FlutterError(code: "E001", message: "Invalid arguments for addLodMarker", details: nil))
+            return
+        }
+        withKakaoMapView(result) { view in
+            guard let layer = self.lodLabelLayers[layerId] ?? self.getOrCreateLodLabelLayer(["layerId": layerId]) else {
+                result(FlutterError(code: "E002", message: "Failed to get LodLabelLayer", details: nil))
+                return
+            }
+            let point = MapPoint(longitude: longitude, latitude: latitude)
+            let styleId = (option["styleId"] as? String) ?? "__default__"
+            let poiOption = PoiOptions(styleID: styleId, poiID: id)
+            poiOption.clickable = true
+            poiOption.rank = option["rank"] as? Int ?? 0
+            if let poiText = option["text"] as? String {
+                poiOption.addText(PoiText(text: poiText, styleIndex: 0))
+            }
+            let poi = layer.addLodPoi(option: poiOption, at: point)
+            poi?.show()
+            result(poi != nil)
+        }
+    }
+
+    private func addLodMarkers(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        guard let args = call.arguments as? [String: Any],
+              let layerId = args["layerId"] as? String,
+              let options = args["options"] as? [[String: Any]] else {
+            result(FlutterError(code: "E001", message: "Invalid arguments for addLodMarkers", details: nil))
+            return
+        }
+        withKakaoMapView(result) { _ in
+            guard let layer = self.lodLabelLayers[layerId] ?? self.getOrCreateLodLabelLayer(["layerId": layerId]) else {
+                result(FlutterError(code: "E002", message: "Failed to get LodLabelLayer", details: nil))
+                return
+            }
+
+            var poiOptions: [PoiOptions] = []
+            var positions: [MapPoint] = []
+            for item in options {
+                guard let id = item["id"] as? String,
+                      let latLng = item["latLng"] as? [String: Any],
+                      let latitude = latLng["latitude"] as? Double,
+                      let longitude = latLng["longitude"] as? Double else { continue }
+                let styleId = (item["styleId"] as? String) ?? "__default__"
+                let opt = PoiOptions(styleID: styleId, poiID: id)
+                opt.clickable = true
+                opt.rank = item["rank"] as? Int ?? 0
+                if let t = item["text"] as? String { opt.addText(PoiText(text: t, styleIndex: 0)) }
+                poiOptions.append(opt)
+                positions.append(MapPoint(longitude: longitude, latitude: latitude))
+            }
+            _ = layer.addLodPois(options: poiOptions, at: positions)
+            layer.showAllLodPois()
+            result(nil)
+        }
+    }
+
+    private func removeLodMarkers(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        guard let args = call.arguments as? [String: Any],
+              let layerId = args["layerId"] as? String,
+              let ids = args["ids"] as? [String] else {
+            result(FlutterError(code: "E001", message: "Invalid arguments for removeLodMarkers", details: nil))
+            return
+        }
+        withKakaoMapView(result) { _ in
+            guard let layer = self.lodLabelLayers[layerId] else { result(nil); return }
+            layer.removeLodPois(poiIDs: ids) { 
+                result(nil)
+            }
+        }
+    }
+
+    private func clearAllLodMarkers(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        guard let args = call.arguments as? [String: Any], let layerId = args["layerId"] as? String else {
+            result(FlutterError(code: "E001", message: "Invalid arguments for clearAllLodMarkers", details: nil))
+            return
+        }
+        withKakaoMapView(result) { _ in
+            guard let layer = self.lodLabelLayers[layerId] else { result(nil); return }
+            layer.clearAllItems()
+            layer.clearAllExitTransitionLodPois()
+            result(nil)
+        }
+    }
+
+    private func showAllLodMarkers(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        guard let args = call.arguments as? [String: Any], let layerId = args["layerId"] as? String else {
+            result(FlutterError(code: "E001", message: "Invalid arguments for showAllLodMarkers", details: nil))
+            return
+        }
+        withKakaoMapView(result) { _ in
+            self.lodLabelLayers[layerId]?.showAllLodPois()
+            result(nil)
+        }
+    }
+
+    private func hideAllLodMarkers(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        guard let args = call.arguments as? [String: Any], let layerId = args["layerId"] as? String else {
+            result(FlutterError(code: "E001", message: "Invalid arguments for hideAllLodMarkers", details: nil))
+            return
+        }
+        withKakaoMapView(result) { _ in
+            self.lodLabelLayers[layerId]?.hideAllLodPois()
+            result(nil)
+        }
+    }
+
+    private func showLodMarkers(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        guard let args = call.arguments as? [String: Any],
+              let layerId = args["layerId"] as? String,
+              let ids = args["ids"] as? [String] else {
+            result(FlutterError(code: "E001", message: "Invalid arguments for showLodMarkers", details: nil))
+            return
+        }
+        withKakaoMapView(result) { _ in
+            _ = self.lodLabelLayers[layerId]?.showLodPois(poiIDs: ids)
+            result(nil)
+        }
+    }
+
+    private func hideLodMarkers(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        guard let args = call.arguments as? [String: Any],
+              let layerId = args["layerId"] as? String,
+              let ids = args["ids"] as? [String] else {
+            result(FlutterError(code: "E001", message: "Invalid arguments for hideLodMarkers", details: nil))
+            return
+        }
+        withKakaoMapView(result) { _ in
+            _ = self.lodLabelLayers[layerId]?.hideLodPois(poiIDs: ids)
+            result(nil)
+        }
+    }
+
+    private func setLodMarkerLayerClickable(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        guard let args = call.arguments as? [String: Any],
+              let layerId = args["layerId"] as? String,
+              let clickable = args["clickable"] as? Bool else {
+            result(FlutterError(code: "E001", message: "Invalid arguments for setLodMarkerLayerClickable", details: nil))
+            return
+        }
+        withKakaoMapView(result) { _ in
+            self.lodLabelLayers[layerId]?.setClickable(clickable)
+            result(nil)
         }
     }
     

@@ -556,3 +556,162 @@ final class SetLogoPosition extends KakaoMapMethodCall<void> {
         },
       };
 }
+
+// ===== LOD Marker (LodLabel/LodPoi) support =====
+
+final class AddLodMarkerLayer extends KakaoMapMethodCall<void> {
+  const AddLodMarkerLayer({required this.options});
+
+  final LodMarkerLayerOptions options;
+
+  @override
+  String get name => 'addLodMarkerLayer';
+
+  @override
+  Map<String, Object?>? encode() => options.toJson();
+}
+
+final class RemoveLodMarkerLayer extends KakaoMapMethodCall<void> {
+  const RemoveLodMarkerLayer({required this.layerId});
+
+  final String layerId;
+
+  @override
+  String get name => 'removeLodMarkerLayer';
+
+  @override
+  Map<String, Object?>? encode() => {'layerId': layerId};
+}
+
+final class AddLodMarker extends KakaoMapMethodCall<void> {
+  const AddLodMarker({required this.option, required this.layerId});
+
+  final LabelOption option; // MarkerOption alias
+  final String layerId;
+
+  @override
+  String get name => 'addLodMarker';
+
+  @override
+  Map<String, Object?>? encode() => {
+        'layerId': layerId,
+        'option': option.toJson(),
+      };
+}
+
+final class AddLodMarkers extends KakaoMapMethodCall<void> {
+  const AddLodMarkers({required this.options, required this.layerId});
+
+  final List<LabelOption> options;
+  final String layerId;
+
+  @override
+  String get name => 'addLodMarkers';
+
+  @override
+  Map<String, Object?>? encode() => {
+        'layerId': layerId,
+        'options': options.map((e) => e.toJson()).toList(),
+      };
+}
+
+final class RemoveLodMarkers extends KakaoMapMethodCall<void> {
+  const RemoveLodMarkers({required this.layerId, required this.ids});
+
+  final String layerId;
+  final List<String> ids;
+
+  @override
+  String get name => 'removeLodMarkers';
+
+  @override
+  Map<String, Object?>? encode() => {
+        'layerId': layerId,
+        'ids': ids,
+      };
+}
+
+final class ClearAllLodMarkers extends KakaoMapMethodCall<void> {
+  const ClearAllLodMarkers({required this.layerId});
+
+  final String layerId;
+
+  @override
+  String get name => 'clearAllLodMarkers';
+
+  @override
+  Map<String, Object?>? encode() => {'layerId': layerId};
+}
+
+final class ShowAllLodMarkers extends KakaoMapMethodCall<void> {
+  const ShowAllLodMarkers({required this.layerId});
+
+  final String layerId;
+
+  @override
+  String get name => 'showAllLodMarkers';
+
+  @override
+  Map<String, Object?>? encode() => {'layerId': layerId};
+}
+
+final class HideAllLodMarkers extends KakaoMapMethodCall<void> {
+  const HideAllLodMarkers({required this.layerId});
+
+  final String layerId;
+
+  @override
+  String get name => 'hideAllLodMarkers';
+
+  @override
+  Map<String, Object?>? encode() => {'layerId': layerId};
+}
+
+final class ShowLodMarkers extends KakaoMapMethodCall<void> {
+  const ShowLodMarkers({required this.layerId, required this.ids});
+
+  final String layerId;
+  final List<String> ids;
+
+  @override
+  String get name => 'showLodMarkers';
+
+  @override
+  Map<String, Object?>? encode() => {
+        'layerId': layerId,
+        'ids': ids,
+      };
+}
+
+final class HideLodMarkers extends KakaoMapMethodCall<void> {
+  const HideLodMarkers({required this.layerId, required this.ids});
+
+  final String layerId;
+  final List<String> ids;
+
+  @override
+  String get name => 'hideLodMarkers';
+
+  @override
+  Map<String, Object?>? encode() => {
+        'layerId': layerId,
+        'ids': ids,
+      };
+}
+
+final class SetLodMarkerLayerClickable extends KakaoMapMethodCall<void> {
+  const SetLodMarkerLayerClickable(
+      {required this.layerId, required this.clickable});
+
+  final String layerId;
+  final bool clickable;
+
+  @override
+  String get name => 'setLodMarkerLayerClickable';
+
+  @override
+  Map<String, Object?>? encode() => {
+        'layerId': layerId,
+        'clickable': clickable,
+      };
+}

@@ -13,7 +13,8 @@ import 'package:kakao_maps_flutter/src/data/data.dart'
         LatLng,
         LatLngBounds,
         MapInfo,
-        MarkerStyle;
+        MarkerStyle,
+        LodMarkerLayerOptions;
 import 'package:kakao_maps_flutter/src/data/label/label_click_event.dart';
 import 'package:kakao_maps_flutter/src/platform/kakao_map_method_call/kakao_map_method_call.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
@@ -401,6 +402,94 @@ class KakaoMapController extends KakaoMapControllerPlatform {
         alignment: alignment,
         offset: offset,
       ),
+    );
+  }
+
+  // ===== LOD Marker (LodLabel/LodPoi) APIs =====
+
+  /// LOD 전용 마커 레이어를 생성합니다.
+  Future<void> addLodMarkerLayer({
+    required LodMarkerLayerOptions options,
+  }) async {
+    await _platform._callMethod(AddLodMarkerLayer(options: options));
+  }
+
+  /// LOD 전용 마커 레이어를 제거합니다.
+  Future<void> removeLodMarkerLayer({
+    required String layerId,
+  }) async {
+    await _platform._callMethod(RemoveLodMarkerLayer(layerId: layerId));
+  }
+
+  /// LOD 마커를 하나 추가합니다.
+  Future<void> addLodMarker({
+    required LabelOption option,
+    required String layerId,
+  }) async {
+    await _platform._callMethod(AddLodMarker(option: option, layerId: layerId));
+  }
+
+  /// LOD 마커를 여러 개 추가합니다.
+  Future<void> addLodMarkers({
+    required List<LabelOption> options,
+    required String layerId,
+  }) async {
+    await _platform
+        ._callMethod(AddLodMarkers(options: options, layerId: layerId));
+  }
+
+  /// 특정 LOD 마커들을 제거합니다.
+  Future<void> removeLodMarkers({
+    required String layerId,
+    required List<String> ids,
+  }) async {
+    await _platform._callMethod(RemoveLodMarkers(layerId: layerId, ids: ids));
+  }
+
+  /// 레이어 내 모든 LOD 마커를 제거합니다.
+  Future<void> clearAllLodMarkers({
+    required String layerId,
+  }) async {
+    await _platform._callMethod(ClearAllLodMarkers(layerId: layerId));
+  }
+
+  /// 레이어 내 모든 LOD 마커를 표시합니다.
+  Future<void> showAllLodMarkers({
+    required String layerId,
+  }) async {
+    await _platform._callMethod(ShowAllLodMarkers(layerId: layerId));
+  }
+
+  /// 레이어 내 모든 LOD 마커를 숨깁니다.
+  Future<void> hideAllLodMarkers({
+    required String layerId,
+  }) async {
+    await _platform._callMethod(HideAllLodMarkers(layerId: layerId));
+  }
+
+  /// 특정 ID들의 LOD 마커를 표시합니다.
+  Future<void> showLodMarkers({
+    required String layerId,
+    required List<String> ids,
+  }) async {
+    await _platform._callMethod(ShowLodMarkers(layerId: layerId, ids: ids));
+  }
+
+  /// 특정 ID들의 LOD 마커를 숨깁니다.
+  Future<void> hideLodMarkers({
+    required String layerId,
+    required List<String> ids,
+  }) async {
+    await _platform._callMethod(HideLodMarkers(layerId: layerId, ids: ids));
+  }
+
+  /// LOD 마커 레이어의 클릭 가능 여부를 설정합니다.
+  Future<void> setLodMarkerLayerClickable({
+    required String layerId,
+    required bool clickable,
+  }) async {
+    await _platform._callMethod(
+      SetLodMarkerLayerClickable(layerId: layerId, clickable: clickable),
     );
   }
 }
