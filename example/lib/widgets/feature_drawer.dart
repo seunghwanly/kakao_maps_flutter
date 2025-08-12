@@ -26,6 +26,10 @@ class FeatureDrawer extends StatelessWidget {
     required this.onInfoWindowRemove,
     required this.onInfoWindowsAddAll,
     required this.onInfoWindowsClear,
+    required this.onInfoWindowLayerShow,
+    required this.onInfoWindowLayerHide,
+    required this.onShowSeoulInfoWindow,
+    required this.onHideSeoulInfoWindow,
     required this.onStaticMapButtonPressed,
     required this.onGuiInfoWindowCustomBubble,
     required this.onGuiInfoWindowComplex,
@@ -64,6 +68,10 @@ class FeatureDrawer extends StatelessWidget {
   final Future<void> Function(String) onInfoWindowRemove;
   final VoidCallback onInfoWindowsAddAll;
   final VoidCallback onInfoWindowsClear;
+  final VoidCallback onInfoWindowLayerShow;
+  final VoidCallback onInfoWindowLayerHide;
+  final VoidCallback onShowSeoulInfoWindow;
+  final VoidCallback onHideSeoulInfoWindow;
   final VoidCallback onStaticMapButtonPressed;
   final VoidCallback onGuiInfoWindowCustomBubble;
   final VoidCallback onGuiInfoWindowComplex;
@@ -332,6 +340,38 @@ class FeatureDrawer extends StatelessWidget {
                 enabled: isMapReady,
                 onTap: () {
                   onInfoWindowsClear();
+                  Navigator.of(context).pop();
+                },
+              ),
+              KakaoDrawerTile(
+                title: 'Show All InfoWindows (Layer Visible)',
+                enabled: isMapReady,
+                onTap: () {
+                  onInfoWindowLayerShow();
+                  Navigator.of(context).pop();
+                },
+              ),
+              KakaoDrawerTile(
+                title: 'Hide All InfoWindows (Layer Invisible)',
+                enabled: isMapReady,
+                onTap: () {
+                  onInfoWindowLayerHide();
+                  Navigator.of(context).pop();
+                },
+              ),
+              KakaoDrawerTile(
+                title: 'Show "seoul_info"',
+                enabled: isMapReady,
+                onTap: () {
+                  onShowSeoulInfoWindow();
+                  Navigator.of(context).pop();
+                },
+              ),
+              KakaoDrawerTile(
+                title: 'Hide "seoul_info"',
+                enabled: isMapReady,
+                onTap: () {
+                  onHideSeoulInfoWindow();
                   Navigator.of(context).pop();
                 },
               ),
