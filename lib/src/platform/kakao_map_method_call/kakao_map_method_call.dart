@@ -453,6 +453,35 @@ final class ClearInfoWindows extends KakaoMapMethodCall<void> {
   Map<String, Object?>? encode() => null;
 }
 
+// InfoWindow visibility controls
+final class SetInfoWindowLayerVisible extends KakaoMapMethodCall<void> {
+  const SetInfoWindowLayerVisible({required this.visible});
+
+  final bool visible;
+
+  @override
+  String get name => 'setInfoWindowLayerVisible';
+
+  @override
+  Map<String, Object?>? encode() => {'visible': visible};
+}
+
+final class SetInfoWindowVisible extends KakaoMapMethodCall<void> {
+  const SetInfoWindowVisible({required this.id, required this.visible});
+
+  final String id;
+  final bool visible;
+
+  @override
+  String get name => 'setInfoWindowVisible';
+
+  @override
+  Map<String, Object?>? encode() => {
+        'id': id,
+        'visible': visible,
+      };
+}
+
 final class ShowCompass extends KakaoMapMethodCall<void> {
   const ShowCompass();
 
@@ -700,8 +729,10 @@ final class HideLodMarkers extends KakaoMapMethodCall<void> {
 }
 
 final class SetLodMarkerLayerClickable extends KakaoMapMethodCall<void> {
-  const SetLodMarkerLayerClickable(
-      {required this.layerId, required this.clickable});
+  const SetLodMarkerLayerClickable({
+    required this.layerId,
+    required this.clickable,
+  });
 
   final String layerId;
   final bool clickable;
