@@ -8,11 +8,13 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
     private let methodChannel: FlutterMethodChannel
     private let kKakaoMapViewName = "mapview"
     
+    
     private let initialPosition: MapPoint?
     private let initialLevel: Int?
     private let compassConfig: [String: Any]?
     private let scaleBarConfig: [String: Any]?
     private let logoConfig: [String: Any]?
+    private var poiStyleRegistry: [String: PoiStyle] = [:]
     
     init(
         frame: CGRect,
@@ -40,7 +42,7 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
         self.methodChannel = FlutterMethodChannel(
             name: "view.method_channel.kakao_maps_flutter#\(viewId)",
             binaryMessenger: messenger,
-            codec: FlutterJSONMethodCodec.sharedInstance()
+            codec: FlutterStandardMethodCodec.sharedInstance()
         )
         
         if let args = args as? [String: Any],
@@ -172,6 +174,12 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
     
     private func onMethodCall(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         switch call.method {
+        case "registerMarkerStyles":
+            registerMarkerStyles(call, result)
+        case "removeMarkerStyles":
+            removeMarkerStyles(call, result)
+        case "clearMarkerStyles":
+            clearMarkerStyles(result)
         case "getZoomLevel":
             getZoomLevel(result)
         case "setZoomLevel":
@@ -277,53 +285,7 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
         return manager.addLabelLayer(option: layerOption)
     }
     
-    private func createPoiStyleWithImage(
-        _ image: UIImage,
-        textColor: UIColor? = nil,
-        textSize: UInt? = nil,
-        strokeThickness: UInt? = nil,
-        strokeColor: UIColor? = nil
-    ) -> String {
-        let styleID = "PerLevelStyle"
-        let view = mapController.getView(kKakaoMapViewName) as! KakaoMap
-        let manager = view.getLabelManager()
-        
-        manager.removePoiStyle(styleID)
-        
-        let iconStyle = PoiIconStyle(symbol: image)
-        
-        let textStyle1 = PoiTextStyle(
-            textLineStyles: [
-                PoiTextLineStyle(
-                    textStyle: TextStyle(
-                        fontSize: textSize ?? 14,
-                        fontColor: textColor ?? UIColor.black,
-                        strokeThickness: strokeThickness ?? 2,
-                        strokeColor: strokeColor ?? UIColor.white
-                    )
-                )
-            ]
-        )
-        
-        let poiStyle = PoiStyle(
-            styleID: styleID,
-            styles: [
-                PerLevelPoiStyle(
-                    iconStyle: iconStyle,
-                    textStyle: textStyle1,
-                    level: 11
-                ),
-                PerLevelPoiStyle(
-                    iconStyle: iconStyle,
-                    textStyle: textStyle1,
-                    level: 21
-                )
-            ]
-        )
-        
-        manager.addPoiStyle(poiStyle)
-        return styleID
-    }
+    // Removed: dynamic style creation per marker (anti-pattern)
     
     // MARK: - Map Event Functions
     
@@ -377,8 +339,7 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
               let id = args["id"] as? String,
               let latLng = args["latLng"] as? [String: Any],
               let latitude = latLng["latitude"] as? Double,
-              let longitude = latLng["longitude"] as? Double,
-              let base64EncodedImage = args["base64EncodedImage"] as? String else {
+              let longitude = latLng["longitude"] as? Double else {
             result(FlutterError(code: "E001", message: "Invalid arguments for addMarker", details: nil))
             return
         }
@@ -392,23 +353,9 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
                 return
             }
             
-            guard let image = decodeBase64Image(base64EncodedImage) else {
-                result(FlutterError(code: "E003", message: "Invalid image data", details: nil))
-                return
-            }
+            let styleId = args["styleId"] as? String
+            let poiStyleID = styleId ?? "__default__"
             
-            let textColor: UIColor? = (args["textColor"] as? Int).map { UIColor.fromArgb($0) }
-            let textSize = (args["textSize"] as? Int).map { UInt($0) }
-            let strokeThickness = (args["strokeThickness"] as? Int).map { UInt($0) }
-            let strokeColor: UIColor? = (args["strokeColor"] as? Int).map { UIColor.fromArgb($0) }
-            
-            let poiStyleID = createPoiStyleWithImage(
-                image,
-                textColor: textColor,
-                textSize: textSize,
-                strokeThickness: strokeThickness,
-                strokeColor: strokeColor
-            )
             let poiOption = PoiOptions(styleID: poiStyleID, poiID: id)
             poiOption.clickable = true
             poiOption.rank = args["rank"] as? Int ?? 0
@@ -463,30 +410,13 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
                 guard let id = markerData["id"] as? String,
                       let latLng = markerData["latLng"] as? [String: Any],
                       let latitude = latLng["latitude"] as? Double,
-                      let longitude = latLng["longitude"] as? Double,
-                      let base64EncodedImage = markerData["base64EncodedImage"] as? String,
-                      let image = decodeBase64Image(base64EncodedImage) else {
+                      let longitude = latLng["longitude"] as? Double else {
                     continue
                 }
                 
                 let point = MapPoint(longitude: longitude, latitude: latitude)
-                
-                let textColor: UIColor? = (args["textColor"] as? Int).map { UIColor.fromArgb($0) }
-                let textSize = (args["textSize"] as? Int).map { UInt($0) }
-                let strokeThickness = (args["strokeThickness"] as? Int).map { UInt($0) }
-                let strokeColor: UIColor? = (args["strokeColor"] as? Int).map { UIColor.fromArgb($0) }
-                
-                let poiStyleID = createPoiStyleWithImage(
-                    image,
-                    textColor: textColor,
-                    textSize: textSize,
-                    strokeThickness: strokeThickness,
-                    strokeColor: strokeColor
-                )
-                let poiOption = PoiOptions(
-                    styleID: poiStyleID,
-                    poiID: id
-                )
+                let styleId = markerData["styleId"] as? String ?? "__default__"
+                let poiOption = PoiOptions(styleID: styleId, poiID: id)
                 poiOption.clickable = true
                 poiOption.rank = args["rank"] as? Int ?? 0
                 
@@ -504,6 +434,90 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
                 poiIDs: poiOptions.map(\.itemID!)
             )
             
+            result(nil)
+        }
+    }
+
+    // MARK: - Marker Styles Registration
+    private func registerMarkerStyles(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        guard let args = call.arguments as? [String: Any],
+              let styles = args["styles"] as? [[String: Any]] else {
+            result(FlutterError(code: "E001", message: "Invalid arguments for registerMarkerStyles", details: nil))
+            return
+        }
+        
+        withKakaoMapView(result) { view in
+            let manager = view.getLabelManager()
+            for style in styles {
+                guard let styleId = style["styleId"] as? String,
+                      let perLevels = style["perLevels"] as? [[String: Any]] else { continue }
+                var perLevelStyles: [PerLevelPoiStyle] = []
+                for pl in perLevels {
+                    // icon: Uint8List(ByteArray) 또는 base64(String) 모두 허용
+                    var iconImage: UIImage? = nil
+                    if let bytes = pl["icon"] as? FlutterStandardTypedData {
+                        iconImage = UIImage(data: bytes.data)
+                    } else if let list = pl["icon"] as? [UInt8] {
+                        iconImage = UIImage(data: Data(list))
+                    } else if let iconBase64 = pl["icon"] as? String,
+                              let iconData = Data(base64Encoded: iconBase64, options: .ignoreUnknownCharacters) {
+                        iconImage = UIImage(data: iconData)
+                    }
+                    guard let iconImage else { continue }
+                    let iconStyle = PoiIconStyle(symbol: iconImage)
+                    var textStyle: PoiTextStyle? = nil
+                    if let ts = pl["textStyle"] as? [String: Any] {
+                        let fontSize = (ts["fontSize"] as? Int).map { UInt($0) } ?? 14
+                        let fontColor = (ts["fontColor"] as? Int).map { UIColor.fromArgb($0) } ?? UIColor.black
+                        let strokeThickness = (ts["strokeThickness"] as? Int).map { UInt($0) } ?? 2
+                        let strokeColor = (ts["strokeColor"] as? Int).map { UIColor.fromArgb($0) } ?? UIColor.white
+                        textStyle = PoiTextStyle(textLineStyles: [
+                            PoiTextLineStyle(textStyle: TextStyle(
+                                fontSize: fontSize,
+                                fontColor: fontColor,
+                                strokeThickness: strokeThickness,
+                                strokeColor: strokeColor
+                            ))
+                        ])
+                    }
+                    let level = (pl["level"] as? Int) ?? 11
+                    if let ts = textStyle {
+                        perLevelStyles.append(PerLevelPoiStyle(iconStyle: iconStyle, textStyle: ts, level: level))
+                    } else {
+                        perLevelStyles.append(PerLevelPoiStyle(iconStyle: iconStyle, level: level))
+                    }
+                }
+                let poiStyle = PoiStyle(styleID: styleId, styles: perLevelStyles)
+                manager.removePoiStyle(styleId)
+                manager.addPoiStyle(poiStyle)
+                poiStyleRegistry[styleId] = poiStyle
+            }
+            result(nil)
+        }
+    }
+    
+    private func removeMarkerStyles(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        guard let args = call.arguments as? [String: Any],
+              let styleIds = args["styleIds"] as? [String] else {
+            result(FlutterError(code: "E001", message: "Invalid arguments for removeMarkerStyles", details: nil))
+            return
+        }
+        withKakaoMapView(result) { view in
+            let manager = view.getLabelManager()
+            for sid in styleIds {
+                manager.removePoiStyle(sid)
+                poiStyleRegistry.removeValue(forKey: sid)
+            }
+            result(nil)
+        }
+    }
+    
+    private func clearMarkerStyles(_ result: @escaping FlutterResult) {
+        withKakaoMapView(result) { view in
+            let manager = view.getLabelManager()
+            // Kakao SDK에 스타일 일괄 제거가 별도로 없다면, 등록된 키 기반으로 제거
+            for sid in poiStyleRegistry.keys { manager.removePoiStyle(sid) }
+            poiStyleRegistry.removeAll()
             result(nil)
         }
     }

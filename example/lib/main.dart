@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Orientation;
@@ -64,6 +65,30 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
   bool isPoisClickable = true;
   int poiScale = 1;
   bool isCameraMoveEndListenerEnabled = true;
+
+  final List<MarkerStyle> markerStyles = [
+    MarkerStyle(
+      styleId: 'default_marker_style_001',
+      perLevels: [
+        MarkerPerLevelStyle.fromBytes(
+          bytes: base64Decode(ExampleAssets.marker2x),
+          textStyle: const MarkerTextStyle(
+            fontSize: 24,
+            fontColorArgb: 0xFF000000,
+          ),
+          level: 6,
+        ),
+        MarkerPerLevelStyle.fromBytes(
+          bytes: base64Decode(ExampleAssets.marker4x),
+          textStyle: const MarkerTextStyle(
+            fontSize: 20,
+            fontColorArgb: 0xFF000000,
+          ),
+          level: 21,
+        ),
+      ],
+    ),
+  ];
 
   /// 0: Small, 1: Regular, 2: Large, 3: XLarge
 
@@ -198,10 +223,12 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
   Future<void> setupInitialMap() async {
     if (!mapReadyNotifier.value || mapController == null) return;
 
-    await Future.delayed(const Duration(milliseconds: 800));
+    await Future.delayed(const Duration(milliseconds: 1800));
 
     /// Set initial POI scale for better marker visibility
     await mapController!.setPoiScale(scale: poiScale);
+
+    await mapController!.registerMarkerStyles(styles: markerStyles);
   }
 
   Future<void> onZoomIn() async {
@@ -267,8 +294,8 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
       labelOption: LabelOption(
         id: id,
         latLng: position,
-        base64EncodedImage: ExampleAssets.marker2x,
         rank: 9999,
+        styleId: 'default_marker_style_001',
       ),
     );
     showSnackBar('📌 Marker "$id" added');
@@ -288,17 +315,17 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
       LabelOption(
         id: 'seoul_station',
         latLng: seoulStation,
-        base64EncodedImage: ExampleAssets.marker2x,
+        styleId: 'default_marker_style_001',
       ),
       LabelOption(
         id: 'jamsil_station',
         latLng: jamsilStation,
-        base64EncodedImage: ExampleAssets.marker2x,
+        styleId: 'default_marker_style_001',
       ),
       LabelOption(
         id: 'gangnam_station',
         latLng: gangnamStation,
-        base64EncodedImage: ExampleAssets.marker2x,
+        styleId: 'default_marker_style_001',
       ),
     ];
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart' show Offset;
 import 'package:kakao_maps_flutter/src/data/data.dart';
+import 'package:kakao_maps_flutter/src/data/marker/marker_style.dart' as marker;
 
 sealed class KakaoMapMethodCall<R> {
   const KakaoMapMethodCall();
@@ -121,6 +122,46 @@ final class ClearMarkers extends KakaoMapMethodCall<void> {
 
   @override
   String get name => 'clearMarkers';
+
+  @override
+  Map<String, Object?>? encode() => null;
+}
+
+// Marker Style Registration Methods
+
+final class RegisterMarkerStyles extends KakaoMapMethodCall<void> {
+  const RegisterMarkerStyles({required this.styles});
+
+  final List<marker.MarkerStyle> styles;
+
+  @override
+  String get name => 'registerMarkerStyles';
+
+  @override
+  Map<String, Object?>? encode() => {
+        'styles': styles.map((e) => e.toJson()).toList(),
+      };
+}
+
+final class RemoveMarkerStyles extends KakaoMapMethodCall<void> {
+  const RemoveMarkerStyles({required this.styleIds});
+
+  final List<String> styleIds;
+
+  @override
+  String get name => 'removeMarkerStyles';
+
+  @override
+  Map<String, Object?>? encode() => {
+        'styleIds': styleIds,
+      };
+}
+
+final class ClearMarkerStyles extends KakaoMapMethodCall<void> {
+  const ClearMarkerStyles();
+
+  @override
+  String get name => 'clearMarkerStyles';
 
   @override
   Map<String, Object?>? encode() => null;

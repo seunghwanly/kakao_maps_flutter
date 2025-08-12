@@ -29,7 +29,6 @@ class KakaoMapExampleStaticMapScreen extends StatelessWidget {
                   latitude: 37.54699,
                   longitude: 127.09598,
                 ),
-                base64EncodedImage: '',
               ),
               scaleRatio: MediaQuery.maybeDevicePixelRatioOf(context) ?? 1,
             ),

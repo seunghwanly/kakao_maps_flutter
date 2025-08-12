@@ -3,6 +3,7 @@ package io.seunghwanly.kakao_maps_flutter.view
 import android.content.Context
 import android.util.Log
 import android.view.View
+import android.graphics.BitmapFactory
 import com.kakao.vectormap.KakaoMap
 import com.kakao.vectormap.KakaoMapReadyCallback
 import com.kakao.vectormap.LatLng
@@ -31,7 +32,9 @@ import io.seunghwanly.kakao_maps_flutter.data.labelOption.LabelOption
 import io.seunghwanly.kakao_maps_flutter.data.labelOption.toLabelOptionOrNull
 import io.seunghwanly.kakao_maps_flutter.data.latLng.toLatLng
 import org.json.JSONObject
+import org.json.JSONArray
 import kotlin.io.encoding.ExperimentalEncodingApi
+import kotlin.io.encoding.Base64
 
 class KakaoMapController(
     private val context: Context,
@@ -57,6 +60,8 @@ class KakaoMapController(
 
     // Parse logo configuration from args
     private var logoConfig: Map<String, Any?>?
+
+    private var registeredLabelStylesIds = mutableSetOf<String>()
 
     init {
         // Register Flutter MethodCallHandler
@@ -207,6 +212,35 @@ class KakaoMapController(
             }
         }
 
+    // Convert Any? (Map/List/primitive/JSONObject) -> JSONObject/JSONArray/primitive recursively
+    private fun toJSONDeep(value: Any?): Any? {
+        return when (value) {
+            is JSONObject -> value
+            is JSONArray -> value
+            is Map<*, *> -> {
+                val obj = JSONObject()
+                value.forEach { (k, v) ->
+                    if (k != null) obj.put(k.toString(), toJSONDeep(v))
+                }
+                obj
+            }
+            is List<*> -> {
+                val arr = JSONArray()
+                value.forEach { item -> arr.put(toJSONDeep(item)) }
+                arr
+            }
+            else -> value
+        }
+    }
+
+    private fun asJSONObject(args: Any?): JSONObject {
+        val converted = toJSONDeep(args)
+        return when (converted) {
+            is JSONObject -> converted
+            else -> JSONObject()
+        }
+    }
+
     private fun parseInitialPosition(args: Any?): LatLng? {
         val data: Map<*, *>? = when (args) {
             is Map<*, *> -> args
@@ -345,22 +379,21 @@ class KakaoMapController(
             currentLayer.getLabel(labelOption.id)?.remove()
         }
 
-        // Create Label style
-        val labelStyle: LabelStyle =
-            if (labelOption.image == null) {
+        // Get registered style: registry -> SDK -> fallback(default text only)
+        val styleId: String? = args.optString("styleId", "").takeIf { args.has("styleId") && it.isNotBlank() }
+        val appliedStyles: LabelStyles = when {
+            styleId != null -> (kMap.labelManager?.getLabelStyles(styleId)) ?: LabelStyles.from(
                 LabelStyle.from(LabelTextStyle.from(10, 0xFF000000.toInt()))
-            } else {
-                LabelStyle.from(labelOption.image)
-            }
-
-        val labelStyles = LabelStyles.from(labelStyle)
+            )
+            else -> LabelStyles.from(LabelStyle.from(LabelTextStyle.from(10, 0xFF000000.toInt())))
+        }
 
         val option =
             LabelOptions.from(
                 labelOption.id,
                 labelOption.latLng,
             )
-        option.setStyles(labelStyles)
+        option.setStyles(appliedStyles)
         option.rank = labelOption.rank
 
         kMap.labelManager?.layer?.addLabel(option)
@@ -401,14 +434,14 @@ class KakaoMapController(
                 layer.getLabel(option.id)?.remove()
             }
 
-            val labelStyle =
-                if (option.image == null) {
+            val item = options.getJSONObject(i)
+            val styleId: String? = item.optString("styleId", "").takeIf { item.has("styleId") && it.isNotBlank() }
+            val labelStyles: LabelStyles = when {
+                styleId != null -> (kMap.labelManager?.getLabelStyles(styleId)) ?: LabelStyles.from(
                     LabelStyle.from(LabelTextStyle.from(10, 0xFF000000.toInt()))
-                } else {
-                    LabelStyle.from(option.image)
-                }
-
-            val labelStyles = LabelStyles.from(labelStyle)
+                )
+                else -> LabelStyles.from(LabelStyle.from(LabelTextStyle.from(10, 0xFF000000.toInt())))
+            }
             val labelOption = LabelOptions.from(option.id, option.latLng)
             labelOption.setStyles(labelStyles)
             labelOption.setRank(option.rank)
@@ -445,6 +478,129 @@ class KakaoMapController(
 
         kMap.labelManager?.removeAllLabelLayer()
 
+        return result.success(null)
+    }
+
+    // Marker styles registration (Flutter -> Native)
+    @OptIn(ExperimentalEncodingApi::class)
+    private fun registerMarkerStyles(args: Any?, result: MethodChannel.Result) {
+        require(::kMap.isInitialized) { "kakaoMap is not initialized" }
+
+        // Support both StandardMethodCodec(Map/ByteArray) and JSON codec(JSONObject/Base64)
+        val stylesListAny: List<*>? = when (args) {
+            is Map<*, *> -> args["styles"] as? List<*>
+            is JSONObject -> {
+                val arr = args.optJSONArray("styles") ?: return result.error("E001", "Invalid arguments for registerMarkerStyles", null)
+                (0 until arr.length()).map { arr.getJSONObject(it) }
+            }
+            else -> null
+        }
+
+        if (stylesListAny == null) {
+            return result.error("E001", "Invalid arguments for registerMarkerStyles", null)
+        }
+
+        for (styleAny in stylesListAny) {
+            val (styleId, perLevels) = when (styleAny) {
+                is Map<*, *> -> Pair(styleAny["styleId"] as String, styleAny["perLevels"] as? List<*> ?: emptyList<Any>())
+                is JSONObject -> Pair(styleAny.getString("styleId"),
+                    (0 until styleAny.getJSONArray("perLevels").length()).map {
+                        styleAny.getJSONArray("perLevels").getJSONObject(it)
+                    })
+                else -> continue
+            }
+
+            if (perLevels.isEmpty()) continue
+            val first = perLevels.first()
+
+            // Extract icon bytes
+            val iconBytes: ByteArray? = when (first) {
+                is Map<*, *> -> {
+                    val iconAny = first["icon"]
+                    when (iconAny) {
+                        is ByteArray -> iconAny
+                        is List<*> -> (iconAny.filterIsInstance<Number>().map { it.toByte() }).toByteArray()
+                        is String -> Base64.Default.decode(iconAny.substringAfter("base64,", iconAny))
+                        else -> null
+                    }
+                }
+                is JSONObject -> {
+                    val rawIcon = first.opt("icon")
+                    when (rawIcon) {
+                        is String -> Base64.Default.decode(rawIcon.substringAfter("base64,", rawIcon))
+                        else -> null
+                    }
+                }
+                else -> null
+            }
+
+            if (iconBytes == null || iconBytes.isEmpty()) {
+                Log.e("KakaoMapController", "Invalid icon bytes for styleId=$styleId")
+                continue
+            }
+
+            val bitmap = BitmapFactory.decodeByteArray(iconBytes, 0, iconBytes.size)
+                ?: run {
+                    Log.e("KakaoMapController", "Failed to decode icon bytes for styleId=$styleId (bytes=${iconBytes.size})")
+                    return
+                }
+
+            val stylesList = mutableListOf<LabelStyle>()
+
+            // textStyle
+            when (first) {
+                is Map<*, *> -> {
+                    val ts = first["textStyle"] as? Map<*, *>
+                    if (ts != null) {
+                        val fontSize = (ts["fontSize"] as? Number)?.toInt() ?: 14
+                        val fontColor = (ts["fontColor"] as? Number)?.toInt() ?: 0xFF000000.toInt()
+                        stylesList.add(LabelStyle.from(LabelTextStyle.from(fontSize, fontColor)))
+                    }
+                }
+                is JSONObject -> {
+                    val ts = first.optJSONObject("textStyle")
+                    if (ts != null) {
+                        val fontSize = ts.optInt("fontSize", 14)
+                        val fontColor = ts.optInt("fontColor", 0xFF000000.toInt())
+                        stylesList.add(LabelStyle.from(LabelTextStyle.from(fontSize, fontColor)))
+                    }
+                }
+            }
+
+            stylesList.add(LabelStyle.from(bitmap))
+
+            val labelStyles = LabelStyles.from(styleId, *stylesList.toTypedArray())
+            kMap.labelManager?.addLabelStyles(labelStyles)
+            registeredLabelStylesIds.add(styleId)
+        }
+
+        Log.d("KakaoMapController", "Marker styles registered: $registeredLabelStylesIds")
+
+        result.success(null)
+    }
+
+    private fun removeMarkerStyles(args: JSONObject, result: MethodChannel.Result) {
+        require(::kMap.isInitialized) { "kakaoMap is not initialized" }
+
+        val styleIds = args.optJSONArray("styleIds")
+            ?: return result.error("E001", "Invalid arguments for removeMarkerStyles", null)
+        for (i in 0 until styleIds.length()) {
+            val sid = styleIds.getString(i)
+            kMap.labelManager?.getLabelStyles(sid)?.styles = arrayOf()
+            kMap.labelManager?.getLabelStyles(sid)?.styleId = ""
+            registeredLabelStylesIds.remove(sid)
+        }
+        return result.success(null)
+    }
+
+    private fun clearMarkerStyles(result: MethodChannel.Result) {
+        require(::kMap.isInitialized) { "kakaoMap is not initialized" }
+        registeredLabelStylesIds.forEach { id ->
+            kMap.labelManager?.getLabelStyles(id)?.styles = arrayOf()
+            kMap.labelManager?.getLabelStyles(id)?.styleId = ""
+            registeredLabelStylesIds.remove(id)
+        }
+        registeredLabelStylesIds.clear()
         return result.success(null)
     }
 
@@ -795,29 +951,32 @@ class KakaoMapController(
         Log.d("KakaoMapController", "onMethodCall: ${call.method}")
 
         when (call.method) {
+            "registerMarkerStyles" -> registerMarkerStyles(call.arguments, result)
+            "removeMarkerStyles" -> removeMarkerStyles(asJSONObject(call.arguments), result)
+            "clearMarkerStyles" -> clearMarkerStyles(result)
             "getZoomLevel" -> getZoomLevel(result)
-            "setZoomLevel" -> setZoomLevel(call.arguments as JSONObject, result)
-            "moveCamera" -> moveCamera(call.arguments as JSONObject, result)
-            "addMarker" -> addMarker(call.arguments as JSONObject, result)
-            "removeMarker" -> removeMarker(call.arguments as JSONObject, result)
-            "addMarkers" -> addMarkers(call.arguments as JSONObject, result)
-            "removeMarkers" -> removeMarkers(call.arguments as JSONObject, result)
+            "setZoomLevel" -> setZoomLevel(asJSONObject(call.arguments), result)
+            "moveCamera" -> moveCamera(asJSONObject(call.arguments), result)
+            "addMarker" -> addMarker(asJSONObject(call.arguments), result)
+            "removeMarker" -> removeMarker(asJSONObject(call.arguments), result)
+            "addMarkers" -> addMarkers(asJSONObject(call.arguments), result)
+            "removeMarkers" -> removeMarkers(asJSONObject(call.arguments), result)
             "clearMarkers" -> clearMarkers(result)
             "getCenter" -> getCenter(result)
-            "toScreenPoint" -> toScreenPoint(call.arguments as JSONObject, result)
-            "fromScreenPoint" -> fromScreenPoint(call.arguments as JSONObject, result)
-            "setPoiVisible" -> setPoiVisible(call.arguments as JSONObject, result)
-            "setPoiClickable" -> setPoiClickable(call.arguments as JSONObject, result)
-            "setPoiScale" -> setPoiScale(call.arguments as JSONObject, result)
-            "setPadding" -> setPadding(call.arguments as JSONObject, result)
-            "setViewport" -> setViewport(call.arguments as JSONObject, result)
+            "toScreenPoint" -> toScreenPoint(asJSONObject(call.arguments), result)
+            "fromScreenPoint" -> fromScreenPoint(asJSONObject(call.arguments), result)
+            "setPoiVisible" -> setPoiVisible(asJSONObject(call.arguments), result)
+            "setPoiClickable" -> setPoiClickable(asJSONObject(call.arguments), result)
+            "setPoiScale" -> setPoiScale(asJSONObject(call.arguments), result)
+            "setPadding" -> setPadding(asJSONObject(call.arguments), result)
+            "setViewport" -> setViewport(asJSONObject(call.arguments), result)
             "getViewportBounds" -> getViewportBounds(result)
             "getMapInfo" -> getMapInfo(result)
-            "addInfoWindow" -> addInfoWindow(call.arguments as JSONObject, result)
-            "removeInfoWindow" -> removeInfoWindow(call.arguments as JSONObject, result)
-            "addInfoWindows" -> addInfoWindows(call.arguments as JSONObject, result)
-            "removeInfoWindows" -> removeInfoWindows(call.arguments as JSONObject, result)
-            "updateInfoWindow" -> updateInfoWindow(call.arguments as JSONObject, result)
+            "addInfoWindow" -> addInfoWindow(asJSONObject(call.arguments), result)
+            "removeInfoWindow" -> removeInfoWindow(asJSONObject(call.arguments), result)
+            "addInfoWindows" -> addInfoWindows(asJSONObject(call.arguments), result)
+            "removeInfoWindows" -> removeInfoWindows(asJSONObject(call.arguments), result)
+            "updateInfoWindow" -> updateInfoWindow(asJSONObject(call.arguments), result)
             "clearInfoWindows" -> clearInfoWindows(result)
             "showCompass" -> showCompass(result)
             "hideCompass" -> hideCompass(result)

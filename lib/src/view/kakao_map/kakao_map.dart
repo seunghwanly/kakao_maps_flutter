@@ -128,7 +128,7 @@ class _KakaoMapState extends State<KakaoMap> {
             TargetPlatform.android => AndroidView(
                 viewType: _$viewTypeId,
                 creationParams: creationParams,
-                creationParamsCodec: const JSONMessageCodec(),
+                creationParamsCodec: const StandardMessageCodec(),
                 onPlatformViewCreated: (id) async {
                   if (controller != null) return;
 
@@ -139,7 +139,7 @@ class _KakaoMapState extends State<KakaoMap> {
             TargetPlatform.iOS => UiKitView(
                 viewType: _$viewTypeId,
                 creationParams: creationParams,
-                creationParamsCodec: const JSONMessageCodec(),
+                creationParamsCodec: const StandardMessageCodec(),
                 onPlatformViewCreated: (id) async {
                   if (controller != null) return;
 

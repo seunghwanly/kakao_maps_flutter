@@ -64,47 +64,8 @@ class StaticMapController {
 </html>
 ''';
 
-    /// 다른 이미지 마커가 있는 경우, 일반 지도 API 사용
-    /// StaticMap은 커스텀 마커 이미지를 지원하지 않음
-    if (marker != null &&
-        marker.base64EncodedImage != null &&
-        marker.base64EncodedImage!.isNotEmpty) {
-      return '''
-$htmlHeader
-  <div id="map" class="map-container"></div>
-$scriptHeader
-  <script>
-    var container = document.getElementById('map');
-    
-    var options = {
-      center: new kakao.maps.LatLng(${center.latitude}, ${center.longitude}),
-      level: $level,
-      draggable: false,
-      disableDoubleClick: true,
-      disableDoubleClickZoom: true,
-      keyboardShortcuts: false
-    };
-
-    var map = new kakao.maps.Map(container, options);
-
-    var imageSrc = 'data:image/svg+xml;base64,${marker.base64EncodedImage}';
-    var markerImage = new kakao.maps.MarkerImage(imageSrc);
-    var markerPosition = new kakao.maps.LatLng(${marker.latLng.latitude}, ${marker.latLng.longitude});
-
-    var mapMarker = new kakao.maps.Marker({
-      position: markerPosition,
-      image: markerImage
-    });
-
-    mapMarker.setMap(map);
-    
-    // 추가적인 사용자 상호작용 방지
-    map.setDraggable(false);
-    map.setZoomable(false);
-  </script>
-$htmlFooter
-''';
-    }
+    // 커스텀 이미지 기반 마커는 LabelOption에서 제거되었으며,
+    // 정적 지도에서도 기본 마커만 지원합니다.
 
     /// 기본 마커를 사용하는 정적 지도
     String? markerOption = '';

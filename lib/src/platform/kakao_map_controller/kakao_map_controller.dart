@@ -12,7 +12,8 @@ import 'package:kakao_maps_flutter/src/data/data.dart'
         LabelOption,
         LatLng,
         LatLngBounds,
-        MapInfo;
+        MapInfo,
+        MarkerStyle;
 import 'package:kakao_maps_flutter/src/data/label/label_click_event.dart';
 import 'package:kakao_maps_flutter/src/platform/kakao_map_method_call/kakao_map_method_call.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
@@ -147,6 +148,27 @@ class KakaoMapController extends KakaoMapControllerPlatform {
   /// Removes all markers from the map.
   Future<void> clearMarkers() async {
     await _platform._callMethod(const ClearMarkers());
+  }
+
+  /// Registers marker styles with the map.
+  ///
+  /// The [styles] is a list of marker styles to register.
+  Future<void> registerMarkerStyles({
+    required List<MarkerStyle> styles,
+  }) async {
+    await _platform._callMethod(RegisterMarkerStyles(styles: styles));
+  }
+
+  /// Removes marker styles by their IDs.
+  Future<void> removeMarkerStyles({
+    required List<String> styleIds,
+  }) async {
+    await _platform._callMethod(RemoveMarkerStyles(styleIds: styleIds));
+  }
+
+  /// Clears all marker styles from the map.
+  Future<void> clearMarkerStyles() async {
+    await _platform._callMethod(const ClearMarkerStyles());
   }
 
   /// Gets the center position of the map's current viewport.
