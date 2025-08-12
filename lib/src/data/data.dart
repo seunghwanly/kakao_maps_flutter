@@ -15,4 +15,5 @@ export 'lat_lng/lat_lng_bounds.dart';
 export 'logo/logo.dart';
 export 'map_info/map_info.dart';
 export 'map_widget/map_widget.dart';
+export 'marker/marker_style.dart';
 export 'scalebar/scalebar.dart';

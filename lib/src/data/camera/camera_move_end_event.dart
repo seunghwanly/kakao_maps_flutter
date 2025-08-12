@@ -1,13 +1,13 @@
 /// Event fired when the camera movement ends on the map.
 class CameraMoveEndEvent {
   /// Creates a CameraMoveEndEvent from a JSON map.
-  factory CameraMoveEndEvent.fromJson(Map<String, dynamic> json) {
+  factory CameraMoveEndEvent.fromJson(Map<String, Object?> json) {
     return CameraMoveEndEvent(
-      latitude: (json['latitude'] as num).toDouble(),
-      longitude: (json['longitude'] as num).toDouble(),
-      zoomLevel: (json['zoomLevel'] as num).toDouble(),
-      tilt: (json['tilt'] as num).toDouble(),
-      rotation: (json['rotation'] as num).toDouble(),
+      latitude: (json['latitude']! as num).toDouble(),
+      longitude: (json['longitude']! as num).toDouble(),
+      zoomLevel: (json['zoomLevel']! as num).toDouble(),
+      tilt: (json['tilt']! as num).toDouble(),
+      rotation: (json['rotation']! as num).toDouble(),
     );
   }
 
