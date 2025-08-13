@@ -219,5 +219,6 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Acknowledgments
 
-- Thanks to Kakao for providing the Maps SDK
-- Special thanks to all contributors
+**@Kakao** for providing the excellent KakaoMapsSDK.
+
+**All contributors** for helping build this project together 🙏
