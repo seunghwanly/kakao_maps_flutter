@@ -1,18 +1,36 @@
-## 0.0.1-beta3+5
+# 0.1.0
+
+### 🎉 Features
+* Implemented LodMarker, LodPoi, LodLabel
+* MarkerStyle can be added independently
+* InfoWindowLayer show/hide controls
+
+### ♻️ API Changes
+* Changed marker style application method
+
+### ⚠️ Notes (Breaking Changes)
+* Compatibility impact for beta users due to marker style application change
+
+### 📝 Documentation
+* Applied unified public API comment template across the codebase
+
+
+
+# 0.0.1-beta3+5
 
 ### 🐛 Bug Fixes
 * (iOS) Removed separate comma
 
----
 
-## 0.0.1-beta3+4
+
+# 0.0.1-beta3+4
 
 ### 🐛 Bug Fixes
 * (Android) Added type on constructor
 
----
 
-## 0.0.1-beta3+3
+
+# 0.0.1-beta3+3
 
 ### 🎉 Features
 * Added text-related properties to `LabelOption` for enhanced label customization
@@ -31,23 +49,21 @@
 ### 🐛 Bug Fixes
 * Fixed cache removal issues for better memory management
 
-### ⚠️ Breaking Changes
-* None
 
----
 
-## 0.0.1-beta3+2
+
+# 0.0.1-beta3+2
 
 ### 🎉 Features
-* **Performance Optimization** for label and POI batch operations on both Android and iOS platforms
+* Performance optimization for label and POI batch operations on both Android and iOS platforms
 
 ### ♻️ API Changes
 * Enhanced Android label management with batch add/remove operations using `addLabels()` and `remove(*labels.toTypedArray())`
 * Improved iOS POI management with batch operations using `addPois()` and `removePois()`
 
 ### 🔧 Improvements
-* **Android Performance**: Optimized label operations by collecting all labels first, then performing batch operations
-* **iOS Performance**: Enhanced POI operations with batch processing for better memory efficiency
+* Android performance: optimized label operations by collecting all labels first, then performing batch operations
+* iOS performance: enhanced POI operations with batch processing for better memory efficiency
 * Updated iOS project configuration with improved CocoaPods integration
 * Enhanced iOS build phases for better framework embedding and resource management
 
@@ -55,19 +71,19 @@
 * Fixed iOS project structure for better compatibility with latest Xcode versions
 * Improved iOS Podfile.lock management and dependency resolution
 
-### ⚠️ Breaking Changes
+### ⚠️ Notes (Breaking Changes)
 * None
 
----
 
-## 0.0.1-beta3
+
+# 0.0.1-beta3
 
 ### 🎉 Features
-* **Camera Move End Events** with `onCameraMoveEndStream` listener for real-time camera movement completion notifications
-* **Compass Controls** with complete positioning and interaction management
-* **ScaleBar Controls** with auto-hide functionality and fade timing configurations
-* **Logo Controls** with platform-specific visibility and positioning support
-* **Enhanced Event System** for camera movements with detailed position, zoom, tilt, and rotation data
+* Camera Move End Events with `onCameraMoveEndStream` listener for real-time camera movement completion notifications
+* Compass controls with complete positioning and interaction management
+* ScaleBar controls with auto-hide functionality and fade timing configurations
+* Logo controls with platform-specific visibility and positioning support
+* Enhanced event system for camera movements with detailed position, zoom, tilt, and rotation data
 
 ### ♻️ API Changes
 * Added `CameraMoveEndEvent` class for camera movement notifications
@@ -77,7 +93,7 @@
 * Enhanced `KakaoMap` widget with `compass`, `scaleBar`, and `logo` parameters
 
 ### 🔧 Improvements
-* **91.4% API Documentation Coverage** - Comprehensive documentation for public APIs
+* 91.4% API documentation coverage for public APIs
 * Enhanced error handling for platform-specific features (e.g., Android logo limitations)
 * Improved type safety with proper enum-based alignment systems
 * Better performance with optimized event streaming
@@ -94,19 +110,17 @@
 * Improved memory management in event streams
 * Enhanced platform compatibility checks
 
-### ⚠️ Breaking Changes
-* None - backward compatible with previous beta versions
 
----
 
-## 0.0.1-beta2
+
+# 0.0.1-beta2
 
 ### 🎉 Features
-* **StaticKakaoMap widget** for displaying static map images with customizable markers
-* **InfoWindow management** with add, remove, and batch operations
-* **Custom GUI components** (GuiText, GuiImage, GuiLayout) for rich InfoWindow layouts
-* **InfoWindow click events** with `onInfoWindowClickedStream` callback
-* **Initial map position and zoom level** support in KakaoMap widget
+* StaticKakaoMap widget for displaying static map images with customizable markers
+* InfoWindow management with add, remove, and batch operations
+* Custom GUI components (GuiText, GuiImage, GuiLayout) for rich InfoWindow layouts
+* InfoWindow click events with `onInfoWindowClickedStream` callback
+* Initial map position and zoom level support in KakaoMap widget
 
 ### ♻️ API Changes
 * Added `InfoWindowOption` for InfoWindow configuration
@@ -124,9 +138,9 @@
 * Added troubleshooting guide for Kakao Maps Android SDK dependency
 * Enhanced map widget parameters documentation
 
----
 
-## 0.0.1-beta1+2
+
+# 0.0.1-beta1+2
 
 ### 🎉 Features
 * EventHandler support with `LabelClickEvent` and `onLabelClicked` callback
@@ -143,9 +157,10 @@
 * New example app with `KakaoMapExampleScreen`
 * Added marker assets and data structure refactoring
 
----
 
-## 0.0.1-beta1
+
+
+# 0.0.1-beta1
 
 Initial release of the Kakao Maps Flutter plugin with core functionality:
 
@@ -165,14 +180,14 @@ Initial release of the Kakao Maps Flutter plugin with core functionality:
 * Platform-specific setup instructions
 * API documentation for core features
 
-### 🔧 Technical Details
+### 🔧 Improvements
 * Null safety support
 * Platform interface implementation
 * Method channel communication
 * Error handling and validation
 * Type-safe API design
 
-### ⚠️ Notes
+### ⚠️ Notes (Breaking Changes)
 * This is a pre-release version for early adopters
 * API may undergo changes based on feedback
 * Some advanced features planned for future releases

@@ -1,8 +1,11 @@
 part of '../map_widget.dart';
 
-/// Configuration for an info window to be displayed on the map.
+/// Info window configuration
+/// [EN]
+/// - Identifier, position and content configuration for info windows
 ///
-/// Contains the info window's identifier, position, and content.
+/// [KO]
+/// - 지도에 표시되는 말풍선의 식별자, 위치, 콘텐츠 구성
 class InfoWindowOption extends Data {
   /// Creates a new InfoWindowOption with the specified parameters.
   ///
@@ -29,9 +32,12 @@ class InfoWindowOption extends Data {
     this.zOrder,
   });
 
-  /// Creates a simple text-based InfoWindow (legacy style).
+  /// Create text-only info window
+  /// [EN]
+  /// - Convenience constructor for legacy text content
   ///
-  /// This is a convenience constructor for creating InfoWindows with just text content.
+  /// [KO]
+  /// - 텍스트만 포함하는 간단한 말풍선 생성
   const InfoWindowOption.text({
     required this.id,
     required this.latLng,
@@ -44,9 +50,12 @@ class InfoWindowOption extends Data {
   })  : body = null,
         tail = null;
 
-  /// Creates a custom GUI-based InfoWindow.
+  /// Create custom GUI info window
+  /// [EN]
+  /// - Build complex UI via [GuiView]
   ///
-  /// This constructor allows for complex UI layouts using GuiView components.
+  /// [KO]
+  /// - [GuiView] 구성 요소를 사용해 커스텀 UI 기반 말풍선 생성
   const InfoWindowOption.custom({
     required this.id,
     required this.latLng,
@@ -62,7 +71,7 @@ class InfoWindowOption extends Data {
   /// The unique identifier for this info window.
   final String id;
 
-  /// The geographic position where this info window should be displayed.
+  /// Geographic position
   final LatLng latLng;
 
   /// The main title text of the info window (used when body is null).
@@ -71,9 +80,12 @@ class InfoWindowOption extends Data {
   /// Optional additional text content below the title (used when body is null).
   final String? snippet;
 
-  /// Custom GUI layout for the info window content.
+  /// Custom GUI layout
+  /// [EN]
+  /// - Takes precedence over [title] and [snippet]
   ///
-  /// When provided, this takes precedence over [title] and [snippet].
+  /// [KO]
+  /// - 제공되면 [title], [snippet]보다 우선 적용
   final GuiView? body;
 
   /// Optional tail image for speech bubble effect.
@@ -82,10 +94,10 @@ class InfoWindowOption extends Data {
   /// Whether the info window should be visible when created.
   final bool isVisible;
 
-  /// The offset positioning relative to the anchor point.
+  /// Body-free offset
   final InfoWindowOffset offset;
 
-  /// The body offset positioning relative to its anchor point.
+  /// Body offset
   final InfoWindowOffset bodyOffset;
 
   /// Whether this InfoWindow uses custom GUI components.

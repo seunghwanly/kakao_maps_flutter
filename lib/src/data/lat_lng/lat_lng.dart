@@ -1,19 +1,24 @@
 import 'package:kakao_maps_flutter/src/base/data.dart';
 
-/// A geographic coordinate with latitude and longitude.
+/// Geographic coordinate
+/// [EN]
+/// - Latitude/longitude pair for map locations
 ///
-/// Used to specify locations on the map.
+/// [KO]
+/// - 지도 위치를 나타내는 위도/경도 쌍
 class LatLng extends Data {
-  /// Creates a new LatLng instance with the specified coordinates.
+  /// Create coordinate
+  /// [EN]
+  /// - [latitude] range -90..90, [longitude] range -180..180
   ///
-  /// The [latitude] should be between -90 and 90 degrees.
-  /// The [longitude] should be between -180 and 180 degrees.
+  /// [KO]
+  /// - [latitude] 범위 -90..90, [longitude] 범위 -180..180
   const LatLng({
     required this.latitude,
     required this.longitude,
   });
 
-  /// Creates a LatLng instance from a JSON map.
+  /// From JSON map
   factory LatLng.fromJson(Map<String, Object?> json) => LatLng(
         latitude: json['latitude']! as double,
         longitude: json['longitude']! as double,
@@ -25,13 +30,9 @@ class LatLng extends Data {
         'longitude': longitude,
       };
 
-  /// The latitude coordinate in degrees.
-  ///
-  /// Valid range is -90 to 90 degrees.
+  /// Latitude in degrees
   final double latitude;
 
-  /// The longitude coordinate in degrees.
-  ///
-  /// Valid range is -180 to 180 degrees.
+  /// Longitude in degrees
   final double longitude;
 }

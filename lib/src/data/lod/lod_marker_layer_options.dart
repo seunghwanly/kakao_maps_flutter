@@ -1,8 +1,11 @@
 import 'package:kakao_maps_flutter/src/base/data.dart';
 
-/// Flutter/Dart 측 LOD 전용 마커 레이어 옵션
+/// LOD marker layer options
+/// [EN]
+/// - Dart-side options mapped to native LodLabelLayer on Android/iOS
 ///
-/// 네이티브(Android: LodLabelLayer, iOS: LodLabelLayer)에 매핑됩니다.
+/// [KO]
+/// - 네이티브(Android/iOS) LodLabelLayer에 매핑되는 LOD 전용 마커 레이어 옵션
 class LodMarkerLayerOptions extends Data {
   factory LodMarkerLayerOptions.fromJson(Map<String, Object?> json) =>
       LodMarkerLayerOptions(
@@ -32,6 +35,8 @@ class LodMarkerLayerOptions extends Data {
   final LodMarkerCompetitionType competitionType;
   final LodMarkerCompetitionUnit competitionUnit;
   final LodMarkerOrderType orderType;
+
+  /// 렌더링 순서 우선도
   final int? zOrder;
   final double? radius;
 

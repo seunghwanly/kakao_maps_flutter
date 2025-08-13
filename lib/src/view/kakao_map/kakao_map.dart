@@ -10,20 +10,31 @@ import '../../platform/kakao_map_controller/kakao_map_controller.dart';
 
 const String _$viewTypeId = 'kakao_map_view';
 
-/// A widget that displays a Kakao Map view.
+/// Interactive Kakao Map widget
+/// [EN]
+/// - Embeds a native Kakao Map using AndroidView/UiKitView with given configuration
 ///
-/// This widget creates a platform-specific view (AndroidView/UiKitView) that
-/// displays the native Kakao Map with the specified configuration.
+/// [KO]
+/// - AndroidView/UiKitView를 통해 네이티브 Kakao Map을 임베드하는 대화형 지도 위젯
 class KakaoMap extends StatefulWidget {
-  /// Creates a KakaoMap widget.
+  /// Create interactive map
+  /// [EN]
+  /// - [onMapCreated]: callback when map is ready with [KakaoMapController]
+  /// - [initialPosition]: initial center position
+  /// - [initialLevel]: initial zoom level
+  /// - [width], [height]: widget size
+  /// - [compass]: compass configuration
+  /// - [scaleBar]: scale bar configuration
+  /// - [logo]: logo configuration
   ///
-  /// The [onMapCreated] callback is called when the map is ready to be used.
-  /// The [initialPosition] sets the initial center position of the map.
-  /// The [initialLevel] sets the initial zoom level of the map.
-  /// The [width] and [height] specify the dimensions of the map widget.
-  /// The [compass] configures the compass widget on the map.
-  /// The [scaleBar] configures the scale bar widget on the map.
-  /// The [logo] configures the logo widget on the map.
+  /// [KO]
+  /// - [onMapCreated]: 맵 준비 완료 시 호출되는 [KakaoMapController] 제공 콜백
+  /// - [initialPosition]: 초기 중심좌표
+  /// - [initialLevel]: 초기 줌 레벨
+  /// - [width], [height]: 위젯 크기
+  /// - [compass]: 나침반 설정
+  /// - [scaleBar]: 축척바 설정
+  /// - [logo]: 로고 설정
   const KakaoMap({
     this.onMapCreated,
     this.initialPosition,
@@ -36,44 +47,68 @@ class KakaoMap extends StatefulWidget {
     super.key,
   });
 
-  /// Callback function called when the map is created and ready to use.
+  /// Map ready callback
+  /// [EN]
+  /// - Provides [KakaoMapController] to interact with the map
   ///
-  /// Provides a [KakaoMapController] instance to interact with the map.
+  /// [KO]
+  /// - 맵 제어를 위한 [KakaoMapController] 제공 콜백
   final void Function(KakaoMapController controller)? onMapCreated;
 
-  /// The initial center position of the map.
+  /// Initial center position
+  /// [EN]
+  /// - Uses default center when null
   ///
-  /// If null, the map will use its default center position.
+  /// [KO]
+  /// - null이면 기본 중심 위치 사용
   final LatLng? initialPosition;
 
-  /// The initial zoom level of the map.
+  /// Initial zoom level
+  /// [EN]
+  /// - Valid range 1-21, uses default when null
   ///
-  /// Valid range is 1-21. If null, the map will use its default zoom level.
+  /// [KO]
+  /// - 유효 범위 1-21, null이면 기본 줌 레벨 사용
   final int? initialLevel;
 
-  /// The width of the map widget.
+  /// Map width
+  /// [EN]
+  /// - Uses max available width when null
   ///
-  /// If null, uses the maximum available width.
+  /// [KO]
+  /// - null이면 사용 가능 최대 너비 사용
   final double? width;
 
-  /// The height of the map widget.
+  /// Map height
+  /// [EN]
+  /// - Uses max available height when null
   ///
-  /// If null, uses the maximum available height.
+  /// [KO]
+  /// - null이면 사용 가능 최대 높이 사용
   final double? height;
 
-  /// Configuration for the compass widget on the map.
+  /// Compass configuration
+  /// [EN]
+  /// - When null, compass is hidden
   ///
-  /// If null, the compass will not be shown.
+  /// [KO]
+  /// - null이면 나침반 표시 안 함
   final Compass? compass;
 
-  /// Configuration for the scale bar widget on the map.
+  /// Scale bar configuration
+  /// [EN]
+  /// - When null, scale bar is hidden
   ///
-  /// If null, the scale bar will not be shown.
+  /// [KO]
+  /// - null이면 축척바 표시 안 함
   final ScaleBar? scaleBar;
 
-  /// Configuration for the logo widget on the map.
+  /// Logo configuration
+  /// [EN]
+  /// - When null, logo is hidden
   ///
-  /// If null, the logo will not be shown.
+  /// [KO]
+  /// - null이면 로고 표시 안 함
   final Logo? logo;
 
   @override

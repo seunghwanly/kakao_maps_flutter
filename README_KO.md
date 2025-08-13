@@ -1,12 +1,10 @@
-# kakao_maps_flutter
+# kakao_maps_flutter (🇰🇷 KO)
 
 [![pub package](https://img.shields.io/pub/v/kakao_maps_flutter.svg)](https://pub.dev/packages/kakao_maps_flutter)
 [![Platform](https://img.shields.io/badge/platform-android%20|%20ios-green.svg)](https://github.com/seunghwanly/kakao_maps_flutter)
 [![Documentation](https://img.shields.io/badge/documentation-91.4%25-brightgreen.svg)](https://pub.dev/documentation/kakao_maps_flutter)
 
-Note: Korean documentation is available at [README_KO.md](README_KO.md).
-
-A Flutter plugin for integrating Kakao Maps SDK v2, providing a native map experience for both Android and iOS platforms.
+Flutter용 Kakao Maps SDK v2 플러그인
 
 ## 📱 Platform Support
 
@@ -34,28 +32,28 @@ A Flutter plugin for integrating Kakao Maps SDK v2, providing a native map exper
 
 ## Getting Started
 
-### Prerequisites
-1. Get API key from [Kakao Developers Console](https://developers.kakao.com/console/app)
-2. Configure platform-specific SDK setup
+### 사전 준비
+1. [Kakao Developers Console](https://developers.kakao.com/console/app)에서 API 키 발급
+2. 플랫폼별 SDK 설정 구성
 
-### References
+### 참고 문서
 - Android Getting Started: https://apis.map.kakao.com/android_v2/docs/getting-started/
 - iOS Getting Started: https://apis.map.kakao.com/ios_v2/docs/getting-started/gettingstarted/
 
-### Terms and usage notes
-- Separate agreement to Kakao Maps SDK Terms of Use required
-- Kakao developer site: https://developers.kakao.com/console/app
-- Quota limits may apply for commercial use
+### 약관 및 사용 안내
+- 이 패키지를 사용하려면 별도로 **Kakao Maps SDK 이용약관 동의**가 필요해요
+- Kakao 개발자 사이트: https://developers.kakao.com/console/app
+- 상업적 사용 시 할당량 제한 적용 안내
 
-### Installation
-Add to `pubspec.yaml`
+### 설치
+`pubspec.yaml` 추가
 
 ```yaml
 dependencies:
   kakao_maps_flutter: ^latest_version
 ```
 
-SDK initialization
+SDK 초기화
 
 ```dart
 void main() async {
@@ -65,7 +63,7 @@ void main() async {
 }
 ```
 
-Add map widget
+지도 위젯 추가
 
 ```dart
 class MapScreen extends StatelessWidget {
@@ -82,10 +80,9 @@ class MapScreen extends StatelessWidget {
 }
 ```
 
+### 예제
 
-### Usage
-
-1. Camera movement
+1. 카메라 이동
 ```dart
 await controller.moveCamera(
   cameraUpdate: CameraUpdate.fromLatLng(
@@ -99,7 +96,7 @@ await controller.moveCamera(
 );
 ```
 
-2. Add/Remove marker
+2. 마커 추가/제거
 ```dart
 await controller.addMarker(
   labelOption: const LabelOption(
@@ -111,26 +108,26 @@ await controller.addMarker(
 await controller.removeMarker(id: 'marker_id');
 ```
 
-3. Toggle POI visibility
+3. POI 표시 토글
 ```dart
 await controller.setPoiVisible(isVisible: true); // or false
 ```
 
-4. Camera move end events
+4. 카메라 이동 종료 이벤트 구독
 ```dart
 final cameraMoveEndSub = controller.onCameraMoveEndStream.listen((event) {
   debugPrint('moved: ${event.latitude}, ${event.longitude}');
 });
 ```
 
-5. Label click events
+5. 라벨 클릭 이벤트 구독
 ```dart
 final labelClickSub = controller.onLabelClickedStream.listen((event) {
   debugPrint('label clicked: ${event.labelId}');
 });
 ```
 
-6. Add/Remove InfoWindow
+6. 인포윈도우 추가/제거
 ```dart
 await controller.addInfoWindow(
   infoWindowOption: const InfoWindowOption(
@@ -145,12 +142,11 @@ await controller.addInfoWindow(
 await controller.removeInfoWindow(id: 'info_1');
 ```
 
-
-7. Add/Use MarkerStyle
+7. MarkerStyle 등록과 적용
 ```dart
 // import 'dart:convert'; // for base64Decode
 
-// 1) Define Styles
+// 1) 스타일 정의
 final styles = [
   MarkerStyle(
     styleId: 'default_marker_style_001',
@@ -175,10 +171,10 @@ final styles = [
   ),
 ];
 
-// 2) Register
+// 2) 등록
 await controller.registerMarkerStyles(styles: styles);
 
-// 3) Use
+// 3) 사용
 await controller.addMarker(
   labelOption: LabelOption(
     id: 'marker_with_style',
@@ -188,15 +184,14 @@ await controller.addMarker(
 );
 ```
 
-
-### 🔧 Troubleshooting: Kakao Maps Android SDK repository
-Add repository on Gradle when error occurs
+### 🔧 문제 해결: Kakao Maps Android SDK 저장소
+Gradle 에러 발생 시 저장소 추가 필요
 
 ```
 Could not find com.kakao.maps.open:android:2.12.8.
 ```
 
-Add to `android/build.gradle`
+`android/build.gradle`의 `allprojects > repositories`에 추가
 
 ```groovy
 allprojects {
@@ -211,13 +206,15 @@ allprojects {
 
 ## Contributing
 
-Contributions are welcome! Please read our contributing guidelines before submitting pull requests.
+기여를 환영해요. PR 전 가이드라인을 참고해 주세요.
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+MIT License
 
 ## Acknowledgments
 
-- Thanks to Kakao for providing the Maps SDK
-- Special thanks to all contributors
+- Kakao Maps SDK에 감사
+- 모든 기여자에게 감사
+
+

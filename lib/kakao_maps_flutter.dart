@@ -1,14 +1,31 @@
-/// A Flutter plugin for integrating Kakao Maps into Flutter applications.
+/// Kakao Maps integration for Flutter
+/// [EN]
+/// - Widgets and controllers to display and control Kakao Maps on Android and iOS
 ///
-/// This library provides widgets and controllers for displaying and interacting
-/// with Kakao Maps on both Android and iOS platforms.
+/// [KO]
+/// - Android, iOS에서 Kakao Maps를 표시하고 제어하는 위젯과 컨트롤러
 library kakao_maps_flutter;
 
-/// Data classes and models used throughout the Kakao Maps SDK.
+/// Data models
+/// [EN]
+/// - Core data classes used by the Kakao Maps SDK
+///
+/// [KO]
+/// - Kakao Maps SDK에서 사용하는 핵심 데이터 모델
 export 'src/data/data.dart';
 
-/// Platform-specific implementations and interfaces for Kakao Maps.
+/// Platform layer
+/// [EN]
+/// - Platform implementations and interfaces for native Kakao Maps SDKs
+///
+/// [KO]
+/// - 네이티브 Kakao Maps SDK 연동을 위한 플랫폼 구현과 인터페이스
 export 'src/platform/platform.dart';
 
-/// UI widgets and views for displaying Kakao Maps.
+/// View widgets
+/// [EN]
+/// - Widgets and views for embedding Kakao Maps in Flutter apps
+///
+/// [KO]
+/// - Flutter 앱에 Kakao Maps를 포함하는 위젯과 뷰
 export 'src/view/view.dart';

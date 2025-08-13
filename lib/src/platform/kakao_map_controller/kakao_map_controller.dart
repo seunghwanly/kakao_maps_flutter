@@ -25,48 +25,68 @@ import '../../data/logo/logo.dart';
 part 'interface/kakao_map_controller_platform_interface.dart';
 part 'method_channel/method_channel_kakao_map_controller.dart';
 
-/// Controller for interacting with a Kakao Map instance.
+/// Kakao Map controller
+/// [EN]
+/// - Programmatic control over camera, markers, widgets and map settings
 ///
-/// Provides methods to control the map camera, markers, and various settings.
+/// [KO]
+/// - 카메라, 마커, 지도 위젯과 각종 설정을 제어하는 컨트롤러
 class KakaoMapController extends KakaoMapControllerPlatform {
-  /// Creates a new KakaoMapController for the given view ID.
+  /// Create controller
+  /// [EN]
+  /// - Instantiate controller bound to [viewId]
+  ///
+  /// [KO]
+  /// - [viewId]에 바인딩되는 컨트롤러 생성
   KakaoMapController({
     required this.viewId,
   }) {
     _platform = MethodChannelKakaoMapController.create(viewId);
   }
 
-  /// Creates a KakaoMapController for testing purposes.
+  /// Create controller for tests
+  /// [EN]
+  /// - Use custom [platform] for testing
+  ///
+  /// [KO]
+  /// - 테스트를 위해 주입 가능한 [platform] 사용
   @visibleForTesting
   KakaoMapController.forTest({
     required KakaoMapControllerPlatform platform,
     required this.viewId,
   }) : _platform = platform;
 
-  /// The unique identifier for this map view.
+  /// View identifier
   final int viewId;
 
   late final KakaoMapControllerPlatform _platform;
 
-  /// Stream of label click events.
+  /// Label click stream
+  /// [EN]
+  /// - Emits when a label is clicked
   ///
-  /// Subscribe to this stream to receive notifications when markers on the
-  /// map are clicked.
+  /// [KO]
+  /// - 라벨 클릭 시 이벤트 스트림 발행
   @override
   Stream<LabelClickEvent> get onLabelClickedStream =>
       _platform.onLabelClickedStream;
 
-  /// Stream of info window click events.
+  /// Info window click stream
+  /// [EN]
+  /// - Emits when an info window is clicked
   ///
-  /// Subscribe to this stream to receive notifications when info windows on the
-  /// map are clicked.
+  /// [KO]
+  /// - 말풍선 클릭 시 이벤트 스트림 발행
   @override
   Stream<InfoWindowClickEvent> get onInfoWindowClickedStream =>
       _platform.onInfoWindowClickedStream;
 
-  /// Stream of camera move end events.
+  /// Camera move end stream
+  /// [EN]
+  /// - Emits when camera movement finishes
   ///
-  /// Subscribe to this stream to receive notifications when the camera movement ends and the map settles.
+  /// [KO]
+  /// - 카메라 이동이 완료될 때 이벤트 스트림 발행
   @override
   Stream<CameraMoveEndEvent> get onCameraMoveEndStream =>
       _platform.onCameraMoveEndStream;
@@ -76,27 +96,34 @@ class KakaoMapController extends KakaoMapControllerPlatform {
     return _platform._callMethod(methodCall);
   }
 
-  /// Gets the current zoom level of the map.
+  /// Get zoom level
+  /// [EN]
+  /// - Returns null when unavailable
   ///
-  /// Returns null if the zoom level cannot be retrieved.
+  /// [KO]
+  /// - 가져올 수 없으면 null 반환
   Future<int?> getZoomLevel() async {
     return _platform._callMethod(const GetZoomLevel());
   }
 
-  /// Sets the zoom level of the map.
+  /// Set zoom level
+  /// [EN]
+  /// - Must be within SDK-supported range
   ///
-  /// The [zoomLevel] should be between the minimum and maximum zoom levels
-  /// supported by Kakao Maps.
+  /// [KO]
+  /// - SDK가 지원하는 범위 내 값 필요
   Future<void> setZoomLevel({
     required int zoomLevel,
   }) async {
     await _platform._callMethod(SetZoomLevel(zoomLevel: zoomLevel));
   }
 
-  /// Moves the camera to a new position with optional animation.
+  /// Move camera
+  /// [EN]
+  /// - [cameraUpdate]: target camera parameters, [animation]: optional animation
   ///
-  /// The [cameraUpdate] defines the target camera position and settings.
-  /// The [animation] defines how the camera movement should be animated.
+  /// [KO]
+  /// - [cameraUpdate]: 목표 카메라 값, [animation]: 선택적 애니메이션
   Future<void> moveCamera({
     required CameraUpdate cameraUpdate,
     CameraAnimation? animation,
@@ -109,131 +136,144 @@ class KakaoMapController extends KakaoMapControllerPlatform {
     );
   }
 
-  /// Adds a single marker to the map.
+  /// Add marker
+  /// [EN]
+  /// - Add a single label/marker to the map
   ///
-  /// The [labelOption] contains the marker's ID, position, and appearance
-  /// settings.
+  /// [KO]
+  /// - 단일 라벨/마커 추가
   Future<void> addMarker({
     required LabelOption labelOption,
   }) async {
     await _platform._callMethod(AddMarker(labelOption: labelOption));
   }
 
-  /// Removes a marker from the map by its ID.
+  /// Remove marker
+  /// [EN]
+  /// - Remove by marker id
   ///
-  /// The [id] is the unique identifier of the marker to remove.
+  /// [KO]
+  /// - 마커 id로 제거
   Future<void> removeMarker({
     required String id,
   }) async {
     await _platform._callMethod(RemoveMarker(id: id));
   }
 
-  /// Adds multiple markers to the map at once.
+  /// Add markers
+  /// [EN]
+  /// - Batch add multiple labels/markers
   ///
-  /// The [labelOptions] is a list of marker configurations.
+  /// [KO]
+  /// - 여러 라벨/마커 일괄 추가
   Future<void> addMarkers({
     required List<LabelOption> labelOptions,
   }) async {
     await _platform._callMethod(AddMarkers(labelOptions: labelOptions));
   }
 
-  /// Removes multiple markers from the map by their IDs.
+  /// Remove markers
+  /// [EN]
+  /// - Batch remove by ids
   ///
-  /// The [ids] is a list of unique identifiers of markers to remove.
+  /// [KO]
+  /// - id 목록으로 일괄 제거
   Future<void> removeMarkers({
     required List<String> ids,
   }) async {
     await _platform._callMethod(RemoveMarkers(ids: ids));
   }
 
-  /// Removes all markers from the map.
+  /// Clear all markers
   Future<void> clearMarkers() async {
     await _platform._callMethod(const ClearMarkers());
   }
 
-  /// Registers marker styles with the map.
+  /// Register marker styles
+  /// [EN]
+  /// - Register style bundles referenced by [LabelOption.styleId]
   ///
-  /// The [styles] is a list of marker styles to register.
+  /// [KO]
+  /// - [LabelOption.styleId]에서 참조하는 스타일 묶음을 등록
   Future<void> registerMarkerStyles({
     required List<MarkerStyle> styles,
   }) async {
     await _platform._callMethod(RegisterMarkerStyles(styles: styles));
   }
 
-  /// Removes marker styles by their IDs.
+  /// Remove marker styles
   Future<void> removeMarkerStyles({
     required List<String> styleIds,
   }) async {
     await _platform._callMethod(RemoveMarkerStyles(styleIds: styleIds));
   }
 
-  /// Clears all marker styles from the map.
+  /// Clear all marker styles
   Future<void> clearMarkerStyles() async {
     await _platform._callMethod(const ClearMarkerStyles());
   }
 
-  /// Gets the center position of the map's current viewport.
+  /// Get map center
+  /// [EN]
+  /// - Returns null when unavailable
   ///
-  /// Returns null if the center position cannot be retrieved.
+  /// [KO]
+  /// - 가져올 수 없으면 null 반환
   Future<LatLng?> getCenter() async {
     return _platform._callMethod(const GetCenter());
   }
 
-  /// Converts a geographic position to screen coordinates.
+  /// To screen point
+  /// [EN]
+  /// - Convert [position] to screen coordinates, returns null on failure
   ///
-  /// The [position] is the geographic location to convert.
-  /// Returns the corresponding point on screen, or null if conversion fails.
+  /// [KO]
+  /// - [position]을 화면 좌표로 변환, 실패 시 null 반환
   Future<Offset?> toScreenPoint({
     required LatLng position,
   }) async {
     return _platform._callMethod(ToScreenPoint(position: position));
   }
 
-  /// Converts screen coordinates to a geographic position.
+  /// From screen point
+  /// [EN]
+  /// - Convert [point] to geographic position, returns null on failure
   ///
-  /// The [point] is the screen point to convert.
-  /// Returns the corresponding geographic location, or null if conversion fails.
+  /// [KO]
+  /// - [point]을 지리 좌표로 변환, 실패 시 null 반환
   Future<LatLng?> fromScreenPoint({
     required Offset point,
   }) async {
     return _platform._callMethod(FromScreenPoint(point: point));
   }
 
-  /// Sets the visibility of POI (Points of Interest) on the map.
-  ///
-  /// The [isVisible] determines whether POIs should be shown or hidden.
+  /// Set POI visibility
   Future<void> setPoiVisible({
     required bool isVisible,
   }) async {
     return _platform._callMethod(SetPoiVisible(isVisible: isVisible));
   }
 
-  /// Sets whether POI (Points of Interest) on the map are clickable.
-  ///
-  /// The [isClickable] determines whether users can interact with POIs.
+  /// Set POI clickability
   Future<void> setPoiClickable({
     required bool isClickable,
   }) async {
     return _platform._callMethod(SetPoiClickable(isClickable: isClickable));
   }
 
-  /// Sets the scale of POI (Points of Interest) icons on the map.
+  /// Set POI scale
+  /// [EN]
+  /// - 0: SMALL, 1: REGULAR, 2: LARGE, 3: XLARGE
   ///
-  /// The [scale] determines the size of POI icons:
-  /// * 0: SMALL
-  /// * 1: REGULAR
-  /// * 2: LARGE
-  /// * 3: XLARGE
+  /// [KO]
+  /// - 0: SMALL, 1: REGULAR, 2: LARGE, 3: XLARGE
   Future<void> setPoiScale({
     required int scale,
   }) async {
     return _platform._callMethod(SetPoiScale(scale: scale));
   }
 
-  /// Sets the padding for the map view.
-  ///
-  /// The [left], [top], [right], [bottom] define the padding in pixels on
-  /// each side.
+  /// Set map padding
   Future<void> setPadding({
     required int left,
     required int top,
@@ -250,9 +290,7 @@ class KakaoMapController extends KakaoMapControllerPlatform {
     );
   }
 
-  /// Sets the viewport size for the map.
-  ///
-  /// The [width] and [height] define the viewport dimensions in pixels.
+  /// Set viewport size
   Future<void> setViewport({
     required int width,
     required int height,
@@ -260,24 +298,17 @@ class KakaoMapController extends KakaoMapControllerPlatform {
     return _platform._callMethod(SetViewport(width: width, height: height));
   }
 
-  /// Gets the current viewport bounds of the map.
-  ///
-  /// Returns the geographic bounds of what is currently visible on screen.
+  /// Get viewport bounds
   Future<LatLngBounds?> getViewportBounds() async {
     return _platform._callMethod(const GetViewportBounds());
   }
 
-  /// Gets information about the current state of the map.
-  ///
-  /// Returns details like zoom level, rotation, and tilt.
+  /// Get map info
   Future<MapInfo?> getMapInfo() async {
     return _platform._callMethod(const GetMapInfo());
   }
 
-  /// Adds an info window to the map.
-  ///
-  /// The [infoWindowOption] contains the info window's configuration including
-  /// position, content, and appearance settings.
+  /// Add info window
   Future<void> addInfoWindow({
     required InfoWindowOption infoWindowOption,
   }) async {
@@ -285,18 +316,14 @@ class KakaoMapController extends KakaoMapControllerPlatform {
         ._callMethod(AddInfoWindow(infoWindowOption: infoWindowOption));
   }
 
-  /// Removes an info window by its ID.
-  ///
-  /// The [id] is the unique identifier of the info window to remove.
+  /// Remove info window
   Future<void> removeInfoWindow({
     required String id,
   }) async {
     await _platform._callMethod(RemoveInfoWindow(id: id));
   }
 
-  /// Adds multiple info windows to the map.
-  ///
-  /// The [infoWindowOptions] contains a list of info window configurations.
+  /// Add info windows
   Future<void> addInfoWindows({
     required List<InfoWindowOption> infoWindowOptions,
   }) async {
@@ -304,30 +331,24 @@ class KakaoMapController extends KakaoMapControllerPlatform {
         ._callMethod(AddInfoWindows(infoWindowOptions: infoWindowOptions));
   }
 
-  /// Removes multiple info windows by their IDs.
-  ///
-  /// The [ids] contains a list of info window identifiers to remove.
+  /// Remove info windows
   Future<void> removeInfoWindows({
     required List<String> ids,
   }) async {
     await _platform._callMethod(RemoveInfoWindows(ids: ids));
   }
 
-  /// Removes all info windows from the map.
+  /// Clear all info windows
   Future<void> clearInfoWindows() async {
     await _platform._callMethod(const ClearInfoWindows());
   }
 
-  /// InfoWindow 레이어 전체의 표시 여부를 설정합니다.
-  ///
-  /// 호출 시점까지 추가된 모든 InfoWindow를 일괄 hide/show 합니다.
+  /// Set info window layer visibility
   Future<void> setInfoWindowLayerVisible({required bool visible}) async {
     await _platform._callMethod(SetInfoWindowLayerVisible(visible: visible));
   }
 
-  /// 특정 InfoWindow의 표시 여부를 설정합니다.
-  ///
-  /// 해당 ID의 InfoWindow가 존재할 경우 hide/show 합니다.
+  /// Set single info window visibility
   Future<void> setInfoWindowVisible({
     required String id,
     required bool visible,
@@ -335,37 +356,27 @@ class KakaoMapController extends KakaoMapControllerPlatform {
     await _platform._callMethod(SetInfoWindowVisible(id: id, visible: visible));
   }
 
-  /// Shows the compass on the map.
-  ///
-  /// The compass will be displayed according to its current configuration.
+  /// Show compass
   Future<void> showCompass() async {
     await _platform._callMethod(const ShowCompass());
   }
 
-  /// Hides the compass from the map.
-  ///
-  /// The compass will be hidden but its configuration is preserved.
+  /// Hide compass
   Future<void> hideCompass() async {
     await _platform._callMethod(const HideCompass());
   }
 
-  /// Shows the scale bar on the map.
-  ///
-  /// The scale bar will be displayed according to its current configuration.
+  /// Show scale bar
   Future<void> showScaleBar() async {
     await _platform._callMethod(const ShowScaleBar());
   }
 
-  /// Hides the scale bar from the map.
-  ///
-  /// The scale bar will be hidden but its configuration is preserved.
+  /// Hide scale bar
   Future<void> hideScaleBar() async {
     await _platform._callMethod(const HideScaleBar());
   }
 
-  /// Updates the compass position on the map.
-  ///
-  /// The compass will be repositioned according to the specified alignment and offset.
+  /// Set compass position
   Future<void> setCompassPosition({
     required CompassAlignment alignment,
     required Offset offset,
@@ -378,9 +389,7 @@ class KakaoMapController extends KakaoMapControllerPlatform {
     );
   }
 
-  /// Shows the logo on the map.
-  ///
-  /// Throws [PlatformException] on Android because logo show/hide is only supported on iOS.
+  /// Show logo
   Future<void> showLogo() async {
     if (defaultTargetPlatform == TargetPlatform.android) {
       throw PlatformException(
@@ -392,9 +401,7 @@ class KakaoMapController extends KakaoMapControllerPlatform {
     return _platform._callMethod(const ShowLogo());
   }
 
-  /// Hides the logo on the map.
-  ///
-  /// Throws [PlatformException] on Android because logo show/hide is only supported on iOS.
+  /// Hide logo
   Future<void> hideLogo() async {
     if (defaultTargetPlatform == TargetPlatform.android) {
       throw PlatformException(
@@ -406,10 +413,7 @@ class KakaoMapController extends KakaoMapControllerPlatform {
     return _platform._callMethod(const HideLogo());
   }
 
-  /// Sets the logo position on the map.
-  ///
-  /// The [alignment] determines the position of the logo.
-  /// The [offset] provides additional positioning offset from the alignment point.
+  /// Set logo position
   Future<void> setLogoPosition({
     required LogoAlignment alignment,
     required Offset offset,
@@ -424,21 +428,21 @@ class KakaoMapController extends KakaoMapControllerPlatform {
 
   // ===== LOD Marker (LodLabel/LodPoi) APIs =====
 
-  /// LOD 전용 마커 레이어를 생성합니다.
+  /// Add LOD marker layer
   Future<void> addLodMarkerLayer({
     required LodMarkerLayerOptions options,
   }) async {
     await _platform._callMethod(AddLodMarkerLayer(options: options));
   }
 
-  /// LOD 전용 마커 레이어를 제거합니다.
+  /// Remove LOD marker layer
   Future<void> removeLodMarkerLayer({
     required String layerId,
   }) async {
     await _platform._callMethod(RemoveLodMarkerLayer(layerId: layerId));
   }
 
-  /// LOD 마커를 하나 추가합니다.
+  /// Add LOD marker
   Future<void> addLodMarker({
     required LabelOption option,
     required String layerId,
@@ -446,7 +450,7 @@ class KakaoMapController extends KakaoMapControllerPlatform {
     await _platform._callMethod(AddLodMarker(option: option, layerId: layerId));
   }
 
-  /// LOD 마커를 여러 개 추가합니다.
+  /// Add LOD markers
   Future<void> addLodMarkers({
     required List<LabelOption> options,
     required String layerId,
@@ -455,7 +459,7 @@ class KakaoMapController extends KakaoMapControllerPlatform {
         ._callMethod(AddLodMarkers(options: options, layerId: layerId));
   }
 
-  /// 특정 LOD 마커들을 제거합니다.
+  /// Remove specific LOD markers
   Future<void> removeLodMarkers({
     required String layerId,
     required List<String> ids,
@@ -463,28 +467,28 @@ class KakaoMapController extends KakaoMapControllerPlatform {
     await _platform._callMethod(RemoveLodMarkers(layerId: layerId, ids: ids));
   }
 
-  /// 레이어 내 모든 LOD 마커를 제거합니다.
+  /// Clear all LOD markers in layer
   Future<void> clearAllLodMarkers({
     required String layerId,
   }) async {
     await _platform._callMethod(ClearAllLodMarkers(layerId: layerId));
   }
 
-  /// 레이어 내 모든 LOD 마커를 표시합니다.
+  /// Show all LOD markers in layer
   Future<void> showAllLodMarkers({
     required String layerId,
   }) async {
     await _platform._callMethod(ShowAllLodMarkers(layerId: layerId));
   }
 
-  /// 레이어 내 모든 LOD 마커를 숨깁니다.
+  /// Hide all LOD markers in layer
   Future<void> hideAllLodMarkers({
     required String layerId,
   }) async {
     await _platform._callMethod(HideAllLodMarkers(layerId: layerId));
   }
 
-  /// 특정 ID들의 LOD 마커를 표시합니다.
+  /// Show LOD markers by ids
   Future<void> showLodMarkers({
     required String layerId,
     required List<String> ids,
@@ -492,7 +496,7 @@ class KakaoMapController extends KakaoMapControllerPlatform {
     await _platform._callMethod(ShowLodMarkers(layerId: layerId, ids: ids));
   }
 
-  /// 특정 ID들의 LOD 마커를 숨깁니다.
+  /// Hide LOD markers by ids
   Future<void> hideLodMarkers({
     required String layerId,
     required List<String> ids,
@@ -500,7 +504,7 @@ class KakaoMapController extends KakaoMapControllerPlatform {
     await _platform._callMethod(HideLodMarkers(layerId: layerId, ids: ids));
   }
 
-  /// LOD 마커 레이어의 클릭 가능 여부를 설정합니다.
+  /// Set LOD layer clickability
   Future<void> setLodMarkerLayerClickable({
     required String layerId,
     required bool clickable,

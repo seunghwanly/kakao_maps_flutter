@@ -1,13 +1,18 @@
 import 'package:kakao_maps_flutter/src/base/data.dart';
 
-/// Configuration for the scale bar widget on the map.
+/// Scale bar configuration
+/// [EN]
+/// - Displays current map scale with optional auto-hide behavior
 ///
-/// The scale bar shows the current map scale and can auto-hide based on configuration.
+/// [KO]
+/// - 현재 지도 축척을 표시하며 자동 숨김 동작을 지원
 class ScaleBar extends Data {
-  /// Creates a new ScaleBar configuration.
+  /// Create configuration
+  /// [EN]
+  /// - [isAutoHide]: auto hide, [fadeInTime]/[fadeOutTime]/[retentionTime]: timings in ms
   ///
-  /// The [isAutoHide] determines whether the scale bar automatically hides.
-  /// The [fadeInTime], [fadeOutTime], and [retentionTime] control the auto-hide behavior.
+  /// [KO]
+  /// - [isAutoHide]: 자동 숨김, [fadeInTime]/[fadeOutTime]/[retentionTime]: 밀리초 단위 시간
   const ScaleBar({
     this.isAutoHide = false,
     this.fadeInTime = 300,
@@ -15,7 +20,7 @@ class ScaleBar extends Data {
     this.retentionTime = 3000,
   });
 
-  /// Creates a ScaleBar instance from a JSON map.
+  /// From JSON map
   factory ScaleBar.fromJson(Map<String, Object?> json) => ScaleBar(
         isAutoHide: json['isAutoHide'] as bool? ?? false,
         fadeInTime: json['fadeInTime'] as int? ?? 300,
@@ -31,15 +36,15 @@ class ScaleBar extends Data {
         'retentionTime': retentionTime,
       };
 
-  /// Whether the scale bar automatically hides.
+  /// Auto-hide enabled
   final bool isAutoHide;
 
-  /// Fade in time in milliseconds.
+  /// Fade-in time (ms)
   final int fadeInTime;
 
-  /// Fade out time in milliseconds.
+  /// Fade-out time (ms)
   final int fadeOutTime;
 
-  /// Retention time in milliseconds before auto-hiding.
+  /// Retention time before auto-hide (ms)
   final int retentionTime;
 }

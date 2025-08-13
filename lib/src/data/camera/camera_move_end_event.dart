@@ -1,6 +1,11 @@
-/// Event fired when the camera movement ends on the map.
+/// Camera move end event
+/// [EN]
+/// - Fired when camera movement finishes with final pose values
+///
+/// [KO]
+/// - 카메라 이동이 끝났을 때 최종 상태 값과 함께 발행되는 이벤트
 class CameraMoveEndEvent {
-  /// Creates a CameraMoveEndEvent from a JSON map.
+  /// From JSON map
   factory CameraMoveEndEvent.fromJson(Map<String, Object?> json) {
     return CameraMoveEndEvent(
       latitude: (json['latitude']! as num).toDouble(),
@@ -11,7 +16,7 @@ class CameraMoveEndEvent {
     );
   }
 
-  /// Creates a new CameraMoveEndEvent.
+  /// Create event
   const CameraMoveEndEvent({
     required this.latitude,
     required this.longitude,
@@ -20,22 +25,22 @@ class CameraMoveEndEvent {
     required this.rotation,
   });
 
-  /// Latitude of the camera center.
+  /// Latitude
   final double latitude;
 
-  /// Longitude of the camera center.
+  /// Longitude
   final double longitude;
 
-  /// Zoom level of the camera.
+  /// Zoom level
   final double zoomLevel;
 
-  /// Tilt angle of the camera (degrees).
+  /// Tilt angle (deg)
   final double tilt;
 
-  /// Rotation angle of the camera (degrees).
+  /// Rotation angle (deg)
   final double rotation;
 
-  /// Converts this event to a JSON map.
+  /// To JSON map
   Map<String, dynamic> toJson() => {
         'latitude': latitude,
         'longitude': longitude,

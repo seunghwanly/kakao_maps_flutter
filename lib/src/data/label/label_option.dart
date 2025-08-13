@@ -2,14 +2,19 @@ import 'package:kakao_maps_flutter/src/base/data.dart';
 
 import '../lat_lng/lat_lng.dart';
 
-/// Configuration for a label (marker) to be displayed on the map.
+/// Label (marker) option
+/// [EN]
+/// - Identifier, position and optional style/text for markers
 ///
-/// Contains the label's identifier, position, and optional image data.
+/// [KO]
+/// - 마커의 식별자, 위치와 선택적 스타일/텍스트 옵션
 class LabelOption extends Data {
-  /// Creates a new LabelOption with the specified parameters.
+  /// Create label option
+  /// [EN]
+  /// - [id]: unique identifier, [latLng]: position
   ///
-  /// The [id] is a unique identifier for this label.
-  /// The [latLng] specifies the geographic position of the label.
+  /// [KO]
+  /// - [id]: 고유 식별자, [latLng]: 위치
   const LabelOption({
     required this.id,
     required this.latLng,
@@ -18,26 +23,29 @@ class LabelOption extends Data {
     this.text,
   });
 
-  /// The unique identifier for this label.
+  /// Unique identifier
   final String id;
 
-  /// The geographic position where this label should be displayed.
+  /// Geographic position
   final LatLng latLng;
 
-  /// 스타일 사전 등록 방식 사용 시 참조할 스타일 ID
+  /// Pre-registered style id
+  /// [EN]
+  /// - References registered styles (iOS `PoiStyle`, Android `LabelStyles`)
   ///
-  /// iOS의 `PoiStyle`, Android의 `LabelStyles`에 해당하며, 사전에 등록된 스타일을 참조합니다.
-  /// 제공되면 플랫폼 단에서 이 `styleId`를 우선 사용합니다.
+  /// [KO]
+  /// - 사전 등록된 스타일 참조(iOS `PoiStyle`, Android `LabelStyles`)
   final String? styleId;
 
-  /// 지도 렌더링 순위
+  /// Rendering order
+  /// [EN]
+  /// - Higher value renders above
   ///
-  /// [rank] 값이 높을수록 높은 우선순위를 가집니다.
-  /// - Android: LabelOption 렌더링 순위
-  /// - iOS: PoiOption 렌더링 순위
+  /// [KO]
+  /// - 값이 클수록 우선 렌더링
   final int? rank;
 
-  /// 텍스트
+  /// Text content
   final String? text;
 
   @override

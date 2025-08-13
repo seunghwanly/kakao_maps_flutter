@@ -2,7 +2,12 @@ import 'dart:ui';
 
 import 'package:kakao_maps_flutter/src/base/data.dart';
 
-/// Alignment options for positioning the compass on the map.
+/// Compass alignment options
+/// [EN]
+/// - Predefined positions for placing compass on map
+///
+/// [KO]
+/// - 지도 내 나침반 배치용 사전 정의 위치
 enum CompassAlignment {
   /// Top-left corner
   topLeft,
@@ -32,23 +37,26 @@ enum CompassAlignment {
   rightCenter,
 }
 
-/// Configuration for the compass widget on the map.
+/// Compass configuration
+/// [EN]
+/// - Shows heading and provides back-to-north interaction
 ///
-/// The compass shows the current direction and allows users to return to north.
+/// [KO]
+/// - 현재 방위를 표시하고 북쪽으로 되돌리기 기능 제공
 class Compass extends Data {
-  /// Creates a new Compass configuration.
+  /// Create configuration
+  /// [EN]
+  /// - [isBackToNorthOnClick]: reset heading, [alignment]: position, [offset]: extra offset
   ///
-  /// The [isBackToNorthOnClick] determines whether clicking the compass returns
-  /// the map to north orientation.
-  /// The [alignment] determines the position of the compass on the map.
-  /// The [offset] provides additional positioning offset from the alignment point.
+  /// [KO]
+  /// - [isBackToNorthOnClick]: 북쪽으로 복귀, [alignment]: 위치, [offset]: 추가 오프셋
   const Compass({
     this.isBackToNorthOnClick = true,
     this.alignment = CompassAlignment.topRight,
     this.offset = const Offset(0, 0),
   });
 
-  /// Creates a Compass instance from a JSON map.
+  /// From JSON map
   factory Compass.fromJson(Map<String, Object?> json) => Compass(
         isBackToNorthOnClick: json['isBackToNorthOnClick'] as bool? ?? true,
         alignment: _alignmentFromString(json['alignment'] as String?),
@@ -62,13 +70,13 @@ class Compass extends Data {
         'offset': _offsetToJson(offset),
       };
 
-  /// Whether clicking the compass returns the map to north orientation.
+  /// Back-to-north on click
   final bool isBackToNorthOnClick;
 
-  /// The alignment position of the compass on the map.
+  /// Alignment position
   final CompassAlignment alignment;
 
-  /// The offset from the alignment position in pixels.
+  /// Pixel offset
   final Offset offset;
 
   static CompassAlignment _alignmentFromString(String? value) {

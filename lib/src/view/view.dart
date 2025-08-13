@@ -1,6 +1,9 @@
-/// UI widgets and views for displaying Kakao Maps.
+/// View widgets
+/// [EN]
+/// - Main KakaoMap widget and static map for embedding Kakao Maps
 ///
-/// Contains the main KakaoMap widget for embedding maps in Flutter applications.
+/// [KO]
+/// - KakaoMap 위젯과 정적 지도를 포함하는 뷰 레이어
 library kakao_maps_flutter.view;
 
 export 'kakao_map/kakao_map.dart';
