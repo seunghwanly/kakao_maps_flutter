@@ -338,6 +338,12 @@ class KakaoMapController(
         }
     }
 
+    private fun JSONObject.extractLayerId(): String? {
+        // optString(key, fallback)은 키가 없거나 값이 null일 때 fallback을 반환합니다.
+        // 따라서 기존의 긴 if문과 완벽하게 동일한 역할을 합니다.
+        return optString("layerId", null)
+    }
+
     private fun getZoomLevel(result: MethodChannel.Result) {
         require(::kMap.isInitialized) { "kakaoMap is not initialized" }
         val level = kMap.cameraPosition?.zoomLevel
@@ -381,8 +387,7 @@ class KakaoMapController(
                     null,
                 )
 
-        val requestedLayerId: String? = if (args.has("layerId") && !args.isNull("layerId")) args.optString("layerId", null) else null
-        val currentLayer: LabelLayer = getOrCreateLabelLayer(requestedLayerId)
+        val currentLayer: LabelLayer = getOrCreateLabelLayer(args.extractLayerId())
             ?: return result.error(
                 "E002",
                 "Either LabelManager or its layer is null",
@@ -427,8 +432,7 @@ class KakaoMapController(
             )
         }
 
-        val requestedLayerId: String? = if (args.has("layerId") && !args.isNull("layerId")) args.optString("layerId", null) else null
-        val layer: LabelLayer? = getOrCreateLabelLayer(requestedLayerId)
+        val layer: LabelLayer? = getOrCreateLabelLayer(args.extractLayerId())
         layer?.getLabel(labelId)?.remove()
 
         return result.success(null)
@@ -439,8 +443,8 @@ class KakaoMapController(
         require(::kMap.isInitialized)
 
         val options = args.getJSONArray("markers")
-        val requestedLayerId: String? = if (args.has("layerId") && !args.isNull("layerId")) args.optString("layerId", null) else null
-        val layer = getOrCreateLabelLayer(requestedLayerId) ?: return result.error("E002", "Layer is null", null)
+
+        val layer = getOrCreateLabelLayer(args.extractLayerId()) ?: return result.error("E002", "Layer is null", null)
 
         val labelOptions: MutableList<LabelOptions>  = mutableListOf()
 
@@ -474,8 +478,7 @@ class KakaoMapController(
     private fun removeMarkers(args: JSONObject, result: MethodChannel.Result) {
         require(::kMap.isInitialized)
 
-        val requestedLayerId: String? = if (args.has("layerId") && !args.isNull("layerId")) args.optString("layerId", null) else null
-        val layer = getOrCreateLabelLayer(requestedLayerId) ?: return result.error("E002", "Layer is null", null)
+        val layer = getOrCreateLabelLayer(args.extractLayerId()) ?: return result.error("E002", "Layer is null", null)
         val parsedIds = args.getJSONArray("ids")
 
         val labels: MutableList<Label> = mutableListOf()
