@@ -62,11 +62,11 @@ final class MoveCamera extends KakaoMapMethodCall<void> {
 final class AddMarker extends KakaoMapMethodCall<void> {
   const AddMarker({
     required this.markerOption,
-    this.layerId,
+    required this.layerId,
   });
 
   final MarkerOption markerOption;
-  final String? layerId;
+  final String layerId;
 
   @override
   String get name => 'addMarker';
@@ -74,7 +74,7 @@ final class AddMarker extends KakaoMapMethodCall<void> {
   @override
   Map<String, Object?>? encode() {
     final map = Map<String, Object?>.from(markerOption.toJson());
-    if (layerId != null) map['layerId'] = layerId;
+    map['layerId'] = layerId;
     return map;
   }
 }
@@ -82,11 +82,11 @@ final class AddMarker extends KakaoMapMethodCall<void> {
 final class RemoveMarker extends KakaoMapMethodCall<void> {
   const RemoveMarker({
     required this.id,
-    this.layerId,
+    required this.layerId,
   });
 
   final String id;
-  final String? layerId;
+  final String layerId;
 
   @override
   String get name => 'removeMarker';
@@ -94,18 +94,18 @@ final class RemoveMarker extends KakaoMapMethodCall<void> {
   @override
   Map<String, Object?>? encode() => {
         'id': id,
-        if (layerId != null) 'layerId': layerId,
+        'layerId': layerId,
       };
 }
 
 final class AddMarkers extends KakaoMapMethodCall<void> {
   const AddMarkers({
     required this.markerOptions,
-    this.layerId,
+    required this.layerId,
   });
 
   final List<MarkerOption> markerOptions;
-  final String? layerId;
+  final String layerId;
 
   @override
   String get name => 'addMarkers';
@@ -113,18 +113,18 @@ final class AddMarkers extends KakaoMapMethodCall<void> {
   @override
   Map<String, Object?>? encode() => {
         'markers': markerOptions.map((e) => e.toJson()).toList(),
-        if (layerId != null) 'layerId': layerId,
+        'layerId': layerId,
       };
 }
 
 final class RemoveMarkers extends KakaoMapMethodCall<void> {
   const RemoveMarkers({
     required this.ids,
-    this.layerId,
+    required this.layerId,
   });
 
   final List<String> ids;
-  final String? layerId;
+  final String layerId;
 
   @override
   String get name => 'removeMarkers';
@@ -132,7 +132,7 @@ final class RemoveMarkers extends KakaoMapMethodCall<void> {
   @override
   Map<String, Object?>? encode() => {
         'ids': ids,
-        if (layerId != null) 'layerId': layerId,
+        'layerId': layerId,
       };
 }
 
