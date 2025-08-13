@@ -206,7 +206,7 @@ allprojects {
 
 ## Contributing
 
-기여를 환영해요. PR 전 가이드라인을 참고해 주세요.
+모든 Issue와 Pull Request는 언제나 환영이에요. PR 전 가이드라인을 참고해 주세요.
 
 ## License
 
@@ -214,7 +214,8 @@ MIT License
 
 ## Acknowledgments
 
-- Kakao Maps SDK에 감사
-- 모든 기여자에게 감사
+**@Kakao**에서 KakaoMapsSDK를 제공해주셔서 감사합니다.
+
+**모든 기여자분들**께는 이 프로젝트를 함께 만들어가 주셔서 진심으로 감사드립니다 🙏
 
 
