@@ -1,12 +1,18 @@
-/// Base class for all data models in the Kakao Maps Flutter plugin.
+/// Base data model
+/// [EN]
+/// - Common interface for JSON-serializable SDK data models
 ///
-/// Provides a common interface for converting data objects to JSON.
+/// [KO]
+/// - SDK 데이터 모델의 공통 JSON 직렬화 인터페이스
 abstract class Data {
-  /// Creates a new Data instance.
+  /// Construct data model
   const Data();
 
-  /// Converts this data object to a JSON map.
+  /// Serialize to JSON
+  /// [EN]
+  /// - Returns JSON-encodable map
   ///
-  /// Returns a map that can be serialized to JSON.
+  /// [KO]
+  /// - JSON 직렬화 가능한 맵 반환
   Map<String, Object?> toJson();
 }

@@ -7,20 +7,37 @@ import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 
 part 'controller/static_map_controller.dart';
 
-/// KakaoMap 정적 지도 Widget
+/// Static Kakao Map widget
+/// [EN]
+/// - Non-interactive static map rendered via WebView using Kakao Maps JavaScript SDK
+///
+/// [KO]
+/// - Kakao Maps JavaScript SDK를 사용해 WebView로 렌더링하는 비대화형 정적 지도 위젯
 class StaticKakaoMap extends StatefulWidget {
-  /// 정적 지도를 생성하는 위젯
+  /// Create static map
+  /// [EN]
+  /// - [width]: map width in px
+  /// - [height]: map height in px
+  /// - [center]: map center coordinate
+  /// - [marker]: optional marker to show on map
+  /// - [isLoadingProgressEnabled]: show loading progress overlay
+  /// - [backgroundColor]: map background color
+  /// - [errorMessage]: message to show on error
+  /// - [retryButtonText]: retry button text
+  /// - [onRetry]: retry callback (default: reload)
+  /// - [loadingWidget]: custom loading widget
   ///
-  /// - [width] : 지도의 너비(px)
-  /// - [height] : 지도의 높이(px)
-  /// - [center] : 지도의 중심좌표
-  /// - [marker] : (optional) 지도에 표시할 마커
-  /// - [isLoadingProgressEnabled] : 로딩 진행 상태 표시 여부
-  /// - [backgroundColor] : 지도의 배경색
-  /// - [errorMessage] : 에러 발생 시 표시할 메시지
-  /// - [retryButtonText] : 재시도 버튼 텍스트
-  /// - [onRetry] : 재시도 버튼 클릭 시 콜백 (기본값: reload)
-  /// - [loadingWidget] : 로딩 중 표시할 위젯
+  /// [KO]
+  /// - [width]: 지도의 너비(px)
+  /// - [height]: 지도의 높이(px)
+  /// - [center]: 지도의 중심좌표
+  /// - [marker]: 지도에 표시할 마커(선택)
+  /// - [isLoadingProgressEnabled]: 로딩 진행 상태 표시 여부
+  /// - [backgroundColor]: 지도의 배경색
+  /// - [errorMessage]: 에러 발생 시 표시할 메시지
+  /// - [retryButtonText]: 재시도 버튼 텍스트
+  /// - [onRetry]: 재시도 콜백(기본값: reload)
+  /// - [loadingWidget]: 로딩 중 표시할 위젯
   const StaticKakaoMap({
     required this.width,
     required this.height,

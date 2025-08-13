@@ -2,20 +2,25 @@ import 'package:kakao_maps_flutter/src/base/data.dart';
 
 import 'lat_lng.dart';
 
-/// A rectangular geographic area defined by southwest and northeast corners.
+/// Geographic bounds rectangle
+/// [EN]
+/// - Southwest and northeast corners defining a rectangular region
 ///
-/// Used to specify regions or bounds on the map.
+/// [KO]
+/// - 남서/북동 꼭짓점으로 정의되는 직사각형 영역
 class LatLngBounds extends Data {
-  /// Creates a new LatLngBounds with the specified corner coordinates.
+  /// Create bounds
+  /// [EN]
+  /// - [southwest]: lower-left corner, [northeast]: upper-right corner
   ///
-  /// The [southwest] corner defines the lower-left boundary.
-  /// The [northeast] corner defines the upper-right boundary.
+  /// [KO]
+  /// - [southwest]: 좌하단 좌표, [northeast]: 우상단 좌표
   const LatLngBounds({
     required this.southwest,
     required this.northeast,
   });
 
-  /// Creates a LatLngBounds instance from a JSON map.
+  /// From JSON map
   factory LatLngBounds.fromJson(Map<String, Object?> json) {
     return LatLngBounds(
       southwest: LatLng.fromJson(json['southwest']! as Map<String, Object?>),

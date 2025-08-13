@@ -1,14 +1,14 @@
 import 'package:flutter/foundation.dart';
 import 'package:kakao_maps_flutter/src/base/data.dart';
 
-/// 마커 텍스트 스타일 정의.
+/// Marker text style
+/// [EN]
+/// - [fontSize]: px, [fontColorArgb]: ARGB32, [strokeThickness]: px, [strokeColorArgb]: ARGB32
 ///
-/// - [fontSize]: 텍스트 크기(px)
-/// - [fontColorArgb]: ARGB32 정수 값(예: 0xFF000000)
-/// - [strokeThickness]: 테두리 두께(px)
-/// - [strokeColorArgb]: 테두리 색상(ARGB32)
+/// [KO]
+/// - [fontSize]: px, [fontColorArgb]: ARGB32, [strokeThickness]: px, [strokeColorArgb]: ARGB32
 class MarkerTextStyle extends Data {
-  /// 텍스트 스타일을 생성합니다.
+  /// Create text style
   const MarkerTextStyle({
     required this.fontSize,
     required this.fontColorArgb,
@@ -16,19 +16,19 @@ class MarkerTextStyle extends Data {
     this.strokeColorArgb,
   });
 
-  /// 텍스트 크기(px)
+  /// Font size (px)
   final int fontSize;
 
-  /// 텍스트 색상(ARGB32)
+  /// Font color (ARGB32)
   final int fontColorArgb;
 
-  /// 텍스트 테두리 두께(px)
+  /// Stroke thickness (px)
   final int? strokeThickness;
 
-  /// 텍스트 테두리 색상(ARGB32)
+  /// Stroke color (ARGB32)
   final int? strokeColorArgb;
 
-  /// 플랫폼 채널 전송을 위한 직렬화 데이터로 변환합니다.
+  /// Serialize for platform channel
   @override
   Map<String, Object?> toJson() => <String, Object?>{
         'fontSize': fontSize,
@@ -38,18 +38,21 @@ class MarkerTextStyle extends Data {
       };
 }
 
-/// 줌 레벨별 마커 스타일(아이콘/텍스트) 정의.
+/// Per-level marker style
+/// [EN]
+/// - Icon/text styles per zoom level (iOS: PerLevelPoiStyle)
 ///
-/// iOS의 `PerLevelPoiStyle`에 대응합니다. Android는 첫 항목을 우선 사용합니다.
+/// [KO]
+/// - 줌 레벨별 아이콘/텍스트 스타일(iOS: PerLevelPoiStyle), Android는 첫 항목 우선
 class MarkerPerLevelStyle extends Data {
-  /// Base64로 인코딩된 아이콘 이미지와 선택적 텍스트 스타일, 적용 레벨을 받습니다.
+  /// Create per-level style
   const MarkerPerLevelStyle({
     required this.bytes,
     this.textStyle,
     this.level,
   });
 
-  /// 아이콘 바이트 배열로부터 스타일을 생성합니다.
+  /// From raw bytes
   factory MarkerPerLevelStyle.fromBytes({
     required Uint8List bytes,
     MarkerTextStyle? textStyle,
@@ -61,16 +64,16 @@ class MarkerPerLevelStyle extends Data {
         level: level,
       );
 
-  /// Base64로 인코딩된 아이콘 이미지 데이터
+  /// Icon bytes (Base64 supported)
   final Uint8List bytes;
 
-  /// 텍스트 스타일(선택)
+  /// Text style (optional)
   final MarkerTextStyle? textStyle;
 
-  /// 적용 레벨(iOS에서 사용). null 이면 기본 동작.
+  /// Target level (iOS only)
   final int? level; // iOS에서만 사용됨
 
-  /// 직렬화 표현으로 변환합니다.
+  /// Serialize representation
   @override
   Map<String, Object?> toJson() => <String, Object?>{
         'icon': bytes,
@@ -79,23 +82,26 @@ class MarkerPerLevelStyle extends Data {
       };
 }
 
-/// 마커 스타일 집합 정의.
+/// Marker style bundle
+/// [EN]
+/// - Bundle multiple per-level styles under a single [styleId]
 ///
-/// 하나의 `styleId` 아래에 여러 레벨별 스타일을 묶어 관리합니다.
+/// [KO]
+/// - 하나의 [styleId] 아래 여러 레벨별 스타일 묶음
 class MarkerStyle extends Data {
-  /// 스타일 ID와 레벨별 스타일 리스트를 받아 생성합니다.
+  /// Create style bundle
   const MarkerStyle({
     required this.styleId,
     required this.perLevels,
   });
 
-  /// 고유 스타일 ID(플랫폼 공통 참조 키)
+  /// Unique style id (cross-platform)
   final String styleId;
 
-  /// 레벨별 스타일 목록
+  /// Per-level styles
   final List<MarkerPerLevelStyle> perLevels;
 
-  /// 직렬화 표현으로 변환합니다.
+  /// Serialize representation
   @override
   Map<String, Object?> toJson() => <String, Object?>{
         'styleId': styleId,

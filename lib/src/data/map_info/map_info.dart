@@ -1,21 +1,25 @@
 import 'package:kakao_maps_flutter/src/base/data.dart';
 
-/// Information about the current state of the map.
+/// Map info snapshot
+/// [EN]
+/// - Current zoom level, rotation and tilt angles
 ///
-/// Contains details about zoom level, rotation, and tilt angles.
+/// [KO]
+/// - 현재 줌 레벨, 회전 각도, 틸트 각도 정보
 class MapInfo extends Data {
-  /// Creates a new MapInfo with the specified parameters.
+  /// Create info
+  /// [EN]
+  /// - [zoomLevel], [rotation] in degrees, [tilt] in degrees
   ///
-  /// The [zoomLevel] indicates the current zoom level of the map.
-  /// The [rotation] is the rotation angle in degrees.
-  /// The [tilt] is the tilt angle in degrees.
+  /// [KO]
+  /// - [zoomLevel], [rotation] 각도 단위, [tilt] 각도 단위
   const MapInfo({
     required this.zoomLevel,
     required this.rotation,
     required this.tilt,
   });
 
-  /// Creates a MapInfo instance from a JSON map.
+  /// From JSON map
   factory MapInfo.fromJson(Map<String, Object?> json) => MapInfo(
         zoomLevel: json['zoomLevel']! as int,
         rotation: (json['rotation']! as num).toDouble(),
@@ -29,12 +33,12 @@ class MapInfo extends Data {
         'tilt': tilt,
       };
 
-  /// The current zoom level of the map.
+  /// Current zoom level
   final int zoomLevel;
 
-  /// The current rotation angle of the map in degrees.
+  /// Rotation angle (deg)
   final double rotation;
 
-  /// The current tilt angle of the map in degrees.
+  /// Tilt angle (deg)
   final double tilt;
 }

@@ -2,14 +2,19 @@ import 'package:kakao_maps_flutter/src/base/data.dart';
 
 import '../lat_lng/lat_lng.dart';
 
-/// Camera configuration for updating the map's view.
+/// Camera update configuration
+/// [EN]
+/// - Position, zoom, tilt, rotation and fit options for view updates
 ///
-/// Defines camera position, zoom level, tilt, rotation, and other view settings.
+/// [KO]
+/// - 뷰 갱신을 위한 위치, 확대, 틸트, 회전 및 맞춤 옵션
 class CameraUpdate extends Data {
-  /// Creates a new CameraUpdate with the specified parameters.
+  /// Create update
+  /// [EN]
+  /// - Optional parameters default to no-op; [type] is internal hint
   ///
-  /// All parameters are optional and have default values indicating no change.
-  /// The [type] parameter is used internally to determine the update type.
+  /// [KO]
+  /// - 미지정 시 변경 없음; [type]은 내부용 힌트
   const CameraUpdate({
     this.position,
     this.zoomLevel = -1,
@@ -21,9 +26,12 @@ class CameraUpdate extends Data {
     this.type = -1,
   });
 
-  /// Creates a CameraUpdate that moves to the specified position.
+  /// Move to position
+  /// [EN]
+  /// - Focus on [position] with default zoom 17
   ///
-  /// Sets the camera to focus on the given [position] with a default zoom level of 17.
+  /// [KO]
+  /// - [position]으로 이동하며 기본 줌 17 적용
   factory CameraUpdate.fromLatLng(LatLng position) => CameraUpdate(
         position: position,
         type: 0,

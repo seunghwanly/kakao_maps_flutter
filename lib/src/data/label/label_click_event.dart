@@ -2,22 +2,26 @@ import 'package:kakao_maps_flutter/src/base/data.dart';
 
 import '../lat_lng/lat_lng.dart';
 
-/// Event data for when a label (marker) is clicked on the map.
+/// Label click event
+/// [EN]
+/// - Identifier, position and optional layer id of clicked label
 ///
-/// Contains information about the clicked label and its position.
+/// [KO]
+/// - 클릭된 라벨의 식별자, 위치, 선택적 레이어 id
 class LabelClickEvent extends Data {
-  /// Creates a new LabelClickEvent with the specified parameters.
+  /// Create event
+  /// [EN]
+  /// - [labelId]: clicked label id, [latLng]: click position, [layerId]: optional
   ///
-  /// The [labelId] is the unique identifier of the clicked label.
-  /// The [latLng] is the geographic position where the click occurred.
-  /// The [layerId] is an optional layer identifier.
+  /// [KO]
+  /// - [labelId]: 클릭된 라벨 id, [latLng]: 클릭 위치, [layerId]: 선택 값
   const LabelClickEvent({
     required this.labelId,
     required this.latLng,
     this.layerId,
   });
 
-  /// Creates a LabelClickEvent instance from a JSON map.
+  /// From JSON map
   factory LabelClickEvent.fromJson(Map<String, Object?> json) =>
       LabelClickEvent(
         labelId: json['labelId']! as String,
@@ -25,13 +29,13 @@ class LabelClickEvent extends Data {
         layerId: json['layerId'] as String?,
       );
 
-  /// The unique identifier of the clicked label.
+  /// Clicked label id
   final String labelId;
 
-  /// The geographic position where the click occurred.
+  /// Click position
   final LatLng latLng;
 
-  /// The optional layer identifier where the label belongs.
+  /// Layer id (optional)
   final String? layerId;
 
   @override

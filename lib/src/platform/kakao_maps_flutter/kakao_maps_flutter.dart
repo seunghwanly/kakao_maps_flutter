@@ -8,14 +8,23 @@ import '../../view/static_kakao_map/static_kakao_map.dart';
 part 'interface/kakao_maps_flutter_platform_interface.dart';
 part 'method_channel/method_channel_kakao_maps_flutter.dart';
 
-/// Kakao Maps API 인증을 위한 클래스
+/// Kakao Maps SDK bootstrap
+/// [EN]
+/// - Initializes the Kakao Maps SDK with API keys for Android and iOS
+///
+/// [KO]
+/// - Android, iOS에서 사용할 Kakao Maps SDK 초기화 수행
 class KakaoMapsFlutter {
-  /// [nativeAPIKey]에 Kakao Developers에서 발급받은 API키(네이티브 앱 키)를 입력합니다.
+  /// Initialize Kakao Maps SDK
+  /// [EN]
+  /// - Provide Kakao Developers native app key via [nativeAPIKey]
+  /// - Provide JavaScript key via [webAPIKey] when using StaticMap
+  /// - Console: `https://developers.kakao.com/console/app`
   ///
-  /// StaticMap을 사용하는 경우에는
-  /// [webAPIKey]에 Kakao Developers에서 발급받은 API키(JavaScript 키)를 입력합니다.
-  ///
-  /// https://developers.kakao.com/console/app
+  /// [KO]
+  /// - [nativeAPIKey]에 Kakao Developers 네이티브 앱 키 입력
+  /// - StaticMap 사용 시 [webAPIKey]에 JavaScript 키 입력
+  /// - 콘솔: `https://developers.kakao.com/console/app`
   static Future<void> init(
     String nativeAPIKey, {
     String? webAPIKey,

@@ -1,29 +1,34 @@
 part of '../map_widget.dart';
 
-/// Event data for when an info window is clicked on the map.
+/// Info window click event
+/// [EN]
+/// - Identifier and position of clicked info window
 ///
-/// Contains information about the clicked info window and its position.
+/// [KO]
+/// - 클릭된 말풍선의 식별자와 위치 정보
 class InfoWindowClickEvent extends Data {
-  /// Creates a new InfoWindowClickEvent with the specified parameters.
+  /// Create event
+  /// [EN]
+  /// - [infoWindowId]: clicked window id, [latLng]: click position
   ///
-  /// The [infoWindowId] is the unique identifier of the clicked info window.
-  /// The [latLng] is the geographic position where the click occurred.
+  /// [KO]
+  /// - [infoWindowId]: 클릭된 창 id, [latLng]: 클릭 위치
   const InfoWindowClickEvent({
     required this.infoWindowId,
     required this.latLng,
   });
 
-  /// Creates an InfoWindowClickEvent instance from a JSON map.
+  /// From JSON map
   factory InfoWindowClickEvent.fromJson(Map<String, Object?> json) =>
       InfoWindowClickEvent(
         infoWindowId: json['infoWindowId']! as String,
         latLng: LatLng.fromJson(json['latLng']! as Map<String, Object?>),
       );
 
-  /// The unique identifier of the clicked info window.
+  /// Clicked window id
   final String infoWindowId;
 
-  /// The geographic position where the click occurred.
+  /// Click position
   final LatLng latLng;
 
   @override

@@ -2,7 +2,12 @@ import 'dart:ui';
 
 import 'package:kakao_maps_flutter/src/base/data.dart';
 
-/// Alignment options for positioning the logo on the map.
+/// Logo alignment options
+/// [EN]
+/// - Predefined positions for placing logo on map
+///
+/// [KO]
+/// - 지도 내 로고 배치를 위한 사전 정의 위치
 enum LogoAlignment {
   /// Top-left corner
   topLeft,
@@ -32,20 +37,25 @@ enum LogoAlignment {
   rightCenter,
 }
 
-/// Configuration for the logo widget on the map.
+/// Logo configuration
+/// [EN]
+/// - Kakao Maps branding placement on the map
 ///
-/// The logo shows the Kakao Maps branding and can be positioned on the map.
+/// [KO]
+/// - 지도 위 로고 배치 설정
 class Logo extends Data {
-  /// Creates a new Logo configuration.
+  /// Create configuration
+  /// [EN]
+  /// - [alignment]: position, [offset]: pixel offset
   ///
-  /// The [alignment] determines the position of the logo on the map.
-  /// The [offset] provides additional positioning offset from the alignment point.
+  /// [KO]
+  /// - [alignment]: 위치, [offset]: 픽셀 오프셋
   const Logo({
     this.alignment = LogoAlignment.bottomLeft,
     this.offset = const Offset(0, 0),
   });
 
-  /// Creates a Logo instance from a JSON map.
+  /// From JSON map
   factory Logo.fromJson(Map<String, Object?> json) => Logo(
         alignment: _alignmentFromString(json['alignment'] as String?),
         offset: _offsetFromJson(json['offset'] as Map<String, Object?>?),
@@ -57,10 +67,10 @@ class Logo extends Data {
         'offset': _offsetToJson(offset),
       };
 
-  /// The alignment position of the logo on the map.
+  /// Alignment position
   final LogoAlignment alignment;
 
-  /// The offset from the alignment position in pixels.
+  /// Pixel offset
   final Offset offset;
 
   static LogoAlignment _alignmentFromString(String? value) {

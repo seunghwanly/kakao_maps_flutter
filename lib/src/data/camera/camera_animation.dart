@@ -1,14 +1,18 @@
 import 'package:kakao_maps_flutter/src/base/data.dart';
 
-/// Animation configuration for camera movements.
+/// Camera animation configuration
+/// [EN]
+/// - Defines animation behavior for camera movements
 ///
-/// Defines how the camera should animate when moving to a new position.
+/// [KO]
+/// - 카메라 이동 시 애니메이션 동작 정의
 class CameraAnimation extends Data {
-  /// Creates a new CameraAnimation with the specified parameters.
+  /// Create animation
+  /// [EN]
+  /// - [duration]: milliseconds, [autoElevation]: auto adjust elevation, [isConsecutive]: sequence flag
   ///
-  /// The [duration] specifies how long the animation should take in milliseconds.
-  /// The [autoElevation] determines if elevation should be automatically adjusted.
-  /// The [isConsecutive] indicates if this animation is part of a sequence.
+  /// [KO]
+  /// - [duration]: 밀리초, [autoElevation]: 고도 자동 조정, [isConsecutive]: 연속 실행 플래그
   const CameraAnimation({
     required this.duration,
     required this.autoElevation,
