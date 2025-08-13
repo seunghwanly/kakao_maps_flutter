@@ -103,7 +103,7 @@ class InfoWindowOption extends Data {
   /// Whether this InfoWindow uses custom GUI components.
   bool get hasCustomBody => body != null;
 
-  /// [LabelOption]과 렌더링 순위를 별도로 관리, [InfoWindowOption] 끼리만 서로 유효
+  /// [MarkerOption]과 렌더링 순위를 별도로 관리, [InfoWindowOption] 끼리만 서로 유효
   final int? zOrder;
 
   @override

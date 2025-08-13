@@ -61,16 +61,16 @@ final class MoveCamera extends KakaoMapMethodCall<void> {
 
 final class AddMarker extends KakaoMapMethodCall<void> {
   const AddMarker({
-    required this.labelOption,
+    required this.markerOption,
   });
 
-  final LabelOption labelOption;
+  final MarkerOption markerOption;
 
   @override
   String get name => 'addMarker';
 
   @override
-  Map<String, Object?>? encode() => labelOption.toJson();
+  Map<String, Object?>? encode() => markerOption.toJson();
 }
 
 final class RemoveMarker extends KakaoMapMethodCall<void> {
@@ -89,17 +89,17 @@ final class RemoveMarker extends KakaoMapMethodCall<void> {
 
 final class AddMarkers extends KakaoMapMethodCall<void> {
   const AddMarkers({
-    required this.labelOptions,
+    required this.markerOptions,
   });
 
-  final List<LabelOption> labelOptions;
+  final List<MarkerOption> markerOptions;
 
   @override
   String get name => 'addMarkers';
 
   @override
   Map<String, Object?>? encode() => {
-        'markers': labelOptions.map((e) => e.toJson()).toList(),
+        'markers': markerOptions.map((e) => e.toJson()).toList(),
       };
 }
 
@@ -615,7 +615,7 @@ final class RemoveLodMarkerLayer extends KakaoMapMethodCall<void> {
 final class AddLodMarker extends KakaoMapMethodCall<void> {
   const AddLodMarker({required this.option, required this.layerId});
 
-  final LabelOption option; // MarkerOption alias
+  final MarkerOption option;
   final String layerId;
 
   @override
@@ -631,7 +631,7 @@ final class AddLodMarker extends KakaoMapMethodCall<void> {
 final class AddLodMarkers extends KakaoMapMethodCall<void> {
   const AddLodMarkers({required this.options, required this.layerId});
 
-  final List<LabelOption> options;
+  final List<MarkerOption> options;
   final String layerId;
 
   @override

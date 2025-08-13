@@ -9,7 +9,7 @@ import 'package:kakao_maps_flutter/src/data/data.dart'
         CameraUpdate,
         InfoWindowClickEvent,
         InfoWindowOption,
-        LabelOption,
+        MarkerOption,
         LatLng,
         LatLngBounds,
         MapInfo,
@@ -143,9 +143,9 @@ class KakaoMapController extends KakaoMapControllerPlatform {
   /// [KO]
   /// - 단일 라벨/마커 추가
   Future<void> addMarker({
-    required LabelOption labelOption,
+    required MarkerOption markerOption,
   }) async {
-    await _platform._callMethod(AddMarker(labelOption: labelOption));
+    await _platform._callMethod(AddMarker(markerOption: markerOption));
   }
 
   /// Remove marker
@@ -167,9 +167,9 @@ class KakaoMapController extends KakaoMapControllerPlatform {
   /// [KO]
   /// - 여러 라벨/마커 일괄 추가
   Future<void> addMarkers({
-    required List<LabelOption> labelOptions,
+    required List<MarkerOption> markerOptions,
   }) async {
-    await _platform._callMethod(AddMarkers(labelOptions: labelOptions));
+    await _platform._callMethod(AddMarkers(markerOptions: markerOptions));
   }
 
   /// Remove markers
@@ -191,10 +191,10 @@ class KakaoMapController extends KakaoMapControllerPlatform {
 
   /// Register marker styles
   /// [EN]
-  /// - Register style bundles referenced by [LabelOption.styleId]
+  /// - Register style bundles referenced by [MarkerOption.styleId]
   ///
   /// [KO]
-  /// - [LabelOption.styleId]에서 참조하는 스타일 묶음을 등록
+  /// - [MarkerOption.styleId]에서 참조하는 스타일 묶음을 등록
   Future<void> registerMarkerStyles({
     required List<MarkerStyle> styles,
   }) async {
@@ -444,7 +444,7 @@ class KakaoMapController extends KakaoMapControllerPlatform {
 
   /// Add LOD marker
   Future<void> addLodMarker({
-    required LabelOption option,
+    required MarkerOption option,
     required String layerId,
   }) async {
     await _platform._callMethod(AddLodMarker(option: option, layerId: layerId));
@@ -452,7 +452,7 @@ class KakaoMapController extends KakaoMapControllerPlatform {
 
   /// Add LOD markers
   Future<void> addLodMarkers({
-    required List<LabelOption> options,
+    required List<MarkerOption> options,
     required String layerId,
   }) async {
     await _platform

@@ -11,7 +11,6 @@ export 'camera/camera_move_end_event.dart';
 export 'camera/camera_update.dart';
 export 'compass/compass.dart';
 export 'label/label_click_event.dart';
-export 'label/label_option.dart';
 export 'lat_lng/lat_lng.dart';
 export 'lat_lng/lat_lng_bounds.dart';
 export 'lod/lod_marker_layer_options.dart';

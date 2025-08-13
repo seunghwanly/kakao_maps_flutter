@@ -66,7 +66,7 @@ class StaticKakaoMap extends StatefulWidget {
   /// 지도에 표시할 마커
   ///
   /// 1개의 마커만 지원합니다.
-  final LabelOption? marker;
+  final MarkerOption? marker;
 
   /// 지도의 확대 레벨
   final int level;

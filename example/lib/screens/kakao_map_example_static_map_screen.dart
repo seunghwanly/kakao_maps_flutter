@@ -23,7 +23,7 @@ class KakaoMapExampleStaticMapScreen extends StatelessWidget {
                 latitude: 37.54699,
                 longitude: 127.09598,
               ),
-              marker: const LabelOption(
+              marker: const MarkerOption(
                 id: 'marker',
                 latLng: LatLng(
                   latitude: 37.54699,
