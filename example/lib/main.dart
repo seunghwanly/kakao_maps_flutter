@@ -160,7 +160,7 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
           enabled: isReady,
         ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endTop,
       drawer: ValueListenableBuilder<bool>(
         valueListenable: mapReadyNotifier,
         builder: (context, isReady, _) => FeatureDrawer(
@@ -238,6 +238,13 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
     await mapController!.setPoiScale(scale: poiScale);
 
     await mapController!.registerMarkerStyles(styles: markerStyles);
+
+    // Create default LabelLayer for normal markers before using addMarker/addMarkers
+    await mapController!.addMarkerLayer(
+      layerId: KakaoMapController.defaultLabelLayerId,
+      zOrder: 1000,
+      clickable: true,
+    );
 
     // Optionally prepare LOD layer immediately (iOS fully; Android zOrder only)
     await onLodCreateLayer();
