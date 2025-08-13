@@ -1,3 +1,19 @@
+# 0.1.1
+
+### 🔧 Improvements
+* Smoother camera animations with reduced jank on low-end devices
+* Faster batch add/remove operations for labels and POIs on Android
+* Clearer error messages and safer null-handling across platform channels
+
+### 🐛 Bug Fixes
+* Fixed occasional crash when disposing the map view during active animations
+* Resolved race condition in `onCameraMoveEndStream` listener
+* Addressed a memory leak in InfoWindow/Label event streams
+
+### 📝 Documentation
+* Clarified platform-specific notes and troubleshooting steps
+
+
 # 0.1.0
 
 ### 🎉 Features
