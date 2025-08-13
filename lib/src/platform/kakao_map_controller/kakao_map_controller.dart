@@ -196,7 +196,7 @@ class KakaoMapController extends KakaoMapControllerPlatform {
 
   /// Clear all markers in specific layer
   Future<void> clearMarkers({
-    required String layerId,
+    String layerId = KakaoMapController.defaultLabelLayerId,
   }) async {
     await _platform._callMethod(ClearMarkers(layerId: layerId));
   }

@@ -878,7 +878,7 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
             let manager = view.getLabelManager()
             if let layer = manager.getLabelLayer(layerID: layerId) {
                 layer.clearAllItems()
-                layer.clearAllExitTransitionLodPois()
+                layer.clearAllExitTransitionPois()
             }
             result(nil)
         }

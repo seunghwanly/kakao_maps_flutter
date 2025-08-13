@@ -199,8 +199,11 @@ final class GetCenter extends KakaoMapMethodCall<LatLng?> {
 
   @override
   LatLng? decode(Object? value) {
-    assert(value is Map<String, Object?>);
-    return LatLng.fromJson(value! as Map<String, Object?>);
+    if (value == null || value is! Map<String, Object?>) return null;
+    if (!value.containsKey('latitude') || !value.containsKey('longitude')) {
+      return null;
+    }
+    return LatLng.fromJson(value);
   }
 }
 
@@ -248,12 +251,10 @@ final class FromScreenPoint extends KakaoMapMethodCall<LatLng?> {
 
   @override
   LatLng? decode(Object? value) {
-    if (value is! Map<String, Object?> ||
-        !value.containsKey('latitude') ||
-        !value.containsKey('longitude')) {
+    if (value == null || value is! Map<String, Object?>) return null;
+    if (!value.containsKey('latitude') || !value.containsKey('longitude')) {
       return null;
     }
-
     return LatLng.fromJson(value);
   }
 }

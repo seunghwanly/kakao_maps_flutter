@@ -16,19 +16,24 @@ class MethodChannelKakaoMapController extends KakaoMapControllerPlatform {
           }
 
           if (call.method == 'onLabelClicked') {
-            final event = LabelClickEvent.fromJson(call.arguments);
+            final event =
+                LabelClickEvent.fromJson(_asStringKeyedMap(call.arguments));
             _instance.onLabelClicked(event);
             return;
           }
 
           if (call.method == 'onInfoWindowClicked') {
-            final event = InfoWindowClickEvent.fromJson(call.arguments);
+            final event = InfoWindowClickEvent.fromJson(
+              _asStringKeyedMap(call.arguments),
+            );
             _instance.onInfoWindowClicked(event);
             return;
           }
 
           if (call.method == 'onCameraMoveEnd') {
-            final event = CameraMoveEndEvent.fromJson(call.arguments);
+            final event = CameraMoveEndEvent.fromJson(
+              _asStringKeyedMap(call.arguments),
+            );
             _instance.onCameraMoveEnd(event);
             return;
           }
@@ -60,6 +65,24 @@ class MethodChannelKakaoMapController extends KakaoMapControllerPlatform {
       methodCall.encode(),
     );
 
-    return methodCall.decode(result);
+    return methodCall.decode(_normalizeStandardCodec(result));
+  }
+
+  static Object? _normalizeStandardCodec(Object? value) {
+    if (value is Map) {
+      return value.map<String, Object?>(
+        (key, dynamic val) =>
+            MapEntry(key.toString(), _normalizeStandardCodec(val)),
+      );
+    }
+    if (value is List) {
+      return value.map<Object?>((e) => _normalizeStandardCodec(e)).toList();
+    }
+    return value;
+  }
+
+  static Map<String, Object?> _asStringKeyedMap(Object? arguments) {
+    final normalized = _normalizeStandardCodec(arguments);
+    return (normalized! as Map).cast<String, Object?>();
   }
 }

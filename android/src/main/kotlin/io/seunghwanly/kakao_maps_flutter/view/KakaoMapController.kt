@@ -869,11 +869,11 @@ class KakaoMapController(
     private fun getCenter(result: MethodChannel.Result) {
         require(::kMap.isInitialized) { "kakaoMap is not initialized" }
 
-        val center = kMap.cameraPosition?.position
+        val center = kMap.cameraPosition?.position ?: return result.success(null)
         return result.success(
             mapOf(
-                "latitude" to center?.latitude,
-                "longitude" to center?.longitude,
+                "latitude" to center.latitude,
+                "longitude" to center.longitude,
             )
         )
     }
@@ -901,12 +901,12 @@ class KakaoMapController(
         val dx = point.getDouble("dx")
         val dy = point.getDouble("dy")
 
-        val latLng = kMap.fromScreenPoint(dx.toInt(), dy.toInt())
+        val latLng = kMap.fromScreenPoint(dx.toInt(), dy.toInt()) ?: return result.success(null)
 
         return result.success(
             mapOf(
-                "latitude" to latLng?.latitude,
-                "longitude" to latLng?.longitude,
+                "latitude" to latLng.latitude,
+                "longitude" to latLng.longitude,
             )
         )
     }

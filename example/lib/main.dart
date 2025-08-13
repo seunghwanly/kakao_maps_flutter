@@ -239,6 +239,13 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
 
     await mapController!.registerMarkerStyles(styles: markerStyles);
 
+    // Create default LabelLayer for normal markers before using addMarker/addMarkers
+    await mapController!.addMarkerLayer(
+      layerId: KakaoMapController.defaultLabelLayerId,
+      zOrder: 1000,
+      clickable: true,
+    );
+
     // Optionally prepare LOD layer immediately (iOS fully; Android zOrder only)
     await onLodCreateLayer();
   }
@@ -572,7 +579,7 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
       SnackBar(
         content: Text(message),
         duration: duration ?? const Duration(seconds: 2),
-        behavior: SnackBarBehavior.fixed,
+        behavior: SnackBarBehavior.floating,
       ),
     );
   }

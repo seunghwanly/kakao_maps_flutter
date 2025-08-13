@@ -19,10 +19,19 @@ class LatLng extends Data {
   });
 
   /// From JSON map
-  factory LatLng.fromJson(Map<String, Object?> json) => LatLng(
-        latitude: json['latitude']! as double,
-        longitude: json['longitude']! as double,
-      );
+  factory LatLng.fromJson(Map<String, Object?> json) {
+    final latRaw = json['latitude'];
+    final lngRaw = json['longitude'];
+
+    if (latRaw is! num || lngRaw is! num) {
+      throw ArgumentError('Invalid LatLng json: $json');
+    }
+
+    return LatLng(
+      latitude: latRaw.toDouble(),
+      longitude: lngRaw.toDouble(),
+    );
+  }
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
