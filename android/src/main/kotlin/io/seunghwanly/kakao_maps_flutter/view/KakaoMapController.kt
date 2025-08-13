@@ -211,11 +211,11 @@ class KakaoMapController(
         )
     }
 
-    // Helper to get or create a normal LabelLayer
+    // Helper to get a normal LabelLayer (no implicit creation when layerId is provided)
     private fun getOrCreateLabelLayer(layerId: String?): LabelLayer? {
         val manager = kMap.labelManager ?: return null
         if (layerId.isNullOrEmpty()) return manager.layer
-        return manager.getLayer(layerId) ?: manager.addLayer(LabelLayerOptions.from(layerId))
+        return manager.getLayer(layerId)
     }
 
     private fun JSONObject.toMap(): Map<String, Any?> =
@@ -495,8 +495,8 @@ class KakaoMapController(
         require(::kMap.isInitialized) { "kakaoMap is not initialized" }
         val layerId = args.optString("layerId", "")
         if (layerId.isEmpty()) return result.error("E001", "layerId must not be empty", null)
-        val layer = kMap.labelManager?.getLayer(layerId) ?: kMap.labelManager?.addLayer(LabelLayerOptions.from(layerId))
-        layer?.removeAll()
+        val layer = kMap.labelManager?.getLayer(layerId) ?: return result.success(null)
+        layer.removeAll()
         return result.success(null)
     }
 
@@ -520,8 +520,7 @@ class KakaoMapController(
         val layerId = args.optString("layerId", "")
         val visible = args.optBoolean("visible", true)
         if (layerId.isEmpty()) return result.error("E001", "layerId must not be empty", null)
-        val layer = kMap.labelManager?.getLayer(layerId) ?: kMap.labelManager?.addLayer(LabelLayerOptions.from(layerId))
-        if (layer == null) return result.success(null)
+        val layer = kMap.labelManager?.getLayer(layerId) ?: return result.success(null)
         layer.setVisible(visible)
         return result.success(null)
     }
@@ -530,8 +529,7 @@ class KakaoMapController(
         require(::kMap.isInitialized) { "kakaoMap is not initialized" }
         val layerId = args.optString("layerId", "")
         if (layerId.isEmpty()) return result.error("E001", "layerId must not be empty", null)
-        val layer = kMap.labelManager?.getLayer(layerId) ?: kMap.labelManager?.addLayer(LabelLayerOptions.from(layerId))
-        if (layer == null) return result.success(null)
+        val layer = kMap.labelManager?.getLayer(layerId) ?: return result.success(null)
         layer.showAllLabels()
         return result.success(null)
     }
@@ -540,8 +538,7 @@ class KakaoMapController(
         require(::kMap.isInitialized) { "kakaoMap is not initialized" }
         val layerId = args.optString("layerId", "")
         if (layerId.isEmpty()) return result.error("E001", "layerId must not be empty", null)
-        val layer = kMap.labelManager?.getLayer(layerId) ?: kMap.labelManager?.addLayer(LabelLayerOptions.from(layerId))
-        if (layer == null) return result.success(null)
+        val layer = kMap.labelManager?.getLayer(layerId) ?: return result.success(null)
         layer.hideAllLabels()
         return result.success(null)
     }

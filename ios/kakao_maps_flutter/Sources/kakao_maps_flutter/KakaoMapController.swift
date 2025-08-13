@@ -627,9 +627,8 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
         }
         withKakaoMapView(result) { view in
             let point = MapPoint(longitude: longitude, latitude: latitude)
-            let labelLayer = createLabelLayer(layerId)
-            guard let targetLayer = labelLayer else {
-                result(FlutterError(code: "E002", message: "Failed to get or create LabelLayer", details: nil))
+            guard let targetLayer = view.getLabelManager().getLabelLayer(layerID: layerId) else {
+                result(FlutterError(code: "E002", message: "LabelLayer not found: \(layerId)", details: nil))
                 return
             }
             
@@ -662,9 +661,8 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
             return
         }
         withKakaoMapView(result) { view in
-            let labelLayer = createLabelLayer(layerId)
-            guard let targetLayer = labelLayer else {
-                result(FlutterError(code: "E002", message: "Failed to get or create LabelLayer", details: nil))
+            guard let targetLayer = view.getLabelManager().getLabelLayer(layerID: layerId) else {
+                result(FlutterError(code: "E002", message: "LabelLayer not found: \(layerId)", details: nil))
                 return
             }
             
@@ -685,9 +683,8 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
             return
         }
         withKakaoMapView(result) { view in
-            let labelLayer = createLabelLayer(layerId)
-            guard let targetLayer = labelLayer else {
-                result(FlutterError(code: "E002", message: "Failed to get or create LabelLayer", details: nil))
+            guard let targetLayer = view.getLabelManager().getLabelLayer(layerID: layerId) else {
+                result(FlutterError(code: "E002", message: "LabelLayer not found: \(layerId)", details: nil))
                 return
             }
             
@@ -854,20 +851,19 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
     
     private func removeMarkers(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         guard let args = call.arguments as? [String: Any],
-              let ids = args["ids"] as? [String] else {
+              let ids = args["ids"] as? [String],
+              let layerId = args["layerId"] as? String, !layerId.isEmpty else {
             result(FlutterError(code: "E001", message: "Invalid arguments for removeMarkers", details: nil))
             return
         }
         
         withKakaoMapView(result) { view in
-            let labelLayer = createLabelLayer("PoiLayer")
-            guard let targetLayer = labelLayer else {
+            guard let targetLayer = self.createLabelLayer(layerId) else {
                 result(FlutterError(code: "E002", message: "Failed to get or create LabelLayer", details: nil))
                 return
             }
             
             targetLayer.removePois(poiIDs: ids)
-            
             result(nil)
         }
     }
