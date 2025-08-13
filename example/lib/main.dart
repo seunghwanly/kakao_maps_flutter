@@ -160,7 +160,7 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
           enabled: isReady,
         ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endTop,
       drawer: ValueListenableBuilder<bool>(
         valueListenable: mapReadyNotifier,
         builder: (context, isReady, _) => FeatureDrawer(
@@ -579,7 +579,7 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
       SnackBar(
         content: Text(message),
         duration: duration ?? const Duration(seconds: 2),
-        behavior: SnackBarBehavior.floating,
+        behavior: SnackBarBehavior.fixed,
       ),
     );
   }
