@@ -303,7 +303,7 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
     if (mapController == null) return;
 
     await mapController!.addMarker(
-      labelOption: LabelOption(
+      markerOption: MarkerOption(
         id: id,
         latLng: position,
         rank: 9999,
@@ -324,24 +324,24 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
     if (mapController == null) return;
 
     const markers = [
-      LabelOption(
+      MarkerOption(
         id: 'seoul_station',
         latLng: seoulStation,
         styleId: 'default_marker_style_001',
       ),
-      LabelOption(
+      MarkerOption(
         id: 'jamsil_station',
         latLng: jamsilStation,
         styleId: 'default_marker_style_001',
       ),
-      LabelOption(
+      MarkerOption(
         id: 'gangnam_station',
         latLng: gangnamStation,
         styleId: 'default_marker_style_001',
       ),
     ];
 
-    await mapController!.addMarkers(labelOptions: markers);
+    await mapController!.addMarkers(markerOptions: markers);
     showSnackBar('📌 Added 3 station markers');
   }
 
@@ -525,10 +525,10 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
     if (mapController == null) return;
     // 1000 random around Jamsil
     const base = jamsilStation;
-    final options = List<LabelOption>.generate(1000, (i) {
+    final options = List<MarkerOption>.generate(1000, (i) {
       final dx = (i % 50) * 0.0002;
       final dy = (i ~/ 50) * 0.0002;
-      return LabelOption(
+      return MarkerOption(
         id: 'lod_$i',
         latLng: LatLng(
           latitude: base.latitude + dy,

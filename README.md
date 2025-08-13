@@ -102,7 +102,7 @@ await controller.moveCamera(
 2. Add/Remove marker
 ```dart
 await controller.addMarker(
-  labelOption: const LabelOption(
+  markerOption: const MarkerOption(
     id: 'marker_id',
     latLng: LatLng(latitude: 37.5665, longitude: 126.9780),
   ),
@@ -180,7 +180,7 @@ await controller.registerMarkerStyles(styles: styles);
 
 // 3) Use
 await controller.addMarker(
-  labelOption: LabelOption(
+  markerOption: MarkerOption(
     id: 'marker_with_style',
     latLng: LatLng(latitude: 37.5665, longitude: 126.9780),
     styleId: 'default_marker_style_001',

@@ -26,7 +26,7 @@ class StaticMapController {
     required double height,
     required int level,
     required LatLng center,
-    LabelOption? marker,
+    MarkerOption? marker,
   }) {
     // Flutter 위젯 크기를 viewport로 설정하고 map-container가 100% fill
     final String htmlHeader = '''
