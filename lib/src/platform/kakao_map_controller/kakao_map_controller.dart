@@ -56,6 +56,9 @@ class KakaoMapController extends KakaoMapControllerPlatform {
     required this.viewId,
   }) : _platform = platform;
 
+  /// Android/iOS default layer id
+  static const String defaultLabelLayerId = 'default_label_layer_id';
+
   /// View identifier
   final int viewId;
 
@@ -144,8 +147,10 @@ class KakaoMapController extends KakaoMapControllerPlatform {
   /// - 단일 라벨/마커 추가
   Future<void> addMarker({
     required MarkerOption markerOption,
+    String layerId = KakaoMapController.defaultLabelLayerId,
   }) async {
-    await _platform._callMethod(AddMarker(markerOption: markerOption));
+    await _platform
+        ._callMethod(AddMarker(markerOption: markerOption, layerId: layerId));
   }
 
   /// Remove marker
@@ -156,8 +161,9 @@ class KakaoMapController extends KakaoMapControllerPlatform {
   /// - 마커 id로 제거
   Future<void> removeMarker({
     required String id,
+    String layerId = KakaoMapController.defaultLabelLayerId,
   }) async {
-    await _platform._callMethod(RemoveMarker(id: id));
+    await _platform._callMethod(RemoveMarker(id: id, layerId: layerId));
   }
 
   /// Add markers
@@ -168,8 +174,11 @@ class KakaoMapController extends KakaoMapControllerPlatform {
   /// - 여러 라벨/마커 일괄 추가
   Future<void> addMarkers({
     required List<MarkerOption> markerOptions,
+    String layerId = KakaoMapController.defaultLabelLayerId,
   }) async {
-    await _platform._callMethod(AddMarkers(markerOptions: markerOptions));
+    await _platform._callMethod(
+      AddMarkers(markerOptions: markerOptions, layerId: layerId),
+    );
   }
 
   /// Remove markers
@@ -180,13 +189,16 @@ class KakaoMapController extends KakaoMapControllerPlatform {
   /// - id 목록으로 일괄 제거
   Future<void> removeMarkers({
     required List<String> ids,
+    String layerId = KakaoMapController.defaultLabelLayerId,
   }) async {
-    await _platform._callMethod(RemoveMarkers(ids: ids));
+    await _platform._callMethod(RemoveMarkers(ids: ids, layerId: layerId));
   }
 
-  /// Clear all markers
-  Future<void> clearMarkers() async {
-    await _platform._callMethod(const ClearMarkers());
+  /// Clear all markers in specific layer
+  Future<void> clearMarkers({
+    required String layerId,
+  }) async {
+    await _platform._callMethod(ClearMarkers(layerId: layerId));
   }
 
   /// Register marker styles
@@ -423,6 +435,47 @@ class KakaoMapController extends KakaoMapControllerPlatform {
         alignment: alignment,
         offset: offset,
       ),
+    );
+  }
+
+  // ===== LabelLayer control (non-LOD) =====
+
+  /// Add a normal LabelLayer managed by LabelManager
+  Future<void> addMarkerLayer({
+    required String layerId,
+    int? zOrder,
+    bool? clickable,
+  }) async {
+    await _platform._callMethod(
+      AddMarkerLayer(layerId: layerId, zOrder: zOrder, clickable: clickable),
+    );
+  }
+
+  /// Set layer visible by layerId
+  Future<void> setMarkerLayerVisible({
+    required String layerId,
+    required bool visible,
+  }) async {
+    await _platform._callMethod(
+      SetMarkerLayerVisible(layerId: layerId, visible: visible),
+    );
+  }
+
+  /// Show all markers in the specified layer
+  Future<void> showAllMarkers({
+    required String layerId,
+  }) async {
+    await _platform._callMethod(
+      ShowAllMarkers(layerId: layerId),
+    );
+  }
+
+  /// Hide all markers in the specified layer
+  Future<void> hideAllMarkers({
+    required String layerId,
+  }) async {
+    await _platform._callMethod(
+      HideAllMarkers(layerId: layerId),
     );
   }
 

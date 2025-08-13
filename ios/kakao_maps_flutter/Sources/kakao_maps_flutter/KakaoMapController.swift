@@ -196,7 +196,7 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
         case "removeMarkers":
             removeMarkers(call, result)
         case "clearMarkers":
-            clearMarkers(result)
+            clearMarkers(call, result)
         case "getCenter":
             getCenter(result)
         case "toScreenPoint":
@@ -247,6 +247,14 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
             hideLogo(result)
         case "setLogoPosition":
             setLogoPosition(call, result)
+        case "addMarkerLayer":
+            addMarkerLayer(call, result)
+        case "setMarkerLayerVisible":
+            setMarkerLayerVisible(call, result)
+        case "showAllMarkers":
+            showAllMarkers(call, result)
+        case "hideAllMarkers":
+            hideAllMarkers(call, result)
         // LOD Marker APIs
         case "addLodMarkerLayer":
             addLodMarkerLayer(call, result)
@@ -274,6 +282,31 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
             result(FlutterMethodNotImplemented)
         }
     }
+    // MARK: - Add normal LabelLayer
+    private func addMarkerLayer(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        guard let args = call.arguments as? [String: Any],
+              let layerId = args["layerId"] as? String, !layerId.isEmpty else {
+            result(FlutterError(code: "E001", message: "Invalid arguments for addMarkerLayer", details: nil))
+            return
+        }
+        withKakaoMapView(result) { view in
+            let manager = view.getLabelManager()
+            if manager.getLabelLayer(layerID: layerId) == nil {
+                let layerOption = LabelLayerOptions(
+                    layerID: layerId,
+                    competitionType: .none,
+                    competitionUnit: .symbolFirst,
+                    orderType: .rank,
+                    zOrder: (args["zOrder"] as? Int) ?? 10000
+                )
+                _ = manager.addLabelLayer(option: layerOption)
+            }
+            if let clickable = args["clickable"] as? Bool, let layer = manager.getLabelLayer(layerID: layerId) {
+                layer.setClickable(clickable)
+            }
+            result(nil)
+        }
+    }
     
     private func withKakaoMapView(
         _ result: @escaping FlutterResult,
@@ -295,16 +328,14 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
     }
     
     private func createLabelLayer(_ layerID: String?) -> LabelLayer? {
+        guard let layerID = layerID, !layerID.isEmpty else { return nil }
         let view = mapController.getView(kKakaoMapViewName) as! KakaoMap
         let manager = view.getLabelManager()
-        let existingLayer = manager.getLabelLayer(layerID: layerID ?? "PoiLayer")
-        
-        if existingLayer != nil {
-            return existingLayer!
+        if let existingLayer = manager.getLabelLayer(layerID: layerID) {
+            return existingLayer
         }
-        
         let layerOption = LabelLayerOptions(
-            layerID: layerID ?? "PoiLayer",
+            layerID: layerID,
             competitionType: .none,
             competitionUnit: .symbolFirst,
             orderType: .rank,
@@ -590,10 +621,13 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
             return
         }
         
+        guard let layerId = args["layerId"] as? String, !layerId.isEmpty else {
+            result(FlutterError(code: "E001", message: "layerId is required for addMarker", details: nil))
+            return
+        }
         withKakaoMapView(result) { view in
             let point = MapPoint(longitude: longitude, latitude: latitude)
-            
-            let labelLayer = createLabelLayer("PoiLayer")
+            let labelLayer = createLabelLayer(layerId)
             guard let targetLayer = labelLayer else {
                 result(FlutterError(code: "E002", message: "Failed to get or create LabelLayer", details: nil))
                 return
@@ -623,8 +657,12 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
             return
         }
         
+        guard let layerId = args["layerId"] as? String, !layerId.isEmpty else {
+            result(FlutterError(code: "E001", message: "layerId is required for removeMarker", details: nil))
+            return
+        }
         withKakaoMapView(result) { view in
-            let labelLayer = createLabelLayer("PoiLayer")
+            let labelLayer = createLabelLayer(layerId)
             guard let targetLayer = labelLayer else {
                 result(FlutterError(code: "E002", message: "Failed to get or create LabelLayer", details: nil))
                 return
@@ -642,8 +680,12 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
             return
         }
         
+        guard let layerId = args["layerId"] as? String, !layerId.isEmpty else {
+            result(FlutterError(code: "E001", message: "layerId is required for addMarkers", details: nil))
+            return
+        }
         withKakaoMapView(result) { view in
-            let labelLayer = createLabelLayer("PoiLayer")
+            let labelLayer = createLabelLayer(layerId)
             guard let targetLayer = labelLayer else {
                 result(FlutterError(code: "E002", message: "Failed to get or create LabelLayer", details: nil))
                 return
@@ -660,7 +702,6 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
                     continue
                 }
                 
-                let point = MapPoint(longitude: longitude, latitude: latitude)
                 let styleId = markerData["styleId"] as? String ?? "__default__"
                 let poiOption = PoiOptions(styleID: styleId, poiID: id)
                 poiOption.clickable = true
@@ -680,6 +721,49 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
                 poiIDs: poiOptions.map(\.itemID!)
             )
             
+            result(nil)
+        }
+    }
+
+    // MARK: - LabelLayer controls (non-LOD)
+    private func setMarkerLayerVisible(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        guard let args = call.arguments as? [String: Any],
+              let layerId = args["layerId"] as? String,
+              let visible = args["visible"] as? Bool else {
+            result(FlutterError(code: "E001", message: "Invalid arguments for setMarkerLayerVisible", details: nil))
+            return
+        }
+        withKakaoMapView(result) { view in
+            let manager = view.getLabelManager()
+            if let layer = manager.getLabelLayer(layerID: layerId) {
+                layer.visible = visible
+            }
+            result(nil)
+        }
+    }
+
+    private func showAllMarkers(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        guard let args = call.arguments as? [String: Any],
+              let layerId = args["layerId"] as? String else {
+            result(FlutterError(code: "E001", message: "Invalid arguments for showAllMarkers", details: nil))
+            return
+        }
+        withKakaoMapView(result) { view in
+            let manager = view.getLabelManager()
+            manager.getLabelLayer(layerID: layerId)?.showAllPois()
+            result(nil)
+        }
+    }
+
+    private func hideAllMarkers(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        guard let args = call.arguments as? [String: Any],
+              let layerId = args["layerId"] as? String else {
+            result(FlutterError(code: "E001", message: "Invalid arguments for hideAllMarkers", details: nil))
+            return
+        }
+        withKakaoMapView(result) { view in
+            let manager = view.getLabelManager()
+            manager.getLabelLayer(layerID: layerId)?.hideAllPois()
             result(nil)
         }
     }
@@ -788,10 +872,18 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
         }
     }
     
-    private func clearMarkers(_ result: @escaping FlutterResult) {
+    private func clearMarkers(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        guard let args = call.arguments as? [String: Any],
+              let layerId = args["layerId"] as? String, !layerId.isEmpty else {
+            result(FlutterError(code: "E001", message: "Invalid arguments for clearMarkers", details: nil))
+            return
+        }
         withKakaoMapView(result) { view in
             let manager = view.getLabelManager()
-            manager.clearAllLabelLayers()
+            if let layer = manager.getLabelLayer(layerID: layerId) {
+                layer.clearAllItems()
+                layer.clearAllExitTransitionLodPois()
+            }
             result(nil)
         }
     }
