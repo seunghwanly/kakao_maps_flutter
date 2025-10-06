@@ -796,7 +796,7 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
                     if let ts = pl["textStyle"] as? [String: Any] {
                         let fontSize = (ts["fontSize"] as? Int).map { UInt($0) } ?? 14
                         let fontColor = (ts["fontColor"] as? Int).map { UIColor.fromArgb($0) } ?? UIColor.black
-                        let strokeThickness = (ts["strokeThickness"] as? Int).map { UInt($0) } ?? 2
+                        let strokeThickness = (ts["strokeThickness"] as? Int).map { UInt($0) } ?? 4
                         let strokeColor = (ts["strokeColor"] as? Int).map { UIColor.fromArgb($0) } ?? UIColor.white
                         textStyle = PoiTextStyle(textLineStyles: [
                             PoiTextLineStyle(textStyle: TextStyle(
