@@ -10,7 +10,7 @@ buildscript {
     }
 
     dependencies {
-        classpath("com.android.tools.build:gradle:8.1.0")
+        classpath("com.android.tools.build:gradle:8.1.1")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version")
     }
 }
@@ -33,7 +33,7 @@ android {
         namespace = "io.seunghwanly.kakao_maps_flutter"
     }
 
-    compileSdk = 34
+    compileSdk = 35
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
@@ -73,6 +73,6 @@ android {
 
 dependencies {
     // Kakao Maps SDK
-    implementation 'com.kakao.maps.open:android:2.12.8'
+    implementation 'com.kakao.maps.open:android:2.12.18'
     implementation 'com.google.firebase:firebase-crashlytics-buildtools:3.0.2'
 }
