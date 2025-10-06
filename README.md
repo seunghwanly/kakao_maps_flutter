@@ -188,6 +188,8 @@ await controller.addMarker(
 );
 ```
 
+- [default setting reference (Constant.kt)](android/src/main/kotlin/io/seunghwanly/kakao_maps_flutter/constant/Constants.kt)
+
 
 ### 🔧 Troubleshooting: Kakao Maps Android SDK repository
 Add repository on Gradle when error occurs

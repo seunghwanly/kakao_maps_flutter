@@ -1,9 +1,9 @@
 package io.seunghwanly.kakao_maps_flutter.view
 
 import android.content.Context
+import android.graphics.BitmapFactory
 import android.util.Log
 import android.view.View
-import android.graphics.BitmapFactory
 import com.kakao.vectormap.KakaoMap
 import com.kakao.vectormap.KakaoMapReadyCallback
 import com.kakao.vectormap.LatLng
@@ -16,17 +16,20 @@ import com.kakao.vectormap.camera.CameraPosition
 import com.kakao.vectormap.camera.CameraUpdate
 import com.kakao.vectormap.camera.CameraUpdateFactory
 import com.kakao.vectormap.label.Label
-import com.kakao.vectormap.label.LodLabel
-import com.kakao.vectormap.label.LodLabelLayer
 import com.kakao.vectormap.label.LabelLayer
-import com.kakao.vectormap.label.LabelOptions
 import com.kakao.vectormap.label.LabelLayerOptions
+import com.kakao.vectormap.label.LabelOptions
 import com.kakao.vectormap.label.LabelStyle
 import com.kakao.vectormap.label.LabelStyles
+import com.kakao.vectormap.label.LabelTextBuilder
 import com.kakao.vectormap.label.LabelTextStyle
+import com.kakao.vectormap.label.LodLabel
+import com.kakao.vectormap.label.LodLabelLayer
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.platform.PlatformView
+import io.seunghwanly.kakao_maps_flutter.constant.DefaultLabelStyle
+import io.seunghwanly.kakao_maps_flutter.constant.DefaultLabelTextStyle
 import io.seunghwanly.kakao_maps_flutter.data.cameraAnimation.toCameraAnimationOrNull
 import io.seunghwanly.kakao_maps_flutter.data.cameraUpdate.toCameraUpdate
 import io.seunghwanly.kakao_maps_flutter.data.infoWindowOption.toNativeInfoWindowOptions
@@ -34,11 +37,11 @@ import io.seunghwanly.kakao_maps_flutter.data.labelClickEvent.LabelClickEvent
 import io.seunghwanly.kakao_maps_flutter.data.labelOption.LabelOption
 import io.seunghwanly.kakao_maps_flutter.data.labelOption.toLabelOptionOrNull
 import io.seunghwanly.kakao_maps_flutter.data.latLng.toLatLng
-import org.json.JSONObject
 import org.json.JSONArray
+import org.json.JSONObject
 import java.util.Collections
-import kotlin.io.encoding.ExperimentalEncodingApi
 import kotlin.io.encoding.Base64
+import kotlin.io.encoding.ExperimentalEncodingApi
 
 class KakaoMapController(
     private val context: Context,
@@ -68,7 +71,8 @@ class KakaoMapController(
     private var registeredLabelStylesIds = Collections.synchronizedSet(mutableSetOf<String>())
 
     // LOD layers registry (logical layerId -> SDK LodLabelLayer)
-    private val lodLayers: MutableMap<String, LodLabelLayer> = Collections.synchronizedMap(mutableMapOf())
+    private val lodLayers: MutableMap<String, LodLabelLayer> =
+        Collections.synchronizedMap(mutableMapOf())
 
     init {
         // Register Flutter MethodCallHandler
@@ -112,11 +116,10 @@ class KakaoMapController(
                     kMap.setOnLabelClickListener { kakaoMap, labelLayer, label ->
                         val position = label.position
 
-                        val event =
-                            LabelClickEvent.fromLabel(
-                                label = label,
-                                layerId = labelLayer?.layerId,
-                            )
+                        val event = LabelClickEvent.fromLabel(
+                            label = label,
+                            layerId = labelLayer?.layerId,
+                        )
 
                         methodChannel.invokeMethod("onLabelClicked", event.toMap())
 
@@ -126,8 +129,7 @@ class KakaoMapController(
                     kMap.setOnInfoWindowClickListener { kakaoMap, infoWindow, id ->
 
                         val event = mapOf(
-                            "infoWindowId" to id,
-                            "latLng" to mapOf(
+                            "infoWindowId" to id, "latLng" to mapOf(
                                 "latitude" to infoWindow.position.latitude,
                                 "longitude" to infoWindow.position.longitude,
                             )
@@ -218,13 +220,12 @@ class KakaoMapController(
         return manager.getLayer(layerId)
     }
 
-    private fun JSONObject.toMap(): Map<String, Any?> =
-        keys().asSequence().associateWith { key ->
-            when (val value = this.get(key)) {
-                is JSONObject -> value.toMap()
-                else -> value
-            }
+    private fun JSONObject.toMap(): Map<String, Any?> = keys().asSequence().associateWith { key ->
+        when (val value = this.get(key)) {
+            is JSONObject -> value.toMap()
+            else -> value
         }
+    }
 
     // Convert Any? (Map/List/primitive/JSONObject) -> JSONObject/JSONArray/primitive recursively
     private fun toJSONDeep(value: Any?): Any? {
@@ -238,11 +239,13 @@ class KakaoMapController(
                 }
                 obj
             }
+
             is List<*> -> {
                 val arr = JSONArray()
                 value.forEach { item -> arr.put(toJSONDeep(item)) }
                 arr
             }
+
             else -> value
         }
     }
@@ -379,43 +382,47 @@ class KakaoMapController(
     private fun addMarker(args: JSONObject, result: MethodChannel.Result) {
         require(::kMap.isInitialized) { "kakaoMap is not initialized" }
         // Parse Marker
-        val labelOption: LabelOption =
-            args.toLabelOptionOrNull()
-                ?: return result.error(
-                    "E001",
-                    "label must not be null",
-                    null,
-                )
+        val labelOption: LabelOption = args.toLabelOptionOrNull() ?: return result.error(
+            "E001",
+            "label must not be null",
+            null,
+        )
 
-        val currentLayer: LabelLayer = getOrCreateLabelLayer(args.extractLayerId())
-            ?: return result.error(
+        val layer: LabelLayer =
+            getOrCreateLabelLayer(args.extractLayerId()) ?: return result.error(
                 "E002",
                 "Either LabelManager or its layer is null",
                 null,
             )
 
-        if (currentLayer.hasLabel(labelOption.id)) {
-            currentLayer.getLabel(labelOption.id)?.remove()
+        if (layer.hasLabel(labelOption.id)) {
+            layer.getLabel(labelOption.id)?.remove()
         }
 
         // Get registered style: registry -> SDK -> fallback(default text only)
-        val styleId: String? = args.optString("styleId", "").takeIf { args.has("styleId") && it.isNotBlank() }
-        val appliedStyles: LabelStyles = when {
-            styleId != null -> (kMap.labelManager?.getLabelStyles(styleId)) ?: LabelStyles.from(
-                LabelStyle.from(LabelTextStyle.from(10, 0xFF000000.toInt()))
-            )
-            else -> LabelStyles.from(LabelStyle.from(LabelTextStyle.from(10, 0xFF000000.toInt())))
+        val styleId: String? =
+            args.optString("styleId", "").takeIf { args.has("styleId") && it.isNotBlank() }
+        var labelStyles: LabelStyles = LabelStyles.from(DefaultLabelStyle.getStyle())
+        if (styleId != null) {
+            val registered = kMap.labelManager?.getLabelStyles(styleId)
+            if (registered != null) labelStyles = registered
         }
 
-        val option =
-            LabelOptions.from(
-                labelOption.id,
-                labelOption.latLng,
-            )
-        option.setStyles(appliedStyles)
-        option.rank = labelOption.rank
+        val labelTextBuilder = LabelTextBuilder()
+        if (labelOption.text?.isNotEmpty() ?: false) {
+            labelTextBuilder.setTexts(labelOption.text)
+        }
 
-        currentLayer.addLabel(option)
+        layer
+            .addLabel(
+                LabelOptions.from(
+                    labelOption.id,
+                    labelOption.latLng,
+                )
+                    .setRank(labelOption.rank)
+                    .setStyles(labelStyles)
+            )
+            .changeText(labelTextBuilder)
 
         return result.success(null)
     }
@@ -423,7 +430,7 @@ class KakaoMapController(
     private fun removeMarker(args: JSONObject, result: MethodChannel.Result) {
         require(::kMap.isInitialized) { "kakaoMap is not initialized" }
 
-        val labelId: String = args.optString("id")
+        val labelId: String? = args.optString("id")
         if (labelId.isNullOrEmpty()) {
             return result.error(
                 "E001",
@@ -444,9 +451,11 @@ class KakaoMapController(
 
         val options = args.getJSONArray("markers")
 
-        val layer = getOrCreateLabelLayer(args.extractLayerId()) ?: return result.error("E002", "Layer is null", null)
+        val layer = getOrCreateLabelLayer(args.extractLayerId()) ?: return result.error(
+            "E002", "Layer is null", null
+        )
 
-        val labelOptions: MutableList<LabelOptions>  = mutableListOf()
+        val labelOptions: MutableList<LabelOptions> = mutableListOf()
 
         for (i in 0 until options.length()) {
             val option = options.getJSONObject(i).toLabelOptionOrNull() ?: continue
@@ -456,17 +465,23 @@ class KakaoMapController(
             }
 
             val item = options.getJSONObject(i)
-            val styleId: String? = item.optString("styleId", "").takeIf { item.has("styleId") && it.isNotBlank() }
-            val labelStyles: LabelStyles = when {
-                styleId != null -> (kMap.labelManager?.getLabelStyles(styleId)) ?: LabelStyles.from(
-                    LabelStyle.from(LabelTextStyle.from(10, 0xFF000000.toInt()))
-                )
-                else -> LabelStyles.from(LabelStyle.from(LabelTextStyle.from(10, 0xFF000000.toInt())))
+            val styleId: String? =
+                item.optString("styleId", "").takeIf { item.has("styleId") && it.isNotBlank() }
+            var labelStyles = LabelStyles.from(DefaultLabelStyle.getStyle())
+            if (styleId != null) {
+                val registered = kMap.labelManager?.getLabelStyles(styleId)
+                if (registered != null) labelStyles = registered
             }
-            val labelOption = LabelOptions.from(option.id, option.latLng)
-            labelOption.setStyles(labelStyles)
-            labelOption.setRank(option.rank)
 
+            val labelTextBuilder = LabelTextBuilder()
+            if (option.text?.isNotEmpty() ?: false) {
+                labelTextBuilder.setTexts(option.text)
+            }
+
+            val labelOption = LabelOptions.from(option.id, option.latLng)
+                .setRank(option.rank)
+                .setStyles(labelStyles)
+                .setTexts(labelTextBuilder)
             labelOptions.add(labelOption)
         }
 
@@ -478,7 +493,9 @@ class KakaoMapController(
     private fun removeMarkers(args: JSONObject, result: MethodChannel.Result) {
         require(::kMap.isInitialized)
 
-        val layer = getOrCreateLabelLayer(args.extractLayerId()) ?: return result.error("E002", "Layer is null", null)
+        val layer = getOrCreateLabelLayer(args.extractLayerId()) ?: return result.error(
+            "E002", "Layer is null", null
+        )
         val parsedIds = args.getJSONArray("ids")
 
         val labels: MutableList<Label> = mutableListOf()
@@ -510,13 +527,22 @@ class KakaoMapController(
         if (layerId.isEmpty()) return result.error("E001", "layerId must not be empty", null)
         val manager = kMap.labelManager
         if (manager == null) return result.error("E002", "LabelManager is null", null)
-        val existing = manager.getLayer(layerId) ?: manager.addLayer(LabelLayerOptions.from(layerId))
+        val existing =
+            manager.getLayer(layerId) ?: manager.addLayer(LabelLayerOptions.from(layerId))
         if (existing != null) {
-            if (args.has("zOrder") && !args.isNull("zOrder")) existing.setZOrder(args.optInt("zOrder", existing.zOrder))
-            if (args.has("clickable") && !args.isNull("clickable")) existing.setClickable(args.optBoolean("clickable", true))
+            if (args.has("zOrder") && !args.isNull("zOrder")) existing.setZOrder(
+                args.optInt(
+                    "zOrder", existing.zOrder
+                )
+            )
+            if (args.has("clickable") && !args.isNull("clickable")) existing.isClickable =
+                args.optBoolean(
+                    "clickable", true
+                )
         }
         return result.success(null)
     }
+
     // ===== LabelLayer controls (non-LOD) =====
     private fun setMarkerLayerVisible(args: JSONObject, result: MethodChannel.Result) {
         require(::kMap.isInitialized) { "kakaoMap is not initialized" }
@@ -524,7 +550,7 @@ class KakaoMapController(
         val visible = args.optBoolean("visible", true)
         if (layerId.isEmpty()) return result.error("E001", "layerId must not be empty", null)
         val layer = kMap.labelManager?.getLayer(layerId) ?: return result.success(null)
-        layer.setVisible(visible)
+        layer.isVisible = visible
         return result.success(null)
     }
 
@@ -553,7 +579,7 @@ class KakaoMapController(
 
         // Acquire SDK default Lod layer (Android SDK exposes a single Lod layer)
         val sdkLayer = kMap.labelManager?.lodLayer
-            ?: kMap.labelManager?.getLodLayer() // fallback if property not available
+            ?: kMap.labelManager?.lodLayer // fallback if property not available
             ?: return null
 
         lodLayers[layerId] = sdkLayer
@@ -568,16 +594,19 @@ class KakaoMapController(
             return result.error("E001", "layerId must not be empty", null)
         }
 
-        val layer = getOrCreateLodLayer(layerId)
-            ?: return result.error("E002", "Failed to acquire LodLabelLayer", null)
+        val layer = getOrCreateLodLayer(layerId) ?: return result.error(
+            "E002",
+            "Failed to acquire LodLabelLayer",
+            null
+        )
 
         // Apply zOrder if provided
         if (args.has("zOrder") && !args.isNull("zOrder")) {
-            layer.setZOrder(args.optInt("zOrder", layer.zOrder))
+            layer.zOrder = args.optInt("zOrder", layer.zOrder)
         }
         // clickable default true
         if (args.has("clickable")) {
-            layer.setClickable(args.optBoolean("clickable", true))
+            layer.isClickable = args.optBoolean("clickable", true)
         }
 
         return result.success(null)
@@ -600,26 +629,38 @@ class KakaoMapController(
         require(::kMap.isInitialized) { "kakaoMap is not initialized" }
 
         val layerId = args.optString("layerId", "")
-        val optionJson = args.optJSONObject("option")
-            ?: return result.error("E001", "option must not be null", null)
-        val option = optionJson.toLabelOptionOrNull()
-            ?: return result.error("E001", "invalid option", null)
+        val optionJson = args.optJSONObject("option") ?: return result.error(
+            "E001",
+            "option must not be null",
+            null
+        )
+        val option =
+            optionJson.toLabelOptionOrNull() ?: return result.error("E001", "invalid option", null)
 
-        val layer = getOrCreateLodLayer(layerId)
-            ?: return result.error("E002", "Failed to acquire LodLabelLayer", null)
+        val layer = getOrCreateLodLayer(layerId) ?: return result.error(
+            "E002",
+            "Failed to acquire LodLabelLayer",
+            null
+        )
 
         // Resolve styles
-        val styleId: String? = optionJson.optString("styleId", "").takeIf { optionJson.has("styleId") && it.isNotBlank() }
-        val labelStyles: LabelStyles = when {
-            styleId != null -> (kMap.labelManager?.getLabelStyles(styleId)) ?: LabelStyles.from(
-                LabelStyle.from(LabelTextStyle.from(10, 0xFF000000.toInt()))
-            )
-            else -> LabelStyles.from(LabelStyle.from(LabelTextStyle.from(10, 0xFF000000.toInt())))
+        val styleId: String? = optionJson.optString("styleId", "")
+            .takeIf { optionJson.has("styleId") && it.isNotBlank() }
+        var labelStyles: LabelStyles = LabelStyles.from(DefaultLabelStyle.getStyle())
+        if (styleId != null) {
+            val registered = kMap.labelManager?.getLabelStyles(styleId)
+            if (registered != null) labelStyles = registered
         }
 
-        val labelOptions = LabelOptions.from(option.id, option.latLng)
-        labelOptions.setStyles(labelStyles)
-        labelOptions.setRank(option.rank)
+        val labelTextBuilder = LabelTextBuilder()
+        if (option.text?.isNotEmpty() ?: false) {
+            labelTextBuilder.setTexts(option.text)
+        }
+
+        val labelOptions =
+            LabelOptions.from(option.id, option.latLng)
+                .setStyles(labelStyles)
+                .setRank(option.rank)
 
         // Replace if exists
         if (layer.hasLabel(option.id)) {
@@ -627,7 +668,9 @@ class KakaoMapController(
         }
 
         val created: LodLabel? = layer.addLodLabel(labelOptions)
+        created?.changeText(labelTextBuilder)
         created?.show()
+
         return result.success(created != null)
     }
 
@@ -636,11 +679,17 @@ class KakaoMapController(
         require(::kMap.isInitialized) { "kakaoMap is not initialized" }
 
         val layerId = args.optString("layerId", "")
-        val optionsArr = args.optJSONArray("options")
-            ?: return result.error("E001", "options must not be null", null)
+        val optionsArr = args.optJSONArray("options") ?: return result.error(
+            "E001",
+            "options must not be null",
+            null
+        )
 
-        val layer = getOrCreateLodLayer(layerId)
-            ?: return result.error("E002", "Failed to acquire LodLabelLayer", null)
+        val layer = getOrCreateLodLayer(layerId) ?: return result.error(
+            "E002",
+            "Failed to acquire LodLabelLayer",
+            null
+        )
 
         val list = mutableListOf<LabelOptions>()
 
@@ -652,21 +701,30 @@ class KakaoMapController(
                 layer.getLabel(option.id)?.remove()
             }
 
-            val styleId: String? = item.optString("styleId", "").takeIf { item.has("styleId") && it.isNotBlank() }
-            val labelStyles: LabelStyles = when {
-                styleId != null -> (kMap.labelManager?.getLabelStyles(styleId)) ?: LabelStyles.from(
-                    LabelStyle.from(LabelTextStyle.from(10, 0xFF000000.toInt()))
-                )
-                else -> LabelStyles.from(LabelStyle.from(LabelTextStyle.from(10, 0xFF000000.toInt())))
+            val styleId: String? =
+                item.optString("styleId", "").takeIf { item.has("styleId") && it.isNotBlank() }
+
+            var labelStyles: LabelStyles = LabelStyles.from(DefaultLabelStyle.getStyle())
+            if (styleId != null) {
+                val fetched = kMap.labelManager?.getLabelStyles(styleId)
+                if (fetched != null) labelStyles = fetched
             }
 
-            val labelOption = LabelOptions.from(option.id, option.latLng)
-            labelOption.setStyles(labelStyles)
-            labelOption.setRank(option.rank)
+            val labelTextBuilder = LabelTextBuilder()
+            if (option.text?.isNotEmpty() ?: false) {
+                labelTextBuilder.setTexts(option.text)
+            }
+
+            val labelOption = LabelOptions
+                .from(option.id, option.latLng)
+                .setRank(option.rank)
+                .setStyles(labelStyles)
+                .setTexts(labelTextBuilder)
+
             list.add(labelOption)
         }
 
-        val created = layer.addLodLabels(list)
+        val created = layer.addLodLabels(list.toList())
         // Optionally show all
         layer.showAllLodLabels()
         return result.success(created != null)
@@ -675,7 +733,8 @@ class KakaoMapController(
     private fun removeLodMarkers(args: JSONObject, result: MethodChannel.Result) {
         require(::kMap.isInitialized) { "kakaoMap is not initialized" }
         val layerId = args.optString("layerId", "")
-        val ids = args.optJSONArray("ids") ?: return result.error("E001", "ids must not be null", null)
+        val ids =
+            args.optJSONArray("ids") ?: return result.error("E001", "ids must not be null", null)
         val layer = lodLayers[layerId] ?: return result.success(null)
 
         val labels = mutableListOf<LodLabel>()
@@ -715,7 +774,8 @@ class KakaoMapController(
     private fun showLodMarkers(args: JSONObject, result: MethodChannel.Result) {
         require(::kMap.isInitialized) { "kakaoMap is not initialized" }
         val layerId = args.optString("layerId", "")
-        val ids = args.optJSONArray("ids") ?: return result.error("E001", "ids must not be null", null)
+        val ids =
+            args.optJSONArray("ids") ?: return result.error("E001", "ids must not be null", null)
         val layer = lodLayers[layerId] ?: return result.success(null)
 
         for (i in 0 until ids.length()) {
@@ -728,7 +788,8 @@ class KakaoMapController(
     private fun hideLodMarkers(args: JSONObject, result: MethodChannel.Result) {
         require(::kMap.isInitialized) { "kakaoMap is not initialized" }
         val layerId = args.optString("layerId", "")
-        val ids = args.optJSONArray("ids") ?: return result.error("E001", "ids must not be null", null)
+        val ids =
+            args.optJSONArray("ids") ?: return result.error("E001", "ids must not be null", null)
         val layer = lodLayers[layerId] ?: return result.success(null)
 
         for (i in 0 until ids.length()) {
@@ -743,7 +804,7 @@ class KakaoMapController(
         val layerId = args.optString("layerId", "")
         val clickable = args.optBoolean("clickable", true)
         val layer = lodLayers[layerId] ?: return result.success(null)
-        layer.setClickable(clickable)
+        layer.isClickable = clickable
         return result.success(null)
     }
 
@@ -756,9 +817,12 @@ class KakaoMapController(
         val stylesListAny: List<*>? = when (args) {
             is Map<*, *> -> args["styles"] as? List<*>
             is JSONObject -> {
-                val arr = args.optJSONArray("styles") ?: return result.error("E001", "Invalid arguments for registerMarkerStyles", null)
+                val arr = args.optJSONArray("styles") ?: return result.error(
+                    "E001", "Invalid arguments for registerMarkerStyles", null
+                )
                 (0 until arr.length()).map { arr.getJSONObject(it) }
             }
+
             else -> null
         }
 
@@ -768,11 +832,17 @@ class KakaoMapController(
 
         for (styleAny in stylesListAny) {
             val (styleId, perLevels) = when (styleAny) {
-                is Map<*, *> -> Pair(styleAny["styleId"] as String, styleAny["perLevels"] as? List<*> ?: emptyList<Any>())
-                is JSONObject -> Pair(styleAny.getString("styleId"),
+                is Map<*, *> -> Pair(
+                    styleAny["styleId"] as String,
+                    styleAny["perLevels"] as? List<*> ?: emptyList<Any>()
+                )
+
+                is JSONObject -> Pair(
+                    styleAny.getString("styleId"),
                     (0 until styleAny.getJSONArray("perLevels").length()).map {
                         styleAny.getJSONArray("perLevels").getJSONObject(it)
                     })
+
                 else -> continue
             }
 
@@ -785,18 +855,32 @@ class KakaoMapController(
                     val iconAny = first["icon"]
                     when (iconAny) {
                         is ByteArray -> iconAny
-                        is List<*> -> (iconAny.filterIsInstance<Number>().map { it.toByte() }).toByteArray()
-                        is String -> Base64.Default.decode(iconAny.substringAfter("base64,", iconAny))
+                        is List<*> -> (iconAny.filterIsInstance<Number>()
+                            .map { it.toByte() }).toByteArray()
+
+                        is String -> Base64.Default.decode(
+                            iconAny.substringAfter(
+                                "base64,", iconAny
+                            )
+                        )
+
                         else -> null
                     }
                 }
+
                 is JSONObject -> {
                     val rawIcon = first.opt("icon")
                     when (rawIcon) {
-                        is String -> Base64.Default.decode(rawIcon.substringAfter("base64,", rawIcon))
+                        is String -> Base64.Default.decode(
+                            rawIcon.substringAfter(
+                                "base64,", rawIcon
+                            )
+                        )
+
                         else -> null
                     }
                 }
+
                 else -> null
             }
 
@@ -805,35 +889,57 @@ class KakaoMapController(
                 continue
             }
 
-            val bitmap = BitmapFactory.decodeByteArray(iconBytes, 0, iconBytes.size)
-                ?: run {
-                    Log.e("KakaoMapController", "Failed to decode icon bytes for styleId=$styleId (bytes=${iconBytes.size})")
-                    return
-                }
+            val bitmap = BitmapFactory.decodeByteArray(iconBytes, 0, iconBytes.size) ?: run {
+                Log.e(
+                    "KakaoMapController",
+                    "Failed to decode icon bytes for styleId=$styleId (bytes=${iconBytes.size})"
+                )
+                return
+            }
 
             val stylesList = mutableListOf<LabelStyle>()
+
+            var fontSize: Int = DefaultLabelTextStyle.FONT_SIZE
+            var fontColor: Int = DefaultLabelTextStyle.FONT_COLOR
+            var strokeThickness: Int = DefaultLabelTextStyle.STROKE_THICKNESS
+            var strokeColor: Int = DefaultLabelTextStyle.STROKE_COLOR
 
             // textStyle
             when (first) {
                 is Map<*, *> -> {
                     val ts = first["textStyle"] as? Map<*, *>
                     if (ts != null) {
-                        val fontSize = (ts["fontSize"] as? Number)?.toInt() ?: 14
-                        val fontColor = (ts["fontColor"] as? Number)?.toInt() ?: 0xFF000000.toInt()
-                        stylesList.add(LabelStyle.from(LabelTextStyle.from(fontSize, fontColor)))
+                        when (ts["fontSize"]) {
+                            is Number -> fontSize = (ts["fontSize"] as Number).toInt()
+                        }
+                        when (ts["fontColor"]) {
+                            is Number -> fontColor = (ts["fontColor"] as Number).toInt()
+                        }
+                        when (ts["strokeThickness"]) {
+                            is Number -> strokeThickness = (ts["strokeThickness"] as Number).toInt()
+                        }
+                        when (ts["strokeColor"]) {
+                            is Number -> strokeColor = (ts["strokeColor"] as Number).toInt()
+                        }
                     }
                 }
+
                 is JSONObject -> {
                     val ts = first.optJSONObject("textStyle")
                     if (ts != null) {
-                        val fontSize = ts.optInt("fontSize", 14)
-                        val fontColor = ts.optInt("fontColor", 0xFF000000.toInt())
-                        stylesList.add(LabelStyle.from(LabelTextStyle.from(fontSize, fontColor)))
+                        fontSize = ts.optInt("fontSize", DefaultLabelTextStyle.FONT_SIZE)
+                        fontColor = ts.optInt("fontColor", DefaultLabelTextStyle.FONT_COLOR)
+                        strokeThickness =
+                            ts.optInt("strokeThickness", DefaultLabelTextStyle.STROKE_THICKNESS)
+                        strokeColor = ts.optInt("strokeColor", DefaultLabelTextStyle.STROKE_COLOR)
                     }
                 }
             }
 
-            stylesList.add(LabelStyle.from(bitmap))
+            val labelTextStyle =
+                LabelTextStyle.from(fontSize, fontColor, strokeThickness, strokeColor)
+
+            stylesList.add(LabelStyle.from(bitmap).setTextStyles(labelTextStyle))
 
             val labelStyles = LabelStyles.from(styleId, *stylesList.toTypedArray())
             kMap.labelManager?.addLabelStyles(labelStyles)
@@ -848,8 +954,11 @@ class KakaoMapController(
     private fun removeMarkerStyles(args: JSONObject, result: MethodChannel.Result) {
         require(::kMap.isInitialized) { "kakaoMap is not initialized" }
 
-        val styleIds = args.optJSONArray("styleIds")
-            ?: return result.error("E001", "Invalid arguments for removeMarkerStyles", null)
+        val styleIds = args.optJSONArray("styleIds") ?: return result.error(
+            "E001",
+            "Invalid arguments for removeMarkerStyles",
+            null
+        )
         for (i in 0 until styleIds.length()) {
             val sid = styleIds.getString(i)
             kMap.labelManager?.getLabelStyles(sid)?.styles = arrayOf()
@@ -973,16 +1082,14 @@ class KakaoMapController(
 
         return result.success(
             mapOf(
-                "northeast" to
-                        mapOf(
-                            "latitude" to northeast.first,
-                            "longitude" to northeast.second,
-                        ),
-                "southwest" to
-                        mapOf(
-                            "latitude" to southwest.first,
-                            "longitude" to southwest.second,
-                        ),
+                "northeast" to mapOf(
+                    "latitude" to northeast.first,
+                    "longitude" to northeast.second,
+                ),
+                "southwest" to mapOf(
+                    "latitude" to southwest.first,
+                    "longitude" to southwest.second,
+                ),
             )
         )
     }
@@ -1010,12 +1117,9 @@ class KakaoMapController(
 
         try {
             // Use the new extension method that supports GuiView components
-            val options = args.toNativeInfoWindowOptions()
-                ?: return result.error(
-                    "E003",
-                    "Failed to parse InfoWindow options",
-                    null
-                )
+            val options = args.toNativeInfoWindowOptions() ?: return result.error(
+                "E003", "Failed to parse InfoWindow options", null
+            )
 
             // Add InfoWindow to the map using the native API
             kMap.mapWidgetManager?.infoWindowLayer?.addInfoWindow(options)
@@ -1088,12 +1192,9 @@ class KakaoMapController(
             existingInfoWindow?.remove()
 
             // Add updated InfoWindow with new options
-            val options = args.toNativeInfoWindowOptions()
-                ?: return result.error(
-                    "E007",
-                    "Failed to parse InfoWindow options for update",
-                    null
-                )
+            val options = args.toNativeInfoWindowOptions() ?: return result.error(
+                "E007", "Failed to parse InfoWindow options for update", null
+            )
 
             kMap.mapWidgetManager?.infoWindowLayer?.addInfoWindow(options)
 
@@ -1127,7 +1228,7 @@ class KakaoMapController(
             val layer = kMap.mapWidgetManager?.infoWindowLayer
             layer?.setVisible(visible)
             // 현재 등록된 모든 InfoWindow에 대해 show/hide를 호출하여 상태를 일치시킴
-            val all = layer?.getAllInfoWindows()
+            val all = layer?.allInfoWindows
             if (all != null) {
                 for (win in all) {
                     if (visible) win.show() else win.hide()
@@ -1135,7 +1236,9 @@ class KakaoMapController(
             }
             return result.success(null)
         } catch (e: Exception) {
-            return result.error("E011", "Error setting InfoWindowLayer visibility: ${e.message}", null)
+            return result.error(
+                "E011", "Error setting InfoWindowLayer visibility: ${e.message}", null
+            )
         }
     }
 
@@ -1278,7 +1381,10 @@ class KakaoMapController(
             "removeInfoWindows" -> removeInfoWindows(asJSONObject(call.arguments), result)
             "updateInfoWindow" -> updateInfoWindow(asJSONObject(call.arguments), result)
             "clearInfoWindows" -> clearInfoWindows(result)
-            "setInfoWindowLayerVisible" -> setInfoWindowLayerVisible(asJSONObject(call.arguments), result)
+            "setInfoWindowLayerVisible" -> setInfoWindowLayerVisible(
+                asJSONObject(call.arguments), result
+            )
+
             "setInfoWindowVisible" -> setInfoWindowVisible(asJSONObject(call.arguments), result)
             "showCompass" -> showCompass(result)
             "hideCompass" -> hideCompass(result)
@@ -1304,7 +1410,10 @@ class KakaoMapController(
             "hideAllLodMarkers" -> hideAllLodMarkers(asJSONObject(call.arguments), result)
             "showLodMarkers" -> showLodMarkers(asJSONObject(call.arguments), result)
             "hideLodMarkers" -> hideLodMarkers(asJSONObject(call.arguments), result)
-            "setLodMarkerLayerClickable" -> setLodMarkerLayerClickable(asJSONObject(call.arguments), result)
+            "setLodMarkerLayerClickable" -> setLodMarkerLayerClickable(
+                asJSONObject(call.arguments), result
+            )
+
             else -> result.notImplemented()
         }
     }
