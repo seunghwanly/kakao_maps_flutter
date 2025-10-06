@@ -1,3 +1,17 @@
+# 0.1.2
+
+### 🐛 Bug Fixes
+* (Android) Fixed an issue where LodMarker/Label text was not visible (#27)
+* (Android) Addressed cases where default text style was not applied when style was unspecified
+
+### 🔧 Improvements
+* (Android) Unified default marker/label text style to match iOS: based on `DefaultLabelTextStyle` and `DefaultLabelStyle` in `android/src/main/kotlin/io/seunghwanly/kakao_maps_flutter/constant/Constants.kt`
+* (Android) Updated Kakao Maps SDK to 2.12.18
+* (Android) Bumped compileSdk to 35, updated Android Gradle Plugin to 8.1.1 and Gradle to 8.5
+
+### 📝 Documentation
+* Documented the source and location of default marker/label text style: `constant/Constants.kt`
+
 # 0.1.1
 
 ### 🔧 Improvements
