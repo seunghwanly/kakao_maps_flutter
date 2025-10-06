@@ -902,7 +902,7 @@ class KakaoMapController(
             var fontSize: Int = DefaultLabelTextStyle.FONT_SIZE
             var fontColor: Int = DefaultLabelTextStyle.FONT_COLOR
             var strokeThickness: Int = DefaultLabelTextStyle.STROKE_THICKNESS
-            var strokeColor: Int = DefaultLabelTextStyle.STOKE_COLOR
+            var strokeColor: Int = DefaultLabelTextStyle.STROKE_COLOR
 
             // textStyle
             when (first) {
@@ -931,7 +931,7 @@ class KakaoMapController(
                         fontColor = ts.optInt("fontColor", DefaultLabelTextStyle.FONT_COLOR)
                         strokeThickness =
                             ts.optInt("strokeThickness", DefaultLabelTextStyle.STROKE_THICKNESS)
-                        strokeColor = ts.optInt("strokeColor", DefaultLabelTextStyle.STOKE_COLOR)
+                        strokeColor = ts.optInt("strokeColor", DefaultLabelTextStyle.STROKE_COLOR)
                     }
                 }
             }

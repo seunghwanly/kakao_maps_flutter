@@ -8,14 +8,14 @@ class DefaultLabelTextStyle {
         const val FONT_SIZE: Int = 14
         const val FONT_COLOR: Int = 0xFF000000.toInt()
         const val STROKE_THICKNESS: Int = 4
-        const val STOKE_COLOR: Int = 0xFFFFFFFF.toInt()
+        const val STROKE_COLOR: Int = 0xFFFFFFFF.toInt()
 
         fun getTextStyle(): LabelTextStyle {
             return LabelTextStyle.from(
                 FONT_SIZE,
                 FONT_COLOR,
                 STROKE_THICKNESS,
-                STOKE_COLOR,
+                STROKE_COLOR,
             )
         }
     }
