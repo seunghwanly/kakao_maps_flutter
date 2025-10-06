@@ -75,6 +75,8 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
           textStyle: const MarkerTextStyle(
             fontSize: 24,
             fontColorArgb: 0xFF000000,
+            strokeThickness: 4,
+            strokeColorArgb: 0xFFFFFFFF,
           ),
           level: 6,
         ),
@@ -83,6 +85,8 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
           textStyle: const MarkerTextStyle(
             fontSize: 20,
             fontColorArgb: 0xFF000000,
+            strokeThickness: 4,
+            strokeColorArgb: 0xFFFFFFFF,
           ),
           level: 21,
         ),
@@ -335,6 +339,7 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
         id: 'seoul_station',
         latLng: seoulStation,
         styleId: 'default_marker_style_001',
+        text: '여기는 서울역!',
       ),
       MarkerOption(
         id: 'jamsil_station',
