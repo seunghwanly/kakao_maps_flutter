@@ -12,7 +12,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_web_plugins:
+    sdk: flutter
   plugin_platform_interface: ^2.0.2
+  web: ^1.1.1
   webview_flutter: ^4.13.0
   webview_flutter_wkwebview: ^3.22.0
 
@@ -43,6 +46,9 @@ flutter:
         # Swift Package Manager
         podspec: ios/kakao_maps_flutter.podspec
         supports_swift_package_manager: true
+      web:
+        pluginClass: KakaoMapsFlutterPlugin
+        fileName: kakao_maps_flutter_web.dart
 
 topics:
   - maps
