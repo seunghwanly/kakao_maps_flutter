@@ -71,7 +71,9 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
       styleId: 'default_marker_style_001',
       perLevels: [
         MarkerPerLevelStyle.fromBytes(
-          bytes: base64Decode(ExampleAssets.marker2x),
+          bytes: base64Decode(
+            kIsWeb ? ExampleAssets.marker1x : ExampleAssets.marker2x,
+          ),
           textStyle: const MarkerTextStyle(
             fontSize: 24,
             fontColorArgb: 0xFF000000,
@@ -81,7 +83,9 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
           level: 6,
         ),
         MarkerPerLevelStyle.fromBytes(
-          bytes: base64Decode(ExampleAssets.marker4x),
+          bytes: base64Decode(
+            kIsWeb ? ExampleAssets.marker1x : ExampleAssets.marker4x,
+          ),
           textStyle: const MarkerTextStyle(
             fontSize: 20,
             fontColorArgb: 0xFF000000,
