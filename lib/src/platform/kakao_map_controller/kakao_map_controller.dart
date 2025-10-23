@@ -1,4 +1,8 @@
 import 'dart:async';
+import 'dart:convert' show base64Encode;
+import 'dart:js_interop' if (dart.library.io) 'dart:typed_data';
+import 'dart:js_interop_unsafe';
+import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -18,12 +22,15 @@ import 'package:kakao_maps_flutter/src/data/data.dart'
 import 'package:kakao_maps_flutter/src/data/label/label_click_event.dart';
 import 'package:kakao_maps_flutter/src/platform/kakao_map_method_call/kakao_map_method_call.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
+import 'package:web/web.dart' if (dart.library.io) 'dart:html' as web;
 
 import '../../data/compass/compass.dart';
 import '../../data/logo/logo.dart';
+import '../../view/kakao_map/kakao_map_js_interop.dart';
 
 part 'interface/kakao_map_controller_platform_interface.dart';
 part 'method_channel/method_channel_kakao_map_controller.dart';
+part 'web/web_kakao_map_controller.dart';
 
 /// Kakao Map controller
 /// [EN]
@@ -41,7 +48,9 @@ class KakaoMapController extends KakaoMapControllerPlatform {
   KakaoMapController({
     required this.viewId,
   }) {
-    _platform = MethodChannelKakaoMapController.create(viewId);
+    _platform = kIsWeb
+        ? WebKakaoMapController.create(viewId)
+        : MethodChannelKakaoMapController.create(viewId);
   }
 
   /// Create controller for tests
