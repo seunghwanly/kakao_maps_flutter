@@ -11,12 +11,12 @@ import 'package:web/web.dart' as web;
 import 'kakao_map_js_interop.dart';
 
 /// Web-specific implementation for creating the Kakao Map view.
-Widget buildWebView(
-  int webViewId,
-  void Function(KakaoMapController controller) onMapCreated,
+Widget buildWebView({
+  required int webViewId,
+  required void Function(KakaoMapController controller) onMapCreated,
   LatLng? initialPosition,
   int? initialLevel,
-) {
+}) {
   final viewId = 'kakao-map-$webViewId';
 
   // Register the view factory for this specific map instance

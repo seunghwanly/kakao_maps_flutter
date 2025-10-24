@@ -171,13 +171,14 @@ class _KakaoMapState extends State<KakaoMap> {
             width: width,
             height: height,
             child: kakao_map_interop.buildWebView(
-              creationParams,
-              _webViewId,
-              (webController) {
+              webViewId: _webViewId,
+              onMapCreated: (webController) {
                 if (controller != null) return;
                 controller = webController;
                 widget.onMapCreated?.call(controller!);
               },
+              initialPosition: widget.initialPosition,
+              initialLevel: widget.initialLevel,
             ),
           );
         }
