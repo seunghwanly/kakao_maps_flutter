@@ -1,4 +1,10 @@
-part of '../kakao_map_controller.dart';
+import 'dart:async' show StreamController;
+
+import 'package:flutter/foundation.dart';
+import 'package:kakao_maps_flutter/src/data/data.dart';
+import 'package:kakao_maps_flutter/src/method_call/kakao_map_method_call.dart';
+import 'package:kakao_maps_flutter/src/method_call/kakao_map_web_method_call.dart';
+import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 /// Platform interface for Kakao Map controller functionality.
 ///
@@ -9,21 +15,6 @@ abstract class KakaoMapControllerPlatform extends PlatformInterface {
   KakaoMapControllerPlatform() : super(token: _token);
 
   static final Object _token = Object();
-
-  /// The current platform instance.
-  static KakaoMapControllerPlatform get instance => _instance;
-
-  static KakaoMapControllerPlatform _instance =
-      MethodChannelKakaoMapController.instance;
-
-  /// Sets the platform instance.
-  ///
-  /// Platform implementations should set this to register themselves
-  /// as the active platform implementation.
-  static set instance(KakaoMapControllerPlatform instance) {
-    PlatformInterface.verifyToken(instance, _token);
-    _instance = instance;
-  }
 
   /// Stream controller for label click events.
   final StreamController<LabelClickEvent> _onLabelClickController =
@@ -58,17 +49,16 @@ abstract class KakaoMapControllerPlatform extends PlatformInterface {
       _onClusterClickController.stream;
 
   /// Calls a method on the platform implementation.
-  ///
-  /// Platform implementations must override this method to handle
-  /// method calls from the Dart side.
-  Future<T> _callMethod<T>(KakaoMapMethodCall<T> methodCall) async {
+  @internal
+  Future<T> callMethod<T>(KakaoMapMethodCall<T> methodCall) async {
     throw UnimplementedError(
       '[Flutter:KakaoMapControllerPlatform] callMethod not implemented',
     );
   }
 
   /// Calls a web-specific method on the platform implementation.
-  Future<T> _callWebMethod<T>(KakaoMapWebMethodCall<T> methodCall) async {
+  @internal
+  Future<T> callWebMethod<T>(KakaoMapWebMethodCall<T> methodCall) async {
     throw UnimplementedError(
       '[Flutter:KakaoMapControllerPlatform] callWebMethod not implemented',
     );

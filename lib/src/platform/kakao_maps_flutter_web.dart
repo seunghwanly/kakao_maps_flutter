@@ -3,7 +3,7 @@ import 'dart:js_interop';
 import 'dart:js_interop_unsafe';
 
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
-import 'package:kakao_maps_flutter/src/platform/kakao_maps_flutter/interface/kakao_maps_flutter_platform_interface.dart';
+import 'package:kakao_maps_flutter/src/platform/interface/kakao_maps_flutter_platform_interface.dart';
 import 'package:web/web.dart' as web;
 
 /// A web implementation of the KakaoMapsFlutterPlatform of the KakaoMapsFlutter plugin.

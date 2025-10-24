@@ -1,4 +1,18 @@
-part of '../kakao_map_controller.dart';
+import 'dart:async';
+import 'dart:convert';
+import 'dart:js_interop';
+import 'dart:js_interop_unsafe';
+import 'dart:typed_data';
+import 'dart:ui' as ui;
+
+import 'package:flutter/foundation.dart';
+import 'package:kakao_maps_flutter/src/data/data.dart';
+import 'package:kakao_maps_flutter/src/method_call/kakao_map_method_call.dart';
+import 'package:kakao_maps_flutter/src/method_call/kakao_map_web_method_call.dart';
+import 'package:kakao_maps_flutter/src/view/kakao_map/kakao_map_js_interop.dart';
+import 'package:web/web.dart' as web;
+
+import '../interface/kakao_map_controller_platform_interface.dart';
 
 //show ascii, base64Encodeion of KakaoMapController
 /// Uses JS interop to call Kakao Maps Web API directly
@@ -608,14 +622,14 @@ class WebKakaoMapController extends KakaoMapControllerPlatform {
   }
 
   @override
-  Future<T> _callMethod<T>(KakaoMapMethodCall<T> methodCall) async {
+  Future<T> callMethod<T>(KakaoMapMethodCall<T> methodCall) async {
     throw UnimplementedError(
       '[Flutter:WebKakaoMapController] callMethod is not implemented for web',
     );
   }
 
   @override
-  Future<T> _callWebMethod<T>(KakaoMapWebMethodCall<T> methodCall) async {
+  Future<T> callWebMethod<T>(KakaoMapWebMethodCall<T> methodCall) async {
     final map = _mapInstance;
     if (map == null) {
       web.console.warn('Map instance not found for viewId: $viewId'.toJS);
@@ -927,7 +941,7 @@ class WebKakaoMapController extends KakaoMapControllerPlatform {
       _addMarkerClickListener(
         marker,
         option.id,
-        KakaoMapController.defaultLabelLayerId,
+        'map-container-$viewId',
         option.latLng,
       );
     }

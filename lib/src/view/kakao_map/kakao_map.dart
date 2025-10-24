@@ -1,18 +1,14 @@
-import 'dart:js_interop';
-import 'dart:js_interop_unsafe';
-import 'dart:ui_web' as ui show platformViewRegistry;
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:web/web.dart' as web;
 
+import '../../controller/kakao_map_controller.dart';
 import '../../data/compass/compass.dart';
 import '../../data/lat_lng/lat_lng.dart';
 import '../../data/logo/logo.dart';
 import '../../data/scalebar/scalebar.dart';
-import '../../platform/kakao_map_controller/kakao_map_controller.dart';
-import 'kakao_map_js_interop.dart';
+import 'kakao_map_stub.dart' if (dart.library.html) 'kakao_map_web.dart'
+    as kakao_map_interop;
 
 const String _$viewTypeId = 'kakao_map_view';
 
@@ -132,127 +128,6 @@ class _KakaoMapState extends State<KakaoMap> {
     _webViewId = _nextViewId++;
   }
 
-  Widget _buildWebView(Map<String, Object?> creationParams) {
-    if (!kIsWeb) {
-      throw UnsupportedError(
-        '_buildWebView can only be called on web platform',
-      );
-    }
-
-    // Generate unique view ID for this map instance
-    final viewId = 'kakao-map-$_webViewId';
-
-    // Register the view factory for this specific map instance
-    // ignore: undefined_prefixed_name
-    ui.platformViewRegistry.registerViewFactory(viewId, (int viewId) {
-      final mapDiv = web.HTMLDivElement()
-        ..id = 'map-container-$_webViewId'
-        ..style.width = '100%'
-        ..style.height = '100%';
-
-      // Initialize the map after a short delay to ensure the DOM is ready
-      Future.microtask(() {
-        _initializeWebMap(mapDiv, creationParams);
-      });
-
-      return mapDiv;
-    });
-
-    return HtmlElementView(viewType: viewId);
-  }
-
-  void _initializeWebMap(
-    web.HTMLDivElement container,
-    Map<String, Object?> creationParams,
-  ) {
-    // Extract initial position and level from creationParams
-    final initialPosition = widget.initialPosition ??
-        const LatLng(latitude: 37.5441, longitude: 127.0558);
-    final initialLevel = widget.initialLevel ?? 14;
-
-    // Use setTimeout to ensure DOM is fully mounted before initializing map
-    web.window.setTimeout(
-      (() {
-        // Check if Kakao Maps SDK is loaded
-        if (!isKakaoMapsLoaded()) {
-          web.console.error('Kakao Maps SDK is not loaded'.toJS);
-          return;
-        }
-
-        try {
-          // Get kakao.maps namespace
-          final k = kakao;
-          if (k == null) {
-            web.console.error('Kakao object not found'.toJS);
-            return;
-          }
-
-          final maps = k['maps'] as JSObject?;
-          if (maps == null) {
-            web.console.error('Kakao Maps namespace not found'.toJS);
-            return;
-          }
-
-          // Get constructors
-          final latLngCtor = maps['LatLng'] as JSFunction?;
-          final mapCtor = maps['Map'] as JSFunction?;
-
-          if (latLngCtor == null || mapCtor == null) {
-            web.console.error('Kakao Maps constructors not available'.toJS);
-            return;
-          }
-
-          // Create LatLng
-          final latLng = latLngCtor.callAsConstructor<JSObject>(
-            initialPosition.latitude.toJS,
-            initialPosition.longitude.toJS,
-          );
-
-          // Create options
-          final options = JSObject();
-          options['center'] = latLng;
-          options['level'] = initialLevel.toJS;
-
-          // Create Map
-          final map = mapCtor.callAsConstructor<JSObject>(
-            container as JSAny,
-            options,
-          );
-
-          // Store map instance for future reference
-          _storeMapInstance(_webViewId, map);
-
-          web.console.log(
-            'Kakao map initialized successfully for viewId: $_webViewId'.toJS,
-          );
-
-          // Notify that the map is ready
-          if (controller == null) {
-            controller = KakaoMapController(viewId: _webViewId);
-            widget.onMapCreated?.call(controller!);
-          }
-        } catch (e) {
-          web.console.error('Failed to create Kakao map: $e'.toJS);
-        }
-      }).toJS,
-      100.toJS, // Wait 100ms for DOM to be ready
-    );
-  }
-
-  /// Store map instance in window object for future reference
-  void _storeMapInstance(int viewId, JSObject map) {
-    final windowObj = web.window as JSObject;
-    final kakaoMapsObj = windowObj['kakaoMaps'] as JSObject?;
-
-    if (kakaoMapsObj == null) {
-      final newMapsObj = JSObject();
-      windowObj['kakaoMaps'] = newMapsObj;
-      newMapsObj[viewId.toString()] = map as JSAny;
-    } else {
-      kakaoMapsObj[viewId.toString()] = map as JSAny;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -291,38 +166,52 @@ class _KakaoMapState extends State<KakaoMap> {
           creationParams['logo'] = widget.logo!.toJson();
         }
 
+        if (kIsWeb) {
+          return SizedBox(
+            width: width,
+            height: height,
+            child: kakao_map_interop.buildWebView(
+              creationParams,
+              _webViewId,
+              (webController) {
+                if (controller != null) return;
+                controller = webController;
+                widget.onMapCreated?.call(controller!);
+              },
+            ),
+          );
+        }
+
         return SizedBox(
           width: width,
           height: height,
-          child: kIsWeb
-              ? _buildWebView(creationParams)
-              : switch (defaultTargetPlatform) {
-                  TargetPlatform.android => AndroidView(
-                      viewType: _$viewTypeId,
-                      creationParams: creationParams,
-                      creationParamsCodec: const StandardMessageCodec(),
-                      onPlatformViewCreated: (id) async {
-                        if (controller != null) return;
+          child: switch (defaultTargetPlatform) {
+            TargetPlatform.android => AndroidView(
+                viewType: _$viewTypeId,
+                creationParams: creationParams,
+                creationParamsCodec: const StandardMessageCodec(),
+                onPlatformViewCreated: (id) async {
+                  if (controller != null) return;
 
-                        controller = KakaoMapController(viewId: id);
-                        widget.onMapCreated?.call(controller!);
-                      },
-                    ),
-                  TargetPlatform.iOS => UiKitView(
-                      viewType: _$viewTypeId,
-                      creationParams: creationParams,
-                      creationParamsCodec: const StandardMessageCodec(),
-                      onPlatformViewCreated: (id) async {
-                        if (controller != null) return;
-
-                        controller = KakaoMapController(viewId: id);
-                        widget.onMapCreated?.call(controller!);
-                      },
-                    ),
-                  _ => throw UnsupportedError(
-                      'Unsupported platform: $defaultTargetPlatform',
-                    ),
+                  controller = KakaoMapController(viewId: id);
+                  widget.onMapCreated?.call(controller!);
                 },
+              ),
+            TargetPlatform.iOS => UiKitView(
+                viewType: _$viewTypeId,
+                creationParams: creationParams,
+                creationParamsCodec: const StandardMessageCodec(),
+                onPlatformViewCreated: (id) async {
+                  if (controller != null) return;
+
+                  controller = KakaoMapController(viewId: id);
+                  widget.onMapCreated?.call(controller!);
+                },
+              ),
+            _ => throw UnsupportedError(
+                'Unsupported platform: $defaultTargetPlatform',
+              ),
+          },
         );
       },
     );
