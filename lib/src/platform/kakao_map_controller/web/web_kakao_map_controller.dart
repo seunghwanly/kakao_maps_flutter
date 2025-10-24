@@ -1258,6 +1258,14 @@ class WebKakaoMapController extends KakaoMapControllerPlatform {
     web.console.log('Hid ${ids.length} LOD markers in layer: $layerId'.toJS);
   }
 
+  double _scale(num value) {
+    // The GUI values seem to be specified in physical pixels.
+    // To make them render consistently on high-DPR web screens,
+    // we need to convert them to logical CSS pixels by dividing by the DPR.
+    final dpr = web.window.devicePixelRatio;
+    return value / dpr;
+  }
+
   web.Element _buildGuiElement(GuiView guiComponent) {
     if (guiComponent is GuiText) {
       return _buildGuiText(guiComponent);
@@ -1271,15 +1279,16 @@ class WebKakaoMapController extends KakaoMapControllerPlatform {
 
   web.Element _buildGuiText(GuiText guiText) {
     final span = web.HTMLSpanElement()..innerText = guiText.text;
-    span.style.fontSize = '${guiText.textSize}px';
+    span.style.fontSize = '${_scale(guiText.textSize)}px';
     span.style.color = _toCssColor(guiText.textColor);
     if (guiText.strokeSize > 0) {
+      final strokeSize = _scale(guiText.strokeSize);
       final strokeColor = _toCssColor(guiText.strokeColor);
       span.style.textShadow =
-          '-${guiText.strokeSize}px -${guiText.strokeSize}px 0 $strokeColor, '
-          '${guiText.strokeSize}px -${guiText.strokeSize}px 0 $strokeColor, '
-          '-${guiText.strokeSize}px ${guiText.strokeSize}px 0 $strokeColor, '
-          '${guiText.strokeSize}px ${guiText.strokeSize}px 0 $strokeColor';
+          '-${strokeSize}px -${strokeSize}px 0 $strokeColor, '
+          '${strokeSize}px -${strokeSize}px 0 $strokeColor, '
+          '-${strokeSize}px ${strokeSize}px 0 $strokeColor, '
+          '${strokeSize}px ${strokeSize}px 0 $strokeColor';
     }
     return span;
   }
@@ -1296,13 +1305,13 @@ class WebKakaoMapController extends KakaoMapControllerPlatform {
     div.style.flexDirection =
         (guiLayout.orientation == Orientation.horizontal) ? 'row' : 'column';
     div.style.alignItems = 'center';
-    div.style.gap = '4px';
+    div.style.gap = '${_scale(4)}px'; // Also scale gap
 
     // Padding
-    div.style.paddingLeft = '${guiLayout.paddingLeft}px';
-    div.style.paddingTop = '${guiLayout.paddingTop}px';
-    div.style.paddingRight = '${guiLayout.paddingRight}px';
-    div.style.paddingBottom = '${guiLayout.paddingBottom}px';
+    div.style.paddingLeft = '${_scale(guiLayout.paddingLeft ?? 0)}px';
+    div.style.paddingTop = '${_scale(guiLayout.paddingTop ?? 0)}px';
+    div.style.paddingRight = '${_scale(guiLayout.paddingRight ?? 0)}px';
+    div.style.paddingBottom = '${_scale(guiLayout.paddingBottom ?? 0)}px';
 
     // Background
     if (guiLayout.background != null) {
@@ -1312,10 +1321,12 @@ class WebKakaoMapController extends KakaoMapControllerPlatform {
       if (bgImage.isNinepatch == true) {
         final area = bgImage.fixedArea;
         div.style.borderImageSource = 'url($src)';
+        // border-image-slice is in source image pixels, so it should NOT be scaled.
         div.style.borderImageSlice =
             '${area.top} ${area.right} ${area.bottom} ${area.left} fill';
+        // border-width is the rendered size on screen, so it SHOULD be scaled.
         div.style.borderWidth =
-            '${area.top}px ${area.right}px ${area.bottom}px ${area.left}px';
+            '${_scale(area.top)}px ${_scale(area.right)}px ${_scale(area.bottom)}px ${_scale(area.left)}px';
         div.style.borderStyle = 'solid';
         div.style.borderColor = 'transparent';
         div.style.borderImageRepeat = 'stretch';
