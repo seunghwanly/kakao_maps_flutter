@@ -17,6 +17,8 @@ class WebKakaoMapController extends KakaoMapControllerPlatform {
 
   final int viewId;
 
+  bool _areListenersAdded = false;
+
   /// Storage for markers by ID
   final Map<String, JSObject> _markers = {};
 
@@ -401,7 +403,7 @@ class WebKakaoMapController extends KakaoMapControllerPlatform {
       eventNs,
       marker,
       'click'.toJS,
-      ((JSObject event) {
+      ((JSObject? event) {
         onLabelClicked(
           LabelClickEvent(
             labelId: markerId,
@@ -418,7 +420,7 @@ class WebKakaoMapController extends KakaoMapControllerPlatform {
     required JSObject map,
     required double latitude,
     required double longitude,
-    required String content,
+    required JSAny content,
     int? xAnchor,
     int? yAnchor,
   }) {
@@ -433,7 +435,7 @@ class WebKakaoMapController extends KakaoMapControllerPlatform {
 
     final options = JSObject();
     options['position'] = latLng;
-    options['content'] = content.toJS;
+    options['content'] = content;
 
     if (xAnchor != null && yAnchor != null) {
       options['xAnchor'] = (xAnchor / 100.0).toJS;
@@ -451,12 +453,51 @@ class WebKakaoMapController extends KakaoMapControllerPlatform {
     _callMapMethod(overlay, 'setMap', [null]);
   }
 
+  /// Add event listeners to the map instance
+  void _addEventListeners(JSObject map) {
+    final maps = _kakaoMaps;
+    if (maps == null) return;
+
+    final eventNs = maps['event'] as JSObject?;
+    if (eventNs == null) return;
+
+    final addListener = eventNs['addListener'] as JSFunction?;
+    if (addListener == null) return;
+
+    // onCameraMoveEnd
+    addListener.callAsFunction(
+      eventNs,
+      map,
+      'idle'.toJS,
+      () {
+        final center = _handleGetCenter(map);
+        final zoom = _getMapLevel(map);
+        if (center != null && zoom != null) {
+          onCameraMoveEnd(
+            CameraMoveEndEvent(
+              latitude: center.latitude,
+              longitude: center.longitude,
+              zoomLevel: zoom.toDouble(),
+              tilt: -1,
+              rotation: -1,
+            ),
+          );
+        }
+      }.toJS,
+    );
+  }
+
   @override
   Future<T> _callMethod<T>(KakaoMapMethodCall<T> methodCall) async {
     final map = _mapInstance;
     if (map == null) {
       web.console.warn('Map instance not found for viewId: $viewId'.toJS);
       return null as T;
+    }
+
+    if (!_areListenersAdded) {
+      _addEventListeners(map);
+      _areListenersAdded = true;
     }
 
     // Get methods that return values
@@ -597,8 +638,10 @@ class WebKakaoMapController extends KakaoMapControllerPlatform {
     }
 
     if (methodCall is RemoveLodMarkers) {
-      _handleRemoveLodMarkers((methodCall as RemoveLodMarkers).layerId,
-          (methodCall as RemoveLodMarkers).ids);
+      _handleRemoveLodMarkers(
+        (methodCall as RemoveLodMarkers).layerId,
+        (methodCall as RemoveLodMarkers).ids,
+      );
       return null as T;
     }
 
@@ -618,14 +661,18 @@ class WebKakaoMapController extends KakaoMapControllerPlatform {
     }
 
     if (methodCall is ShowLodMarkers) {
-      _handleShowLodMarkers((methodCall as ShowLodMarkers).layerId,
-          (methodCall as ShowLodMarkers).ids);
+      _handleShowLodMarkers(
+        (methodCall as ShowLodMarkers).layerId,
+        (methodCall as ShowLodMarkers).ids,
+      );
       return null as T;
     }
 
     if (methodCall is HideLodMarkers) {
-      _handleHideLodMarkers((methodCall as HideLodMarkers).layerId,
-          (methodCall as HideLodMarkers).ids);
+      _handleHideLodMarkers(
+        (methodCall as HideLodMarkers).layerId,
+        (methodCall as HideLodMarkers).ids,
+      );
       return null as T;
     }
 
@@ -766,26 +813,44 @@ class WebKakaoMapController extends KakaoMapControllerPlatform {
   void _handleAddInfoWindow(JSObject map, AddInfoWindow methodCall) {
     final option = methodCall.infoWindowOption;
 
-    // Build HTML content
-    String content = '<div style="padding: 8px;">';
+    // Build HTML content as a DOM element
+    final container = web.HTMLDivElement()
+      ..style.padding = '8px'
+      ..style.cursor = 'pointer';
 
     if (option.title != null) {
-      content +=
-          '<div style="font-weight: bold; margin-bottom: 4px;">${option.title}</div>';
+      container.append(
+        web.HTMLDivElement()
+          ..style.fontWeight = 'bold'
+          ..style.marginBottom = '4px'
+          ..innerText = option.title!,
+      );
     }
 
     if (option.snippet != null) {
-      content += '<div style="font-size: 12px;">${option.snippet}</div>';
+      container.append(
+        web.HTMLDivElement()
+          ..style.fontSize = '12px'
+          ..innerText = option.snippet!,
+      );
     }
 
-    content += '</div>';
+    // Add click listener to the container
+    container.onClick.listen((event) {
+      onInfoWindowClicked(
+        InfoWindowClickEvent(
+          infoWindowId: option.id,
+          latLng: option.latLng,
+        ),
+      );
+    });
 
     // Create overlay
     final overlay = _createCustomOverlay(
       map: map,
       latitude: option.latLng.latitude,
       longitude: option.latLng.longitude,
-      content: content,
+      content: container,
       xAnchor: option.offset.x.toInt(),
       yAnchor: option.offset.y.toInt(),
     );
