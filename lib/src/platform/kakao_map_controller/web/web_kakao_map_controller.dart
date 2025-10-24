@@ -66,6 +66,24 @@ class WebKakaoMapController extends KakaoMapControllerPlatform {
     );
   }
 
+  /// Create a LatLngBounds object
+  JSObject? _createLatLngBounds(LatLngBounds bounds) {
+    final maps = _kakaoMaps;
+    if (maps == null) return null;
+
+    final latLngBoundsCtor = maps['LatLngBounds'] as JSFunction?;
+    if (latLngBoundsCtor == null) return null;
+
+    final sw =
+        _createLatLng(bounds.southwest.latitude, bounds.southwest.longitude);
+    final ne =
+        _createLatLng(bounds.northeast.latitude, bounds.northeast.longitude);
+
+    if (sw == null || ne == null) return null;
+
+    return latLngBoundsCtor.callAsConstructor<JSObject>(sw, ne);
+  }
+
   /// Extract latitude from LatLng object
   double? _getLatitude(JSObject latLng) {
     try {
@@ -415,6 +433,108 @@ class WebKakaoMapController extends KakaoMapControllerPlatform {
     );
   }
 
+  /// Extract LatLng from a JS Cluster object
+  LatLng? _getClusterCenter(JSObject cluster) {
+    try {
+      final getCenter = cluster['getCenter'] as JSFunction?;
+      if (getCenter == null) return null;
+      final centerObj = getCenter.callAsFunction(cluster) as JSObject?;
+      if (centerObj == null) return null;
+      return _handleGetCenterFromJS(centerObj);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /// Extract LatLngBounds from a JS Cluster object
+  LatLngBounds? _getClusterBounds(JSObject cluster) {
+    try {
+      final getBounds = cluster['getBounds'] as JSFunction?;
+      if (getBounds == null) return null;
+      final boundsObj = getBounds.callAsFunction(cluster) as JSObject?;
+      if (boundsObj == null) return null;
+      return _handleGetViewportBoundsFromJS(boundsObj);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /// Extract size from a JS Cluster object
+  int? _getClusterSize(JSObject cluster) {
+    try {
+      final getSize = cluster['getSize'] as JSFunction?;
+      if (getSize == null) return null;
+      final result = getSize.callAsFunction(cluster);
+      return (result as JSNumber?)?.toDartInt;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // Helper to convert JS LatLng to Dart LatLng
+  LatLng? _handleGetCenterFromJS(JSObject center) {
+    final lat = _getLatitude(center);
+    final lng = _getLongitude(center);
+    if (lat == null || lng == null) return null;
+    return LatLng(latitude: lat, longitude: lng);
+  }
+
+  // Helper to convert JS LatLngBounds to Dart LatLngBounds
+  LatLngBounds? _handleGetViewportBoundsFromJS(JSObject boundsJS) {
+    try {
+      final getSw = boundsJS['getSouthWest'] as JSFunction?;
+      final getNe = boundsJS['getNorthEast'] as JSFunction?;
+      if (getSw == null || getNe == null) return null;
+
+      final swJS = getSw.callAsFunction(boundsJS) as JSObject?;
+      final neJS = getNe.callAsFunction(boundsJS) as JSObject?;
+      if (swJS == null || neJS == null) return null;
+
+      final sw = _handleGetCenterFromJS(swJS);
+      final ne = _handleGetCenterFromJS(neJS);
+
+      if (sw == null || ne == null) return null;
+
+      return LatLngBounds(southwest: sw, northeast: ne);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /// Add cluster click listener
+  void _addClustererClickListener(JSObject clusterer, String clustererId) {
+    final maps = _kakaoMaps;
+    if (maps == null) return;
+
+    final eventNs = maps['event'] as JSObject?;
+    if (eventNs == null) return;
+
+    final addListener = eventNs['addListener'] as JSFunction?;
+    if (addListener == null) return;
+
+    addListener.callAsFunction(
+      eventNs,
+      clusterer,
+      'clusterclick'.toJS,
+      ((JSObject cluster) {
+        final position = _getClusterCenter(cluster);
+        final size = _getClusterSize(cluster);
+        final bounds = _getClusterBounds(cluster);
+
+        if (position != null && size != null && bounds != null) {
+          onClusterClicked(
+            ClusterClickEvent(
+              clustererId: clustererId,
+              position: position,
+              size: size,
+              bounds: bounds,
+            ),
+          );
+        }
+      }).toJS,
+    );
+  }
+
   /// Create custom overlay (info window)
   JSObject? _createCustomOverlay({
     required JSObject map,
@@ -718,6 +838,18 @@ class WebKakaoMapController extends KakaoMapControllerPlatform {
     final update = methodCall.cameraUpdate;
     final hasAnimation = methodCall.animation != null;
 
+    // Handle bounds update
+    if (update.bounds != null) {
+      final boundsJS = _createLatLngBounds(update.bounds!);
+      if (boundsJS != null) {
+        _callMapMethod(map, 'setBounds', [boundsJS]);
+      }
+      // setBounds handles both zoom and position, so we can often return early.
+      // However, if a specific zoom/position is also provided, we might need to apply it after.
+      // For now, we assume setBounds is the primary instruction if present.
+      return;
+    }
+
     web.console.log(
       'MoveCamera: zoomLevel=${update.zoomLevel}, position=${update.position}, hasAnimation=$hasAnimation'
           .toJS,
@@ -973,6 +1105,7 @@ class WebKakaoMapController extends KakaoMapControllerPlatform {
 
     if (clusterer != null) {
       _lodClusterers[clustererId] = clusterer;
+      _addClustererClickListener(clusterer, clustererId);
       web.console.log('Web marker clusterer created: $clustererId'.toJS);
     }
   }

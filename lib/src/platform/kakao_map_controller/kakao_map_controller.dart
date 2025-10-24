@@ -7,6 +7,8 @@ import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:kakao_maps_flutter/src/data/camera/camera_move_end_event.dart';
+import 'package:kakao_maps_flutter/src/data/cluster/cluster_event.dart'
+    show ClusterClickEvent;
 import 'package:kakao_maps_flutter/src/data/data.dart'
     show
         CameraAnimation,
@@ -109,6 +111,18 @@ class KakaoMapController extends KakaoMapControllerPlatform {
   @override
   Stream<CameraMoveEndEvent> get onCameraMoveEndStream =>
       _platform.onCameraMoveEndStream;
+
+  /// Cluster click stream
+  /// [EN]
+  /// - Emits when a marker cluster is clicked
+  /// - Only available on Web
+  ///
+  /// [KO]
+  /// - 마커 클러스터 클릭 시 이벤트 스트림 발행
+  /// - 웹에서만 사용 가능
+  @override
+  Stream<ClusterClickEvent> get onClusterClickedStream =>
+      _platform.onClusterClickedStream;
 
   @override
   Future<T> _callMethod<T>(KakaoMapMethodCall<T> methodCall) async {

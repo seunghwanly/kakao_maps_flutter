@@ -37,6 +37,10 @@ abstract class KakaoMapControllerPlatform extends PlatformInterface {
   final StreamController<CameraMoveEndEvent> _onCameraMoveEndController =
       StreamController<CameraMoveEndEvent>.broadcast();
 
+  /// Stream controller for cluster click events.
+  final StreamController<ClusterClickEvent> _onClusterClickController =
+      StreamController<ClusterClickEvent>.broadcast();
+
   /// Stream of label click events.
   Stream<LabelClickEvent> get onLabelClickedStream =>
       _onLabelClickController.stream;
@@ -48,6 +52,10 @@ abstract class KakaoMapControllerPlatform extends PlatformInterface {
   /// Stream of camera move end events.
   Stream<CameraMoveEndEvent> get onCameraMoveEndStream =>
       _onCameraMoveEndController.stream;
+
+  /// Stream of cluster click events.
+  Stream<ClusterClickEvent> get onClusterClickedStream =>
+      _onClusterClickController.stream;
 
   /// Calls a method on the platform implementation.
   ///
@@ -78,6 +86,10 @@ abstract class KakaoMapControllerPlatform extends PlatformInterface {
   void onCameraMoveEnd(CameraMoveEndEvent event) =>
       _onCameraMoveEndController.add(event);
 
+  /// Notifies listeners of a cluster click event.
+  void onClusterClicked(ClusterClickEvent event) =>
+      _onClusterClickController.add(event);
+
   /// Disposes of resources used by this platform interface.
   ///
   /// Closes all stream controllers to prevent memory leaks.
@@ -85,5 +97,6 @@ abstract class KakaoMapControllerPlatform extends PlatformInterface {
     _onLabelClickController.close();
     _onInfoWindowClickController.close();
     _onCameraMoveEndController.close();
+    _onClusterClickController.close();
   }
 }
