@@ -18,8 +18,14 @@ import 'package:kakao_maps_flutter/src/data/data.dart'
         LatLngBounds,
         MapInfo,
         MarkerStyle,
-        LodMarkerLayerOptions;
+        LodMarkerLayerOptions,
+        GuiView,
+        GuiText,
+        GuiImage,
+        GuiLayout;
 import 'package:kakao_maps_flutter/src/data/label/label_click_event.dart';
+import 'package:kakao_maps_flutter/src/data/map_widget/map_widget.dart'
+    show Orientation;
 import 'package:kakao_maps_flutter/src/platform/kakao_map_method_call/kakao_map_method_call.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:web/web.dart' if (dart.library.io) 'dart:html' as web;

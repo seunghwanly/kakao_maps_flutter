@@ -16,7 +16,8 @@ class KakaoMapsFlutterPlugin extends KakaoMapsFlutterPlatform {
   @override
   Future<void> init({String? nativeAppKey, String? webAppKey}) async {
     if (webAppKey == null) {
-      web.console.warn('Web API key is null. Skipping web initialization.'.toJS);
+      web.console
+          .warn('Web API key is null. Skipping web initialization.'.toJS);
       return;
     }
 
@@ -46,41 +47,44 @@ class KakaoMapsFlutterPlugin extends KakaoMapsFlutterPlatform {
     }
 
     // Fallback: Dynamically load the SDK if not present in HTML
-    web.console.log('Dynamically loading Kakao Maps SDK with key: $webAppKey'.toJS);
+    web.console
+        .log('Dynamically loading Kakao Maps SDK with key: $webAppKey'.toJS);
 
     final completer = Completer<void>();
 
-    final script =
-        (web.document.createElement('script') as web.HTMLScriptElement)
-          ..src =
-              '//dapi.kakao.com/v2/maps/sdk.js?appkey=$webAppKey&libraries=services,clusterer,drawing&autoload=false'
-          ..async = true
-          ..onLoad.listen((_) {
-            // After script loads, call kakao.maps.load()
-            final kakaoObj = globalContext['kakao'] as JSObject?;
-            if (kakaoObj != null) {
-              final mapsObj = kakaoObj['maps'] as JSObject?;
-              if (mapsObj != null) {
-                final loadFn = mapsObj['load'] as JSFunction?;
-                if (loadFn != null) {
-                  loadFn.callAsFunction(
-                    mapsObj,
-                    (() {
-                      web.console.log('Kakao Maps SDK loaded successfully (dynamic)'.toJS);
-                      completer.complete();
-                    }).toJS,
-                  );
-                  return;
-                }
-              }
+    final script = (web.document.createElement('script')
+        as web.HTMLScriptElement)
+      ..src =
+          '//dapi.kakao.com/v2/maps/sdk.js?appkey=$webAppKey&libraries=services,clusterer,drawing&autoload=false'
+      ..async = true
+      ..onLoad.listen((_) {
+        // After script loads, call kakao.maps.load()
+        final kakaoObj = globalContext['kakao'] as JSObject?;
+        if (kakaoObj != null) {
+          final mapsObj = kakaoObj['maps'] as JSObject?;
+          if (mapsObj != null) {
+            final loadFn = mapsObj['load'] as JSFunction?;
+            if (loadFn != null) {
+              loadFn.callAsFunction(
+                mapsObj,
+                (() {
+                  web.console
+                      .log('Kakao Maps SDK loaded successfully (dynamic)'.toJS);
+                  completer.complete();
+                }).toJS,
+              );
+              return;
             }
-            completer.completeError('Failed to initialize Kakao Maps after loading script');
-          })
-          ..onError.listen((event) {
-            completer.completeError(
-              'Failed to load Kakao Maps SDK for web.',
-            );
-          });
+          }
+        }
+        completer.completeError(
+            'Failed to initialize Kakao Maps after loading script');
+      })
+      ..onError.listen((event) {
+        completer.completeError(
+          'Failed to load Kakao Maps SDK for web.',
+        );
+      });
 
     web.document.head?.append(script);
 

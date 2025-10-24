@@ -813,26 +813,33 @@ class WebKakaoMapController extends KakaoMapControllerPlatform {
   void _handleAddInfoWindow(JSObject map, AddInfoWindow methodCall) {
     final option = methodCall.infoWindowOption;
 
-    // Build HTML content as a DOM element
-    final container = web.HTMLDivElement()
-      ..style.padding = '8px'
-      ..style.cursor = 'pointer';
+    web.Element container;
 
-    if (option.title != null) {
-      container.append(
-        web.HTMLDivElement()
-          ..style.fontWeight = 'bold'
-          ..style.marginBottom = '4px'
-          ..innerText = option.title!,
-      );
-    }
+    if (option.body != null) {
+      // New logic to handle Gui body
+      container = _buildGuiElement(option.body!);
+    } else {
+      // Existing logic for title/snippet
+      container = web.HTMLDivElement()
+        ..style.padding = '8px'
+        ..style.cursor = 'pointer';
 
-    if (option.snippet != null) {
-      container.append(
-        web.HTMLDivElement()
-          ..style.fontSize = '12px'
-          ..innerText = option.snippet!,
-      );
+      if (option.title != null) {
+        container.append(
+          web.HTMLDivElement()
+            ..style.fontWeight = 'bold'
+            ..style.marginBottom = '4px'
+            ..innerText = option.title!,
+        );
+      }
+
+      if (option.snippet != null) {
+        container.append(
+          web.HTMLDivElement()
+            ..style.fontSize = '12px'
+            ..innerText = option.snippet!,
+        );
+      }
     }
 
     // Add click listener to the container
@@ -934,7 +941,7 @@ class WebKakaoMapController extends KakaoMapControllerPlatform {
     // Create MarkerClusterer
     final clusterer = _createMarkerClusterer(
       map: map,
-      gridSize: options.radius?.toInt() ?? 35,
+      gridSize: options.radius?.toInt() ?? 60,
       minLevel: 6, // Default min level for clustering
     );
 
@@ -1249,5 +1256,90 @@ class WebKakaoMapController extends KakaoMapControllerPlatform {
     }
 
     web.console.log('Hid ${ids.length} LOD markers in layer: $layerId'.toJS);
+  }
+
+  web.Element _buildGuiElement(GuiView guiComponent) {
+    if (guiComponent is GuiText) {
+      return _buildGuiText(guiComponent);
+    } else if (guiComponent is GuiImage) {
+      return _buildGuiImage(guiComponent);
+    } else if (guiComponent is GuiLayout) {
+      return _buildGuiLayout(guiComponent);
+    }
+    return web.HTMLDivElement()..innerText = 'Unsupported GUI component';
+  }
+
+  web.Element _buildGuiText(GuiText guiText) {
+    final span = web.HTMLSpanElement()..innerText = guiText.text;
+    span.style.fontSize = '${guiText.textSize}px';
+    span.style.color = _toCssColor(guiText.textColor);
+    if (guiText.strokeSize > 0) {
+      final strokeColor = _toCssColor(guiText.strokeColor);
+      span.style.textShadow =
+          '-${guiText.strokeSize}px -${guiText.strokeSize}px 0 $strokeColor, '
+          '${guiText.strokeSize}px -${guiText.strokeSize}px 0 $strokeColor, '
+          '-${guiText.strokeSize}px ${guiText.strokeSize}px 0 $strokeColor, '
+          '${guiText.strokeSize}px ${guiText.strokeSize}px 0 $strokeColor';
+    }
+    return span;
+  }
+
+  web.Element _buildGuiImage(GuiImage guiImage) {
+    final img = web.HTMLImageElement()
+      ..src = 'data:image/png;base64,${guiImage.base64EncodedImage}';
+    return img;
+  }
+
+  web.Element _buildGuiLayout(GuiLayout guiLayout) {
+    final div = web.HTMLDivElement();
+    div.style.display = 'flex';
+    div.style.flexDirection =
+        (guiLayout.orientation == Orientation.horizontal) ? 'row' : 'column';
+    div.style.alignItems = 'center';
+    div.style.gap = '4px';
+
+    // Padding
+    div.style.paddingLeft = '${guiLayout.paddingLeft}px';
+    div.style.paddingTop = '${guiLayout.paddingTop}px';
+    div.style.paddingRight = '${guiLayout.paddingRight}px';
+    div.style.paddingBottom = '${guiLayout.paddingBottom}px';
+
+    // Background
+    if (guiLayout.background != null) {
+      final bgImage = guiLayout.background!;
+      final src = 'data:image/png;base64,${bgImage.base64EncodedImage}';
+
+      if (bgImage.isNinepatch == true) {
+        final area = bgImage.fixedArea;
+        div.style.borderImageSource = 'url($src)';
+        div.style.borderImageSlice =
+            '${area.top} ${area.right} ${area.bottom} ${area.left} fill';
+        div.style.borderWidth =
+            '${area.top}px ${area.right}px ${area.bottom}px ${area.left}px';
+        div.style.borderStyle = 'solid';
+        div.style.borderColor = 'transparent';
+        div.style.borderImageRepeat = 'stretch';
+      } else {
+        div.style.background = 'url($src) no-repeat center center';
+        div.style.backgroundSize = 'cover';
+      }
+    }
+
+    for (final child in guiLayout.children) {
+      div.append(_buildGuiElement(child));
+    }
+
+    return div;
+  }
+
+  String _toCssColor(int argb) {
+    final a = (argb >> 24) & 0xFF;
+    final r = (argb >> 16) & 0xFF;
+    final g = (argb >> 8) & 0xFF;
+    final b = argb & 0xFF;
+    if (a == 255) {
+      return 'rgb($r, $g, $b)';
+    }
+    return 'rgba($r, $g, $b, ${a / 255.0})';
   }
 }
