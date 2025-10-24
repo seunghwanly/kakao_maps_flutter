@@ -68,6 +68,13 @@ class MethodChannelKakaoMapController extends KakaoMapControllerPlatform {
     return methodCall.decode(_normalizeStandardCodec(result));
   }
 
+  @override
+  Future<T> _callWebMethod<T>(KakaoMapWebMethodCall<T> methodCall) async {
+    throw UnimplementedError(
+      '[Flutter:MethodChannelKakaoMapController] callWebMethod is not implemented for mobile',
+    );
+  }
+
   static Object? _normalizeStandardCodec(Object? value) {
     if (value is Map) {
       return value.map<String, Object?>(

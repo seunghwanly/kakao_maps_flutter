@@ -59,6 +59,13 @@ abstract class KakaoMapControllerPlatform extends PlatformInterface {
     );
   }
 
+  /// Calls a web-specific method on the platform implementation.
+  Future<T> _callWebMethod<T>(KakaoMapWebMethodCall<T> methodCall) async {
+    throw UnimplementedError(
+      '[Flutter:KakaoMapControllerPlatform] callWebMethod not implemented',
+    );
+  }
+
   /// Notifies listeners of a label click event.
   void onLabelClicked(LabelClickEvent event) =>
       _onLabelClickController.add(event);

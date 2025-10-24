@@ -1,6 +1,6 @@
 part of '../kakao_map_controller.dart';
 
-/// Web implementation of KakaoMapController
+//show ascii, base64Encodeion of KakaoMapController
 /// Uses JS interop to call Kakao Maps Web API directly
 /// Web API Documentation: https://apis.map.kakao.com/web/documentation/
 class WebKakaoMapController extends KakaoMapControllerPlatform {
@@ -477,7 +477,7 @@ class WebKakaoMapController extends KakaoMapControllerPlatform {
             CameraMoveEndEvent(
               latitude: center.latitude,
               longitude: center.longitude,
-              zoomLevel: zoom.toDouble(),
+              zoomLevel: zoom.toDouble() ?? 12.0,
               tilt: -1,
               rotation: -1,
             ),
@@ -489,6 +489,13 @@ class WebKakaoMapController extends KakaoMapControllerPlatform {
 
   @override
   Future<T> _callMethod<T>(KakaoMapMethodCall<T> methodCall) async {
+    throw UnimplementedError(
+      '[Flutter:WebKakaoMapController] callMethod is not implemented for web',
+    );
+  }
+
+  @override
+  Future<T> _callWebMethod<T>(KakaoMapWebMethodCall<T> methodCall) async {
     final map = _mapInstance;
     if (map == null) {
       web.console.warn('Map instance not found for viewId: $viewId'.toJS);
@@ -501,191 +508,189 @@ class WebKakaoMapController extends KakaoMapControllerPlatform {
     }
 
     // Get methods that return values
-    if (methodCall is GetZoomLevel) {
+    if (methodCall is WebGetZoomLevel) {
       final level = _getMapLevel(map);
       web.console.log('GetZoomLevel returning: $level'.toJS);
       return level as T;
     }
 
-    if (methodCall is GetCenter) {
+    if (methodCall is WebGetCenter) {
       return _handleGetCenter(map) as T;
     }
 
-    if (methodCall is GetMapInfo) {
+    if (methodCall is WebGetMapInfo) {
       return _handleGetMapInfo(map) as T;
     }
 
-    if (methodCall is GetViewportBounds) {
+    if (methodCall is WebGetViewportBounds) {
       return _handleGetViewportBounds(map) as T;
     }
 
     // Set/action methods that return void
-    if (methodCall is SetZoomLevel) {
-      final zoomLevel = (methodCall as SetZoomLevel).zoomLevel;
+    if (methodCall is WebSetZoomLevel) {
+      final zoomLevel = (methodCall as WebSetZoomLevel).zoomLevel;
       web.console.log('SetZoomLevel called with zoomLevel: $zoomLevel'.toJS);
       _setMapLevel(map, zoomLevel);
       return null as T;
     }
 
-    if (methodCall is MoveCamera) {
-      _handleMoveCamera(map, methodCall as MoveCamera);
+    if (methodCall is WebMoveCamera) {
+      _handleMoveCamera(map, methodCall as WebMoveCamera);
       return null as T;
     }
 
-    if (methodCall is AddMarker) {
-      _handleAddMarker(map, methodCall as AddMarker);
+    if (methodCall is WebAddMarker) {
+      _handleAddMarker(map, methodCall as WebAddMarker);
       return null as T;
     }
 
-    if (methodCall is RemoveMarker) {
-      _handleRemoveMarker(methodCall as RemoveMarker);
+    if (methodCall is WebRemoveMarker) {
+      _handleRemoveMarker(methodCall as WebRemoveMarker);
       return null as T;
     }
 
-    if (methodCall is AddMarkers) {
-      final call = methodCall as AddMarkers;
+    if (methodCall is WebAddMarkers) {
+      final call = methodCall as WebAddMarkers;
       for (final option in call.markerOptions) {
         _handleAddMarker(
           map,
-          AddMarker(
+          WebAddMarker(
             markerOption: option,
-            layerId: call.layerId,
           ),
         );
       }
       return null as T;
     }
 
-    if (methodCall is RemoveMarkers) {
-      final call = methodCall as RemoveMarkers;
+    if (methodCall is WebRemoveMarkers) {
+      final call = methodCall as WebRemoveMarkers;
       for (final id in call.ids) {
         _handleRemoveMarker(
-          RemoveMarker(id: id, layerId: call.layerId),
+          WebRemoveMarker(id: id),
         );
       }
       return null as T;
     }
 
-    if (methodCall is ClearMarkers) {
+    if (methodCall is WebClearMarkers) {
       _handleClearMarkers();
       return null as T;
     }
 
-    if (methodCall is RegisterMarkerStyles) {
-      await _registerMarkerStyles((methodCall as RegisterMarkerStyles).styles);
+    if (methodCall is WebRegisterMarkerStyles) {
+      await _registerMarkerStyles(
+        (methodCall as WebRegisterMarkerStyles).styles,
+      );
       return null as T;
     }
 
-    if (methodCall is RemoveMarkerStyles) {
-      _removeMarkerStyles((methodCall as RemoveMarkerStyles).styleIds);
+    if (methodCall is WebRemoveMarkerStyles) {
+      _removeMarkerStyles((methodCall as WebRemoveMarkerStyles).styleIds);
       return null as T;
     }
 
-    if (methodCall is ClearMarkerStyles) {
+    if (methodCall is WebClearMarkerStyles) {
       _clearMarkerStyles();
       return null as T;
     }
 
-    if (methodCall is AddInfoWindow) {
-      _handleAddInfoWindow(map, methodCall as AddInfoWindow);
+    if (methodCall is WebAddInfoWindow) {
+      _handleAddInfoWindow(map, methodCall as WebAddInfoWindow);
       return null as T;
     }
 
-    if (methodCall is RemoveInfoWindow) {
-      _handleRemoveInfoWindow(methodCall as RemoveInfoWindow);
+    if (methodCall is WebRemoveInfoWindow) {
+      _handleRemoveInfoWindow(methodCall as WebRemoveInfoWindow);
       return null as T;
     }
 
-    if (methodCall is AddInfoWindows) {
-      final call = methodCall as AddInfoWindows;
+    if (methodCall is WebAddInfoWindows) {
+      final call = methodCall as WebAddInfoWindows;
       for (final option in call.infoWindowOptions) {
-        _handleAddInfoWindow(map, AddInfoWindow(infoWindowOption: option));
+        _handleAddInfoWindow(map, WebAddInfoWindow(infoWindowOption: option));
       }
       return null as T;
     }
 
-    if (methodCall is RemoveInfoWindows) {
-      for (final id in (methodCall as RemoveInfoWindows).ids) {
-        _handleRemoveInfoWindow(RemoveInfoWindow(id: id));
+    if (methodCall is WebRemoveInfoWindows) {
+      for (final id in (methodCall as WebRemoveInfoWindows).ids) {
+        _handleRemoveInfoWindow(WebRemoveInfoWindow(id: id));
       }
       return null as T;
     }
 
-    if (methodCall is ClearInfoWindows) {
+    if (methodCall is WebClearInfoWindows) {
       _handleClearInfoWindows();
       return null as T;
     }
 
     // LOD Marker operations (using MarkerClusterer on web)
-    if (methodCall is AddLodMarkerLayer) {
-      _handleAddLodMarkerLayer(map, methodCall as AddLodMarkerLayer);
+    if (methodCall is AddWebMarkerClusterer) {
+      _handleAddWebMarkerClusterer(map, methodCall as AddWebMarkerClusterer);
       return null as T;
     }
 
-    if (methodCall is RemoveLodMarkerLayer) {
-      _handleRemoveLodMarkerLayer((methodCall as RemoveLodMarkerLayer).layerId);
-      return null as T;
-    }
-
-    if (methodCall is AddLodMarker) {
-      _handleAddLodMarker(map, methodCall as AddLodMarker);
-      return null as T;
-    }
-
-    if (methodCall is AddLodMarkers) {
-      _handleAddLodMarkers(map, methodCall as AddLodMarkers);
-      return null as T;
-    }
-
-    if (methodCall is RemoveLodMarkers) {
-      _handleRemoveLodMarkers(
-        (methodCall as RemoveLodMarkers).layerId,
-        (methodCall as RemoveLodMarkers).ids,
+    if (methodCall is RemoveWebMarkerClusterer) {
+      _handleRemoveWebMarkerClusterer(
+        (methodCall as RemoveWebMarkerClusterer).clustererId,
       );
       return null as T;
     }
 
-    if (methodCall is ClearAllLodMarkers) {
-      _handleClearAllLodMarkers((methodCall as ClearAllLodMarkers).layerId);
+    if (methodCall is AddClustererMarker) {
+      _handleAddClustererMarker(map, methodCall as AddClustererMarker);
       return null as T;
     }
 
-    if (methodCall is ShowAllLodMarkers) {
-      _handleShowAllLodMarkers((methodCall as ShowAllLodMarkers).layerId);
+    if (methodCall is AddClustererMarkers) {
+      _handleAddClustererMarkers(map, methodCall as AddClustererMarkers);
       return null as T;
     }
 
-    if (methodCall is HideAllLodMarkers) {
-      _handleHideAllLodMarkers((methodCall as HideAllLodMarkers).layerId);
-      return null as T;
-    }
-
-    if (methodCall is ShowLodMarkers) {
-      _handleShowLodMarkers(
-        (methodCall as ShowLodMarkers).layerId,
-        (methodCall as ShowLodMarkers).ids,
+    if (methodCall is RemoveClustererMarkers) {
+      final call = methodCall as RemoveClustererMarkers;
+      _handleRemoveClustererMarkers(
+        call.clustererId,
+        call.ids,
       );
       return null as T;
     }
 
-    if (methodCall is HideLodMarkers) {
-      _handleHideLodMarkers(
-        (methodCall as HideLodMarkers).layerId,
-        (methodCall as HideLodMarkers).ids,
+    if (methodCall is ClearAllClustererMarkers) {
+      _handleClearAllClustererMarkers(
+        (methodCall as ClearAllClustererMarkers).clustererId,
       );
       return null as T;
     }
 
-    if (methodCall is SetLodMarkerLayerClickable) {
-      // Clickability is always enabled for clusterer on web
-      web.console.log('SetLodMarkerLayerClickable: always enabled on web'.toJS);
+    if (methodCall is ShowAllClustererMarkers) {
+      _handleShowAllClustererMarkers(
+        (methodCall as ShowAllClustererMarkers).clustererId,
+      );
       return null as T;
     }
 
-    // Unsupported methods
-    if (methodCall is ToScreenPoint || methodCall is FromScreenPoint) {
-      web.console.warn(
-        '${methodCall.name} not supported on web platform'.toJS,
+    if (methodCall is HideAllClustererMarkers) {
+      _handleHideAllClustererMarkers(
+        (methodCall as HideAllClustererMarkers).clustererId,
+      );
+      return null as T;
+    }
+
+    if (methodCall is ShowClustererMarkers) {
+      final call = methodCall as ShowClustererMarkers;
+      _handleShowClustererMarkers(
+        call.clustererId,
+        call.ids,
+      );
+      return null as T;
+    }
+
+    if (methodCall is HideClustererMarkers) {
+      final call = methodCall as HideClustererMarkers;
+      _handleHideClustererMarkers(
+        call.clustererId,
+        call.ids,
       );
       return null as T;
     }
@@ -709,7 +714,7 @@ class WebKakaoMapController extends KakaoMapControllerPlatform {
     return LatLng(latitude: lat, longitude: lng);
   }
 
-  void _handleMoveCamera(JSObject map, MoveCamera methodCall) {
+  void _handleMoveCamera(JSObject map, WebMoveCamera methodCall) {
     final update = methodCall.cameraUpdate;
     final hasAnimation = methodCall.animation != null;
 
@@ -756,7 +761,7 @@ class WebKakaoMapController extends KakaoMapControllerPlatform {
     // tiltAngle and rotationAngle are ignored on web platform
   }
 
-  void _handleAddMarker(JSObject map, AddMarker methodCall) {
+  void _handleAddMarker(JSObject map, WebAddMarker methodCall) {
     final option = methodCall.markerOption;
 
     // Get marker image from registered styles if styleId is provided
@@ -790,13 +795,13 @@ class WebKakaoMapController extends KakaoMapControllerPlatform {
       _addMarkerClickListener(
         marker,
         option.id,
-        methodCall.layerId,
+        KakaoMapController.defaultLabelLayerId,
         option.latLng,
       );
     }
   }
 
-  void _handleRemoveMarker(RemoveMarker methodCall) {
+  void _handleRemoveMarker(WebRemoveMarker methodCall) {
     final marker = _markers.remove(methodCall.id);
     if (marker != null) {
       _removeMarker(marker);
@@ -810,7 +815,7 @@ class WebKakaoMapController extends KakaoMapControllerPlatform {
     _markers.clear();
   }
 
-  void _handleAddInfoWindow(JSObject map, AddInfoWindow methodCall) {
+  void _handleAddInfoWindow(JSObject map, WebAddInfoWindow methodCall) {
     final option = methodCall.infoWindowOption;
 
     web.Element container;
@@ -867,7 +872,7 @@ class WebKakaoMapController extends KakaoMapControllerPlatform {
     }
   }
 
-  void _handleRemoveInfoWindow(RemoveInfoWindow methodCall) {
+  void _handleRemoveInfoWindow(WebRemoveInfoWindow methodCall) {
     final overlay = _infoWindows.remove(methodCall.id);
     if (overlay != null) {
       _removeCustomOverlay(overlay);
@@ -926,37 +931,54 @@ class WebKakaoMapController extends KakaoMapControllerPlatform {
     }
   }
 
-  // ===== LOD Marker operations using MarkerClusterer =====
+  void _handleAddWebMarkerClusterer(
+    JSObject map,
+    AddWebMarkerClusterer methodCall,
+  ) {
+    final clustererId = methodCall.clustererId;
 
-  /// Create a MarkerClusterer for LOD markers
-  void _handleAddLodMarkerLayer(JSObject map, AddLodMarkerLayer methodCall) {
-    final options = methodCall.options;
-    final layerId = options.layerId;
+    _lodMarkers[clustererId] = {};
 
-    web.console.log('Creating LOD layer (MarkerClusterer): $layerId'.toJS);
+    final clustererOptions = JSObject();
+    clustererOptions['map'] = map;
+    clustererOptions['markers'] = <JSAny>[].toJS;
+    clustererOptions['gridSize'] = methodCall.gridSize.toJS;
+    clustererOptions['averageCenter'] = methodCall.averageCenter.toJS;
+    clustererOptions['minLevel'] = methodCall.minLevel.toJS;
+    clustererOptions['minClusterSize'] = methodCall.minClusterSize.toJS;
+    clustererOptions['disableClickZoom'] = methodCall.disableClickZoom.toJS;
+    clustererOptions['clickable'] = methodCall.clickable.toJS;
+    clustererOptions['hoverable'] = methodCall.hoverable.toJS;
 
-    // Initialize marker storage for this layer
-    _lodMarkers[layerId] = {};
+    if (methodCall.styles.isNotEmpty) {
+      try {
+        clustererOptions['styles'] =
+            methodCall.styles.map((s) => s.jsify()).toList().toJS;
+      } catch (e) {
+        web.console.error('Error processing clusterer styles: $e'.toJS);
+      }
+    }
 
-    // Create MarkerClusterer
-    final clusterer = _createMarkerClusterer(
-      map: map,
-      gridSize: options.radius?.toInt() ?? 60,
-      minLevel: 6, // Default min level for clustering
-    );
+    if (methodCall.texts.isNotEmpty) {
+      clustererOptions['texts'] =
+          methodCall.texts.map((e) => e.toJS).toList().toJS;
+    }
+
+    if (methodCall.calculator.isNotEmpty) {
+      clustererOptions['calculator'] =
+          methodCall.calculator.map((e) => e.toJS).toList().toJS;
+    }
+
+    final clusterer = _createMarkerClustererWithOptions(clustererOptions);
 
     if (clusterer != null) {
-      _lodClusterers[layerId] = clusterer;
-      web.console.log('LOD layer created: $layerId'.toJS);
+      _lodClusterers[clustererId] = clusterer;
+      web.console.log('Web marker clusterer created: $clustererId'.toJS);
     }
   }
 
-  /// Create a MarkerClusterer instance
-  JSObject? _createMarkerClusterer({
-    required JSObject map,
-    required int gridSize,
-    required int minLevel,
-  }) {
+  /// Create a MarkerClusterer instance from a pre-built options object
+  JSObject? _createMarkerClustererWithOptions(JSObject options) {
     final maps = _kakaoMaps;
     if (maps == null) return null;
 
@@ -967,16 +989,6 @@ class WebKakaoMapController extends KakaoMapControllerPlatform {
     }
 
     try {
-      // Create options object
-      final options = JSObject();
-      options['map'] = map;
-      options['markers'] = <JSAny>[].toJS; // Start with empty markers array
-      options['gridSize'] = gridSize.toJS;
-      options['averageCenter'] = true.toJS;
-      options['minLevel'] = minLevel.toJS;
-      options['disableClickZoom'] = false.toJS;
-
-      // Create clusterer
       final clusterer = clustererCtor.callAsConstructor<JSObject>(options);
       return clusterer;
     } catch (e) {
@@ -985,11 +997,11 @@ class WebKakaoMapController extends KakaoMapControllerPlatform {
     }
   }
 
-  void _handleRemoveLodMarkerLayer(String layerId) {
-    web.console.log('Removing LOD layer: $layerId'.toJS);
+  void _handleRemoveWebMarkerClusterer(String clustererId) {
+    web.console.log('Removing LOD layer: $clustererId'.toJS);
 
     // Clear all markers in this layer first
-    final markers = _lodMarkers[layerId];
+    final markers = _lodMarkers[clustererId];
     if (markers != null) {
       for (final marker in markers.values) {
         _callMapMethod(marker, 'setMap', [null]);
@@ -997,24 +1009,30 @@ class WebKakaoMapController extends KakaoMapControllerPlatform {
     }
 
     // Remove the clusterer
-    final clusterer = _lodClusterers.remove(layerId);
+    final clusterer = _lodClusterers.remove(clustererId);
     if (clusterer != null) {
       _callMapMethod(clusterer, 'clear');
     }
 
     // Clear storage
-    _lodMarkers.remove(layerId);
+    _lodMarkers.remove(clustererId);
   }
 
-  void _handleAddLodMarker(JSObject map, AddLodMarker methodCall) {
-    _handleAddLodMarkers(
+  void _handleAddClustererMarker(JSObject map, AddClustererMarker methodCall) {
+    _handleAddClustererMarkers(
       map,
-      AddLodMarkers(options: [methodCall.option], layerId: methodCall.layerId),
+      AddClustererMarkers(
+        options: [methodCall.option],
+        clustererId: methodCall.clustererId,
+      ),
     );
   }
 
-  void _handleAddLodMarkers(JSObject map, AddLodMarkers methodCall) {
-    final layerId = methodCall.layerId;
+  void _handleAddClustererMarkers(
+    JSObject map,
+    AddClustererMarkers methodCall,
+  ) {
+    final layerId = methodCall.clustererId;
     final clusterer = _lodClusterers[layerId];
 
     if (clusterer == null) {
@@ -1133,7 +1151,7 @@ class WebKakaoMapController extends KakaoMapControllerPlatform {
     }
   }
 
-  void _handleRemoveLodMarkers(String layerId, List<String> ids) {
+  void _handleRemoveClustererMarkers(String layerId, List<String> ids) {
     final clusterer = _lodClusterers[layerId];
     final layerMarkers = _lodMarkers[layerId];
 
@@ -1172,7 +1190,7 @@ class WebKakaoMapController extends KakaoMapControllerPlatform {
     }
   }
 
-  void _handleClearAllLodMarkers(String layerId) {
+  void _handleClearAllClustererMarkers(String layerId) {
     final clusterer = _lodClusterers[layerId];
     final layerMarkers = _lodMarkers[layerId];
 
@@ -1190,7 +1208,7 @@ class WebKakaoMapController extends KakaoMapControllerPlatform {
     web.console.log('Cleared all LOD markers from layer: $layerId'.toJS);
   }
 
-  void _handleShowAllLodMarkers(String layerId) {
+  void _handleShowAllClustererMarkers(String layerId) {
     final layerMarkers = _lodMarkers[layerId];
 
     if (layerMarkers == null) {
@@ -1206,7 +1224,7 @@ class WebKakaoMapController extends KakaoMapControllerPlatform {
     web.console.log('Showed all LOD markers in layer: $layerId'.toJS);
   }
 
-  void _handleHideAllLodMarkers(String layerId) {
+  void _handleHideAllClustererMarkers(String layerId) {
     final layerMarkers = _lodMarkers[layerId];
 
     if (layerMarkers == null) {
@@ -1222,7 +1240,7 @@ class WebKakaoMapController extends KakaoMapControllerPlatform {
     web.console.log('Hid all LOD markers in layer: $layerId'.toJS);
   }
 
-  void _handleShowLodMarkers(String layerId, List<String> ids) {
+  void _handleShowClustererMarkers(String layerId, List<String> ids) {
     final layerMarkers = _lodMarkers[layerId];
 
     if (layerMarkers == null) {
@@ -1240,7 +1258,7 @@ class WebKakaoMapController extends KakaoMapControllerPlatform {
     web.console.log('Showed ${ids.length} LOD markers in layer: $layerId'.toJS);
   }
 
-  void _handleHideLodMarkers(String layerId, List<String> ids) {
+  void _handleHideClustererMarkers(String layerId, List<String> ids) {
     final layerMarkers = _lodMarkers[layerId];
 
     if (layerMarkers == null) {
@@ -1259,9 +1277,6 @@ class WebKakaoMapController extends KakaoMapControllerPlatform {
   }
 
   double _scale(num value) {
-    // The GUI values seem to be specified in physical pixels.
-    // To make them render consistently on high-DPR web screens,
-    // we need to convert them to logical CSS pixels by dividing by the DPR.
     final dpr = web.window.devicePixelRatio;
     return value / dpr;
   }
@@ -1305,15 +1320,13 @@ class WebKakaoMapController extends KakaoMapControllerPlatform {
     div.style.flexDirection =
         (guiLayout.orientation == Orientation.horizontal) ? 'row' : 'column';
     div.style.alignItems = 'center';
-    div.style.gap = '${_scale(4)}px'; // Also scale gap
+    div.style.gap = '${_scale(4)}px';
 
-    // Padding
     div.style.paddingLeft = '${_scale(guiLayout.paddingLeft ?? 0)}px';
     div.style.paddingTop = '${_scale(guiLayout.paddingTop ?? 0)}px';
     div.style.paddingRight = '${_scale(guiLayout.paddingRight ?? 0)}px';
     div.style.paddingBottom = '${_scale(guiLayout.paddingBottom ?? 0)}px';
 
-    // Background
     if (guiLayout.background != null) {
       final bgImage = guiLayout.background!;
       final src = 'data:image/png;base64,${bgImage.base64EncodedImage}';
@@ -1321,10 +1334,8 @@ class WebKakaoMapController extends KakaoMapControllerPlatform {
       if (bgImage.isNinepatch == true) {
         final area = bgImage.fixedArea;
         div.style.borderImageSource = 'url($src)';
-        // border-image-slice is in source image pixels, so it should NOT be scaled.
         div.style.borderImageSlice =
             '${area.top} ${area.right} ${area.bottom} ${area.left} fill';
-        // border-width is the rendered size on screen, so it SHOULD be scaled.
         div.style.borderWidth =
             '${_scale(area.top)}px ${_scale(area.right)}px ${_scale(area.bottom)}px ${_scale(area.left)}px';
         div.style.borderStyle = 'solid';

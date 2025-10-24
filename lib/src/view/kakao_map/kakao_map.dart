@@ -135,7 +135,8 @@ class _KakaoMapState extends State<KakaoMap> {
   Widget _buildWebView(Map<String, Object?> creationParams) {
     if (!kIsWeb) {
       throw UnsupportedError(
-          '_buildWebView can only be called on web platform');
+        '_buildWebView can only be called on web platform',
+      );
     }
 
     // Generate unique view ID for this map instance
