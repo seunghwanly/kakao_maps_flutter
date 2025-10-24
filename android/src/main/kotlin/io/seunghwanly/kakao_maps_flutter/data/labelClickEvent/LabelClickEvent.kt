@@ -3,6 +3,7 @@ package io.seunghwanly.kakao_maps_flutter.data.labelClickEvent
 
 import com.kakao.vectormap.LatLng
 import com.kakao.vectormap.label.Label
+import com.kakao.vectormap.label.LodLabel
 
 data class LabelClickEvent(
     val labelId: String,
@@ -12,6 +13,20 @@ data class LabelClickEvent(
     companion object {
         fun fromLabel(
             label: Label,
+            layerId: String? = null,
+        ): LabelClickEvent {
+            return LabelClickEvent(
+                labelId = label.labelId,
+                latLng = LatLng.from(
+                    label.position.latitude,
+                    label.position.longitude,
+                ),
+                layerId = layerId,
+            )
+        }
+
+        fun fromLabel(
+            label: LodLabel,
             layerId: String? = null,
         ): LabelClickEvent {
             return LabelClickEvent(
