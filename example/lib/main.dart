@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Orientation;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:kakao_maps_flutter/kakao_maps_flutter.dart';
+import 'package:pointer_interceptor/pointer_interceptor.dart';
 
 import 'assets/example_assets.dart';
 import 'screens/compass_scalebar_example.dart';
@@ -171,46 +172,54 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
       floatingActionButtonLocation: FloatingActionButtonLocation.endTop,
       drawer: ValueListenableBuilder<bool>(
         valueListenable: mapReadyNotifier,
-        builder: (context, isReady, _) => FeatureDrawer(
-          isMapReady: isReady,
-          onCameraMove: onCameraMove,
-          onMarkerAdd: onMarkerAdd,
-          onMarkerRemove: onMarkerRemove,
-          onMarkersAdd: onMarkersAdd,
-          onMarkersRemove: onMarkersRemove,
-          onMarkersClear: onMarkersClear,
-          onPoiVisibilityToggle: onPoiVisibilityToggle,
-          onPoiClickabilityToggle: onPoiClickabilityToggle,
-          onPoiScaleChange: onPoiScaleChange,
-          onCameraMoveEndListenerToggle: onCameraMoveEndListenerToggle,
-          onCoordinateTest: onCoordinateTest,
-          onPaddingSet: onPaddingSet,
-          onMapInfoGet: onMapInfoGet,
-          onViewportBoundsGet: onViewportBoundsGet,
-          isPoisVisible: isPoisVisible,
-          isPoisClickable: isPoisClickable,
-          poiScale: poiScale,
-          isCameraMoveEndListenerEnabled: isCameraMoveEndListenerEnabled,
-          onInfoWindowAdd: onInfoWindowAdd,
-          onInfoWindowRemove: onInfoWindowRemove,
-          onInfoWindowsAddAll: onInfoWindowsAddAll,
-          onInfoWindowsClear: onInfoWindowsClear,
-          onInfoWindowLayerShow: onInfoWindowLayerShow,
-          onInfoWindowLayerHide: onInfoWindowLayerHide,
-          onShowSeoulInfoWindow: onShowSeoulInfoWindow,
-          onHideSeoulInfoWindow: onHideSeoulInfoWindow,
-          onStaticMapButtonPressed: onStaticMapButtonPressed,
-          onGuiInfoWindowCustomBubble: onGuiInfoWindowCustomBubble,
-          onGuiInfoWindowComplex: onGuiInfoWindowComplex,
-          onGuiInfoWindowIconText: onGuiInfoWindowIconText,
-          onGuiInfoWindowAndroidSDK: onGuiInfoWindowAndroidSDK,
-          onGuiInfoWindowTimeBased: onGuiInfoWindowTimeBased,
-          onLodCreateLayer: onLodCreateLayer,
-          onLodAddMany: onLodAddMany,
-          onLodShowAll: onLodShowAll,
-          onLodHideAll: onLodHideAll,
-          onLodClear: onLodClear,
-        ),
+        builder: (context, isReady, _) {
+          final drawer = FeatureDrawer(
+            isMapReady: isReady,
+            onCameraMove: onCameraMove,
+            onMarkerAdd: onMarkerAdd,
+            onMarkerRemove: onMarkerRemove,
+            onMarkersAdd: onMarkersAdd,
+            onMarkersRemove: onMarkersRemove,
+            onMarkersClear: onMarkersClear,
+            onPoiVisibilityToggle: onPoiVisibilityToggle,
+            onPoiClickabilityToggle: onPoiClickabilityToggle,
+            onPoiScaleChange: onPoiScaleChange,
+            onCameraMoveEndListenerToggle: onCameraMoveEndListenerToggle,
+            onCoordinateTest: onCoordinateTest,
+            onPaddingSet: onPaddingSet,
+            onMapInfoGet: onMapInfoGet,
+            onViewportBoundsGet: onViewportBoundsGet,
+            isPoisVisible: isPoisVisible,
+            isPoisClickable: isPoisClickable,
+            poiScale: poiScale,
+            isCameraMoveEndListenerEnabled: isCameraMoveEndListenerEnabled,
+            onInfoWindowAdd: onInfoWindowAdd,
+            onInfoWindowRemove: onInfoWindowRemove,
+            onInfoWindowsAddAll: onInfoWindowsAddAll,
+            onInfoWindowsClear: onInfoWindowsClear,
+            onInfoWindowLayerShow: onInfoWindowLayerShow,
+            onInfoWindowLayerHide: onInfoWindowLayerHide,
+            onShowSeoulInfoWindow: onShowSeoulInfoWindow,
+            onHideSeoulInfoWindow: onHideSeoulInfoWindow,
+            onStaticMapButtonPressed: onStaticMapButtonPressed,
+            onGuiInfoWindowCustomBubble: onGuiInfoWindowCustomBubble,
+            onGuiInfoWindowComplex: onGuiInfoWindowComplex,
+            onGuiInfoWindowIconText: onGuiInfoWindowIconText,
+            onGuiInfoWindowAndroidSDK: onGuiInfoWindowAndroidSDK,
+            onGuiInfoWindowTimeBased: onGuiInfoWindowTimeBased,
+            onLodCreateLayer: onLodCreateLayer,
+            onLodAddMany: onLodAddMany,
+            onLodShowAll: onLodShowAll,
+            onLodHideAll: onLodHideAll,
+            onLodClear: onLodClear,
+          );
+
+          if (kIsWeb) {
+            return PointerInterceptor(child: drawer);
+          }
+
+          return drawer;
+        },
       ),
     );
   }
@@ -235,6 +244,10 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
     }
 
     if (mounted) setState(() => mapReadyNotifier.value = true);
+
+    controller.moveCamera(
+      cameraUpdate: const CameraUpdate(position: jamsilStation, zoomLevel: 12),
+    );
   }
 
   Future<void> setupInitialMap() async {
