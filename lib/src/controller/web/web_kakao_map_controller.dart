@@ -555,8 +555,8 @@ class WebKakaoMapController extends KakaoMapControllerPlatform {
     required double latitude,
     required double longitude,
     required JSAny content,
-    int? xAnchor,
-    int? yAnchor,
+    double? xAnchor,
+    double? yAnchor,
   }) {
     final maps = _kakaoMaps;
     if (maps == null) return null;
@@ -1009,8 +1009,8 @@ class WebKakaoMapController extends KakaoMapControllerPlatform {
       latitude: option.latLng.latitude,
       longitude: option.latLng.longitude,
       content: container,
-      xAnchor: option.anchor.x.toInt(),
-      yAnchor: option.anchor.y.toInt(),
+      xAnchor: option.anchor.x,
+      yAnchor: option.anchor.y,
     );
 
     if (overlay != null) {
