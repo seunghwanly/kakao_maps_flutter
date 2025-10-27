@@ -555,8 +555,8 @@ class WebKakaoMapController extends KakaoMapControllerPlatform {
     required double latitude,
     required double longitude,
     required JSAny content,
-    int? xOffset,
-    int? yOffset,
+    int? xAnchor,
+    int? yAnchor,
   }) {
     final maps = _kakaoMaps;
     if (maps == null) return null;
@@ -571,12 +571,9 @@ class WebKakaoMapController extends KakaoMapControllerPlatform {
     options['position'] = latLng;
     options['content'] = content;
 
-    if (xOffset != null && yOffset != null) {
-      final width = web.window.innerWidth;
-      final height = web.window.innerHeight;
-
-      options['xAnchor'] = (0.5 + (xOffset / width)).toJS;
-      options['yAnchor'] = (0.5 + (yOffset / height)).toJS;
+    if (xAnchor != null && yAnchor != null) {
+      options['xAnchor'] = xAnchor.toJS;
+      options['yAnchor'] = yAnchor.toJS;
     }
 
     final overlay = overlayCtor.callAsConstructor<JSObject>(options);
@@ -1012,8 +1009,8 @@ class WebKakaoMapController extends KakaoMapControllerPlatform {
       latitude: option.latLng.latitude,
       longitude: option.latLng.longitude,
       content: container,
-      xOffset: option.offset.x.toInt(),
-      yOffset: option.offset.y.toInt(),
+      xAnchor: option.anchor.x.toInt(),
+      yAnchor: option.anchor.y.toInt(),
     );
 
     if (overlay != null) {
