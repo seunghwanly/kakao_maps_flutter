@@ -126,6 +126,15 @@ class KakaoMapController(
                         true
                     }
 
+                    kMap.setOnLodLabelClickListener { kakaoMap, lodLabelLayer, lodLabel ->
+                        val event = LabelClickEvent.fromLabel(
+                            label = lodLabel,
+                            layerId = lodLabelLayer?.layerId,
+                        )
+                        methodChannel.invokeMethod("onLabelClicked", event.toMap())
+                        true
+                    }
+
                     kMap.setOnInfoWindowClickListener { kakaoMap, infoWindow, id ->
 
                         val event = mapOf(

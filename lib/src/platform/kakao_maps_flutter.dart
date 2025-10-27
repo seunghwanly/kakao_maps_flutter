@@ -1,12 +1,7 @@
-// ignore_for_file: avoid_classes_with_only_static_members
+import 'package:kakao_maps_flutter/src/view/static_kakao_map/static_kakao_map.dart'
+    show StaticMapController;
 
-import 'package:flutter/services.dart';
-import 'package:plugin_platform_interface/plugin_platform_interface.dart';
-
-import '../../view/static_kakao_map/static_kakao_map.dart';
-
-part 'interface/kakao_maps_flutter_platform_interface.dart';
-part 'method_channel/method_channel_kakao_maps_flutter.dart';
+import 'interface/kakao_maps_flutter_platform_interface.dart';
 
 /// Kakao Maps SDK bootstrap
 /// [EN]
@@ -15,6 +10,8 @@ part 'method_channel/method_channel_kakao_maps_flutter.dart';
 /// [KO]
 /// - Android, iOS에서 사용할 Kakao Maps SDK 초기화 수행
 class KakaoMapsFlutter {
+  const KakaoMapsFlutter._();
+
   /// Initialize Kakao Maps SDK
   /// [EN]
   /// - Provide Kakao Developers native app key via [nativeAPIKey]
@@ -38,6 +35,9 @@ class KakaoMapsFlutter {
       StaticMapController.init(webAPIKey);
     }
 
-    return KakaoMapsFlutterPlatform.instance.init(nativeAPIKey);
+    return KakaoMapsFlutterPlatform.instance.init(
+      nativeAppKey: nativeAPIKey,
+      webAppKey: webAPIKey,
+    );
   }
 }

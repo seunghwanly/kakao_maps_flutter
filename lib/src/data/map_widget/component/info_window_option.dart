@@ -29,6 +29,7 @@ class InfoWindowOption extends Data {
     this.isVisible = true,
     this.offset = const InfoWindowOffset(x: 0, y: 0),
     this.bodyOffset = const InfoWindowOffset(x: 0, y: 0),
+    this.anchor = const InfoWindowAnchor(),
     this.zOrder,
   });
 
@@ -46,6 +47,7 @@ class InfoWindowOption extends Data {
     this.isVisible = true,
     this.offset = const InfoWindowOffset(x: 0, y: 0),
     this.bodyOffset = const InfoWindowOffset(x: 0, y: 0),
+    this.anchor = const InfoWindowAnchor(),
     this.zOrder,
   })  : body = null,
         tail = null;
@@ -64,6 +66,7 @@ class InfoWindowOption extends Data {
     this.isVisible = true,
     this.offset = const InfoWindowOffset(x: 0, y: 0),
     this.bodyOffset = const InfoWindowOffset(x: 0, y: 0),
+    this.anchor = const InfoWindowAnchor(),
     this.zOrder,
   })  : title = null,
         snippet = null;
@@ -95,7 +98,22 @@ class InfoWindowOption extends Data {
   final bool isVisible;
 
   /// Body-free offset
+  ///
+  /// [EN]
+  /// - used on iOS, Android
+  ///
+  /// [KO]
+  /// - iOS, Android에서 사용
   final InfoWindowOffset offset;
+
+  /// Anchor point
+  ///
+  /// [EN]
+  /// - used on web
+  ///
+  /// [KO]
+  /// - web에서 사용
+  final InfoWindowAnchor anchor;
 
   /// Body offset
   final InfoWindowOffset bodyOffset;
@@ -144,6 +162,34 @@ class InfoWindowOffset extends Data {
   final double x;
 
   /// The vertical offset in pixels.
+  final double y;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'x': x,
+        'y': y,
+      };
+}
+
+/// Represents the anchor point for an info window. (only for web)
+class InfoWindowAnchor extends Data {
+  /// Creates a new InfoWindowAnchor with x and y values between 0 and 1.
+  const InfoWindowAnchor({
+    this.x = 0.5,
+    this.y = 0.5,
+  });
+
+  /// Creates an InfoWindowAnchor from a JSON map.
+  factory InfoWindowAnchor.fromJson(Map<String, Object?> json) =>
+      InfoWindowAnchor(
+        x: (json['x']! as num).toDouble(),
+        y: (json['y']! as num).toDouble(),
+      );
+
+  /// 컨텐츠의 x축 위치. 0_1 사이의 값을 가진다. 기본값은 0.5
+  final double x;
+
+  /// 컨텐츠의 y축 위치. 0_1 사이의 값을 가진다. 기본값은 0.5
   final double y;
 
   @override

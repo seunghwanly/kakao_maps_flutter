@@ -1,3 +1,8 @@
+# 0.2.0-beta.1
+
+### 🎉 Features
+* Web support
+
 # 0.1.2
 
 ### 🐛 Bug Fixes
