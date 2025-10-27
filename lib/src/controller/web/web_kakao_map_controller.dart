@@ -611,7 +611,7 @@ class WebKakaoMapController extends KakaoMapControllerPlatform {
             CameraMoveEndEvent(
               latitude: center.latitude,
               longitude: center.longitude,
-              zoomLevel: zoom.toDouble() ?? 12.0,
+              zoomLevel: zoom.toDouble(),
               tilt: -1,
               rotation: -1,
             ),
@@ -1469,10 +1469,10 @@ class WebKakaoMapController extends KakaoMapControllerPlatform {
     div.style.alignItems = 'center';
     div.style.gap = '${_scale(4)}px';
 
-    div.style.paddingLeft = '${_scale(guiLayout.paddingLeft ?? 0)}px';
-    div.style.paddingTop = '${_scale(guiLayout.paddingTop ?? 0)}px';
-    div.style.paddingRight = '${_scale(guiLayout.paddingRight ?? 0)}px';
-    div.style.paddingBottom = '${_scale(guiLayout.paddingBottom ?? 0)}px';
+    div.style.paddingLeft = '${_scale(guiLayout.paddingLeft)}px';
+    div.style.paddingTop = '${_scale(guiLayout.paddingTop)}px';
+    div.style.paddingRight = '${_scale(guiLayout.paddingRight)}px';
+    div.style.paddingBottom = '${_scale(guiLayout.paddingBottom)}px';
 
     if (guiLayout.background != null) {
       final bgImage = guiLayout.background!;
