@@ -700,6 +700,7 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
         title: title,
         snippet: snippet,
         offset: const InfoWindowOffset(x: 0, y: -20),
+        anchor: const InfoWindowAnchor(y: 1.4),
         zOrder: id.contains('jamsil') ? 1000 : 0,
         body: id.contains('jamsil')
             ? const GuiImage.fromBase64(
