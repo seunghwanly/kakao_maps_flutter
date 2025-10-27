@@ -865,7 +865,7 @@ class WebKakaoMapController extends KakaoMapControllerPlatform {
     }
 
     web.console.log(
-      'MoveCamera: zoomLevel=${update.zoomLevel}, latitude=${update.position?.latitude}, longitude=${update.position?.longitude},} hasAnimation=$hasAnimation'
+      'MoveCamera: zoomLevel=${update.zoomLevel}, latitude=${update.position?.latitude}, longitude=${update.position?.longitude} hasAnimation=$hasAnimation'
           .toJS,
     );
 
