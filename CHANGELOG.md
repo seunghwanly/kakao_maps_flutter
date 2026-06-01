@@ -1,4 +1,4 @@
-# Unreleased
+# 0.2.0
 
 - Updates minimum supported SDK versions to Flutter 3.44 and Dart 3.12.
 - Migrates Android Gradle files to built-in Kotlin.
