@@ -1,4 +1,6 @@
-// swift-tools-version:5.5
+// swift-tools-version:5.9
+// The swift-tools-version declares the minimum version of Swift required to build this package.
+
 import PackageDescription
 
 let package = Package(
@@ -13,15 +15,17 @@ let package = Package(
     )
   ],
   dependencies: [
+    .package(name: "FlutterFramework", path: "../FlutterFramework"),
     .package(
       url: "https://github.com/kakao-mapsSDK/KakaoMapsSDK-SPM.git",
-      from: "2.12.0"
+      .upToNextMinor(from: "2.12.5")
     )
   ],
   targets: [
     .target(
       name: "kakao_maps_flutter",
       dependencies: [
+        .product(name: "FlutterFramework", package: "FlutterFramework"),
         .product(name: "KakaoMapsSDK-SPM", package: "KakaoMapsSDK-SPM")
       ],
       resources: [

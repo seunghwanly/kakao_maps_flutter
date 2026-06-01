@@ -1,3 +1,9 @@
+# Unreleased
+
+- Updates minimum supported SDK versions to Flutter 3.44 and Dart 3.12.
+- Migrates Android Gradle files to built-in Kotlin.
+- Adds FlutterFramework to the iOS Swift Package Manager manifest.
+
 # 0.1.2
 
 ### 🐛 Bug Fixes
