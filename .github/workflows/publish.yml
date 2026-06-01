@@ -1,0 +1,34 @@
+name: Publish to pub.dev
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+-*'
+
+jobs:
+  validate-tag:
+    name: Validate release tag
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check tag matches pubspec version
+        run: |
+          version="$(awk '/^version:/ { print $2; exit }' pubspec.yaml)"
+          tag="${GITHUB_REF_NAME#v}"
+
+          if [ "$tag" != "$version" ]; then
+            echo "Tag v$tag does not match pubspec.yaml version $version."
+            exit 1
+          fi
+
+  publish:
+    name: Publish to pub.dev
+    needs: validate-tag
+    permissions:
+      id-token: write
+    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
+    with:
+      environment: pub.dev
