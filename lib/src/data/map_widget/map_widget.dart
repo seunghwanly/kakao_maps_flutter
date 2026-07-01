@@ -7,14 +7,14 @@
 library kakao_maps_flutter.map_widget;
 
 import 'package:kakao_maps_flutter/src/base/data.dart';
-import 'package:kakao_maps_flutter/src/data/lat_lng/lat_lng.dart';
+import 'package:kakao_maps_flutter/src/data/data.dart' show LatLng;
 
 part 'component/gui_image.dart';
 part 'component/gui_layout.dart';
 part 'component/gui_text.dart';
 part 'component/gui_view.dart';
 part 'component/horizontal.dart';
+part 'component/info_window_click_event.dart';
+part 'component/info_window_option.dart';
 part 'component/orientation.dart';
 part 'component/vertical.dart';
-part 'info_window/info_window_click_event.dart';
-part 'info_window/info_window_option.dart';

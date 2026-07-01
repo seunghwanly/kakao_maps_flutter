@@ -2,11 +2,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../controller/kakao_map_controller.dart';
 import '../../data/compass/compass.dart';
 import '../../data/lat_lng/lat_lng.dart';
 import '../../data/logo/logo.dart';
 import '../../data/scalebar/scalebar.dart';
-import '../../platform/kakao_map_controller/kakao_map_controller.dart';
+import 'kakao_map_stub.dart'
+    if (dart.library.js_interop) 'kakao_map_web.dart'
+    as kakao_map_interop;
 
 const String _$viewTypeId = 'kakao_map_view';
 
@@ -117,6 +120,14 @@ class KakaoMap extends StatefulWidget {
 
 class _KakaoMapState extends State<KakaoMap> {
   KakaoMapController? controller;
+  static int _nextViewId = 0;
+  late final int _webViewId;
+
+  @override
+  void initState() {
+    super.initState();
+    _webViewId = _nextViewId++;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -156,35 +167,52 @@ class _KakaoMapState extends State<KakaoMap> {
           creationParams['logo'] = widget.logo!.toJson();
         }
 
+        if (kIsWeb) {
+          return SizedBox(
+            width: width,
+            height: height,
+            child: kakao_map_interop.buildWebView(
+              webViewId: _webViewId,
+              onMapCreated: (webController) {
+                if (controller != null) return;
+                controller = webController;
+                widget.onMapCreated?.call(controller!);
+              },
+              initialPosition: widget.initialPosition,
+              initialLevel: widget.initialLevel,
+            ),
+          );
+        }
+
         return SizedBox(
           width: width,
           height: height,
           child: switch (defaultTargetPlatform) {
             TargetPlatform.android => AndroidView(
-                viewType: _$viewTypeId,
-                creationParams: creationParams,
-                creationParamsCodec: const StandardMessageCodec(),
-                onPlatformViewCreated: (id) async {
-                  if (controller != null) return;
+              viewType: _$viewTypeId,
+              creationParams: creationParams,
+              creationParamsCodec: const StandardMessageCodec(),
+              onPlatformViewCreated: (id) async {
+                if (controller != null) return;
 
-                  controller = KakaoMapController(viewId: id);
-                  widget.onMapCreated?.call(controller!);
-                },
-              ),
+                controller = KakaoMapController(viewId: id);
+                widget.onMapCreated?.call(controller!);
+              },
+            ),
             TargetPlatform.iOS => UiKitView(
-                viewType: _$viewTypeId,
-                creationParams: creationParams,
-                creationParamsCodec: const StandardMessageCodec(),
-                onPlatformViewCreated: (id) async {
-                  if (controller != null) return;
+              viewType: _$viewTypeId,
+              creationParams: creationParams,
+              creationParamsCodec: const StandardMessageCodec(),
+              onPlatformViewCreated: (id) async {
+                if (controller != null) return;
 
-                  controller = KakaoMapController(viewId: id);
-                  widget.onMapCreated?.call(controller!);
-                },
-              ),
+                controller = KakaoMapController(viewId: id);
+                widget.onMapCreated?.call(controller!);
+              },
+            ),
             _ => throw UnsupportedError(
-                'Unsupported platform: $defaultTargetPlatform',
-              ),
+              'Unsupported platform: $defaultTargetPlatform',
+            ),
           },
         );
       },

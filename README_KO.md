@@ -1,32 +1,32 @@
 # kakao_maps_flutter (🇰🇷 KO)
 
 [![pub package](https://img.shields.io/pub/v/kakao_maps_flutter.svg)](https://pub.dev/packages/kakao_maps_flutter)
-[![Platform](https://img.shields.io/badge/platform-android%20|%20ios-green.svg)](https://github.com/seunghwanly/kakao_maps_flutter)
+[![Platform](https://img.shields.io/badge/platform-android%20|%20ios%20|%20web-green.svg)](https://github.com/seunghwanly/kakao_maps_flutter)
 [![Documentation](https://img.shields.io/badge/documentation-91.4%25-brightgreen.svg)](https://pub.dev/documentation/kakao_maps_flutter)
 
-Flutter용 Kakao Maps SDK v2 플러그인
+Android, iOS, Web을 지원하는 Flutter용 Kakao Maps SDK v2 플러그인
 
 ## 📱 Platform Support
 
-| Feature | Android | iOS | Documentation |
-|---------|---------|-----|---------------|
-| Camera Controls | ✅ | ✅ | ✅ |
-| Camera Move End Events | ✅ | ✅ | ✅ |
-| Label Click Events | ✅ | ✅ | ✅ |
-| InfoWindow Click Events | ✅ | ✅ | ✅ |
-| Marker Management | ✅ | ✅ | ✅ |
-| MarkerStyle Registration | ✅ | ✅ | ✅ |
-| LOD Marker Layer | ✅ | ✅ | ✅ |
-| InfoWindow Management | ✅ | ✅ | ✅ |
-| InfoWindow Layer Visibility | ✅ | ✅ | ✅ |
-| Custom GUI Components | ✅ | ✅ | ✅ |
-| POI Controls | ✅ | ✅ | ✅ |
-| Compass Controls | ✅ | ✅ | ✅ |
-| ScaleBar Controls | ✅ | ✅ | ✅ |
-| Logo Position | ✅ | ✅ | ✅ |
-| Logo Visibility | ❌ | ✅ | ✅ |
-| Coordinate Conversion | ✅ | ❌ | ✅ |
-| Map Information | ✅ | ✅ | ✅ |
+| Feature | Android | iOS | Web | Documentation |
+|---------|---------|-----|-----|---------------|
+| Camera Controls | ✅ | ✅ | ✅ | ✅ |
+| Camera Move End Events | ✅ | ✅ | ✅ | ✅ |
+| Label Click Events | ✅ | ✅ | ✅ | ✅ |
+| InfoWindow Click Events | ✅ | ✅ | ✅ | ✅ |
+| Marker Management | ✅ | ✅ | ✅ | ✅ |
+| MarkerStyle Registration | ✅ | ✅ | ✅ | ✅ |
+| LOD Marker Layer / Clusterer | ✅ | ✅ | ✅ | ✅ |
+| InfoWindow Management | ✅ | ✅ | ✅ | ✅ |
+| InfoWindow Layer Visibility | ✅ | ✅ | ❌ | ✅ |
+| Custom GUI Components | ✅ | ✅ | ✅ | ✅ |
+| POI Controls | ✅ | ✅ | ❌ | ✅ |
+| Compass Controls | ✅ | ✅ | ❌ | ✅ |
+| ScaleBar Controls | ✅ | ✅ | ❌ | ✅ |
+| Logo Position | ✅ | ✅ | ❌ | ✅ |
+| Logo Visibility | ❌ | ✅ | ❌ | ✅ |
+| Coordinate Conversion | ✅ | ❌ | ❌ | ✅ |
+| Map Information | ✅ | ✅ | ✅ | ✅ |
 
 ---
 
@@ -35,10 +35,12 @@ Flutter용 Kakao Maps SDK v2 플러그인
 ### 사전 준비
 1. [Kakao Developers Console](https://developers.kakao.com/console/app)에서 API 키 발급
 2. 플랫폼별 SDK 설정 구성
+3. Web은 Kakao Developers에 서비스 도메인을 등록하고 JavaScript 키를 `webAPIKey`로 전달
 
 ### 참고 문서
 - Android Getting Started: https://apis.map.kakao.com/android_v2/docs/getting-started/
 - iOS Getting Started: https://apis.map.kakao.com/ios_v2/docs/getting-started/gettingstarted/
+- Web Getting Started: https://apis.map.kakao.com/web/guide/
 
 ### 약관 및 사용 안내
 - 이 패키지를 사용하려면 별도로 **Kakao Maps SDK 이용약관 동의**가 필요해요
@@ -58,9 +60,25 @@ SDK 초기화
 ```dart
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await KakaoMapsFlutter.init('YOUR_API_KEY');
+  await KakaoMapsFlutter.init(
+    'YOUR_NATIVE_APP_KEY',
+    webAPIKey: 'YOUR_JAVASCRIPT_KEY',
+  );
   runApp(const MyApp());
 }
+```
+
+Web 전용 앱은 JavaScript 키만으로 초기화할 수 있습니다.
+
+```dart
+await KakaoMapsFlutter.init(null, webAPIKey: 'YOUR_JAVASCRIPT_KEY');
+```
+
+포트 8080으로 Web 예제를 실행합니다.
+
+```bash
+cd example
+fvm flutter run -d chrome --web-port 8080 --dart-define=KAKAO_WEB_API_KEY=YOUR_JAVASCRIPT_KEY
 ```
 
 지도 위젯 추가
@@ -217,5 +235,3 @@ MIT License
 **@Kakao**에서 KakaoMapsSDK를 제공해주셔서 감사합니다.
 
 **모든 기여자분들**께는 이 프로젝트를 함께 만들어가 주셔서 진심으로 감사드립니다 🙏
-
-

@@ -3,8 +3,8 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Orientation;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:kakao_maps_flutter/kakao_maps_flutter.dart';
+import 'package:pointer_interceptor/pointer_interceptor.dart';
 
 import 'assets/example_assets.dart';
 import 'screens/compass_scalebar_example.dart';
@@ -12,18 +12,21 @@ import 'screens/kakao_map_example_static_map_screen.dart';
 import 'widgets/widgets.dart';
 
 const String $title = 'KakaoMapsSDK v2 Flutter Demo';
+const String _nativeAPIKey = String.fromEnvironment('KAKAO_API_KEY');
+const String _webAPIKey = String.fromEnvironment('KAKAO_WEB_API_KEY');
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load();
 
   await KakaoMapsFlutter.init(
-    dotenv.get('KAKAO_API_KEY'),
-    webAPIKey: dotenv.maybeGet('KAKAO_WEB_API_KEY'),
+    _nonEmpty(_nativeAPIKey),
+    webAPIKey: _nonEmpty(_webAPIKey),
   );
 
   runApp(const MyApp());
 }
+
+String? _nonEmpty(String value) => value.isEmpty ? null : value;
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -32,10 +35,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: $title,
-      theme: ThemeData(
-        primarySwatch: Colors.yellow,
-        useMaterial3: true,
-      ),
+      theme: ThemeData(primarySwatch: Colors.yellow, useMaterial3: true),
       home: const KakaoMapExampleScreen(),
       routes: {
         '/static/map_1': (context) => const KakaoMapExampleStaticMapScreen(),
@@ -57,6 +57,7 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
 
   StreamSubscription<LabelClickEvent>? labelClickSubscription;
   StreamSubscription<CameraMoveEndEvent>? cameraMoveEndSubscription;
+  StreamSubscription<ClusterClickEvent>? clusterClickSubscription;
 
   final ValueNotifier<bool> mapReadyNotifier = ValueNotifier(false);
 
@@ -71,7 +72,9 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
       styleId: 'default_marker_style_001',
       perLevels: [
         MarkerPerLevelStyle.fromBytes(
-          bytes: base64Decode(ExampleAssets.marker2x),
+          bytes: base64Decode(
+            kIsWeb ? ExampleAssets.marker1x : ExampleAssets.marker2x,
+          ),
           textStyle: const MarkerTextStyle(
             fontSize: 24,
             fontColorArgb: 0xFF000000,
@@ -81,7 +84,9 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
           level: 6,
         ),
         MarkerPerLevelStyle.fromBytes(
-          bytes: base64Decode(ExampleAssets.marker4x),
+          bytes: base64Decode(
+            kIsWeb ? ExampleAssets.marker1x : ExampleAssets.marker4x,
+          ),
           textStyle: const MarkerTextStyle(
             fontSize: 20,
             fontColorArgb: 0xFF000000,
@@ -121,6 +126,7 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
   void dispose() {
     labelClickSubscription?.cancel();
     cameraMoveEndSubscription?.cancel();
+    clusterClickSubscription?.cancel();
     mapReadyNotifier.removeListener(setupInitialMap);
     mapReadyNotifier.dispose();
     mapController?.dispose();
@@ -150,10 +156,7 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
       ),
       body: KakaoMap(
         onMapCreated: onMapCreated,
-        initialPosition: const LatLng(
-          latitude: 37.5441,
-          longitude: 127.0558,
-        ),
+        initialPosition: const LatLng(latitude: 37.5441, longitude: 127.0558),
       ),
       floatingActionButton: ValueListenableBuilder<bool>(
         valueListenable: mapReadyNotifier,
@@ -167,46 +170,62 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
       floatingActionButtonLocation: FloatingActionButtonLocation.endTop,
       drawer: ValueListenableBuilder<bool>(
         valueListenable: mapReadyNotifier,
-        builder: (context, isReady, _) => FeatureDrawer(
-          isMapReady: isReady,
-          onCameraMove: onCameraMove,
-          onMarkerAdd: onMarkerAdd,
-          onMarkerRemove: onMarkerRemove,
-          onMarkersAdd: onMarkersAdd,
-          onMarkersRemove: onMarkersRemove,
-          onMarkersClear: onMarkersClear,
-          onPoiVisibilityToggle: onPoiVisibilityToggle,
-          onPoiClickabilityToggle: onPoiClickabilityToggle,
-          onPoiScaleChange: onPoiScaleChange,
-          onCameraMoveEndListenerToggle: onCameraMoveEndListenerToggle,
-          onCoordinateTest: onCoordinateTest,
-          onPaddingSet: onPaddingSet,
-          onMapInfoGet: onMapInfoGet,
-          onViewportBoundsGet: onViewportBoundsGet,
-          isPoisVisible: isPoisVisible,
-          isPoisClickable: isPoisClickable,
-          poiScale: poiScale,
-          isCameraMoveEndListenerEnabled: isCameraMoveEndListenerEnabled,
-          onInfoWindowAdd: onInfoWindowAdd,
-          onInfoWindowRemove: onInfoWindowRemove,
-          onInfoWindowsAddAll: onInfoWindowsAddAll,
-          onInfoWindowsClear: onInfoWindowsClear,
-          onInfoWindowLayerShow: onInfoWindowLayerShow,
-          onInfoWindowLayerHide: onInfoWindowLayerHide,
-          onShowSeoulInfoWindow: onShowSeoulInfoWindow,
-          onHideSeoulInfoWindow: onHideSeoulInfoWindow,
-          onStaticMapButtonPressed: onStaticMapButtonPressed,
-          onGuiInfoWindowCustomBubble: onGuiInfoWindowCustomBubble,
-          onGuiInfoWindowComplex: onGuiInfoWindowComplex,
-          onGuiInfoWindowIconText: onGuiInfoWindowIconText,
-          onGuiInfoWindowAndroidSDK: onGuiInfoWindowAndroidSDK,
-          onGuiInfoWindowTimeBased: onGuiInfoWindowTimeBased,
-          onLodCreateLayer: onLodCreateLayer,
-          onLodAddMany: onLodAddMany,
-          onLodShowAll: onLodShowAll,
-          onLodHideAll: onLodHideAll,
-          onLodClear: onLodClear,
-        ),
+        builder: (context, isReady, _) {
+          final drawer = FeatureDrawer(
+            isMapReady: isReady,
+            onCameraMove: onCameraMove,
+            onMarkerAdd: onMarkerAdd,
+            onMarkerRemove: onMarkerRemove,
+            onMarkersAdd: onMarkersAdd,
+            onMarkersRemove: onMarkersRemove,
+            onMarkersClear: onMarkersClear,
+            onPoiVisibilityToggle: kIsWeb
+                ? onUnsupported
+                : onPoiVisibilityToggle,
+            onPoiClickabilityToggle: kIsWeb
+                ? onUnsupported
+                : onPoiClickabilityToggle,
+            onPoiScaleChange: kIsWeb ? onUnsupported : onPoiScaleChange,
+            onCameraMoveEndListenerToggle: onCameraMoveEndListenerToggle,
+            onCoordinateTest: kIsWeb ? onUnsupported : onCoordinateTest,
+            onPaddingSet: kIsWeb ? onUnsupported : onPaddingSet,
+            onMapInfoGet: onMapInfoGet,
+            onViewportBoundsGet: onViewportBoundsGet,
+            isPoisVisible: isPoisVisible,
+            isPoisClickable: isPoisClickable,
+            poiScale: poiScale,
+            isCameraMoveEndListenerEnabled: isCameraMoveEndListenerEnabled,
+            onInfoWindowAdd: onInfoWindowAdd,
+            onInfoWindowRemove: onInfoWindowRemove,
+            onInfoWindowsAddAll: onInfoWindowsAddAll,
+            onInfoWindowsClear: onInfoWindowsClear,
+            onInfoWindowLayerShow: kIsWeb
+                ? onUnsupported
+                : onInfoWindowLayerShow,
+            onInfoWindowLayerHide: kIsWeb
+                ? onUnsupported
+                : onInfoWindowLayerHide,
+            onShowSeoulInfoWindow: onShowSeoulInfoWindow,
+            onHideSeoulInfoWindow: onHideSeoulInfoWindow,
+            onStaticMapButtonPressed: onStaticMapButtonPressed,
+            onGuiInfoWindowCustomBubble: onGuiInfoWindowCustomBubble,
+            onGuiInfoWindowComplex: onGuiInfoWindowComplex,
+            onGuiInfoWindowIconText: onGuiInfoWindowIconText,
+            onGuiInfoWindowAndroidSDK: onGuiInfoWindowAndroidSDK,
+            onGuiInfoWindowTimeBased: onGuiInfoWindowTimeBased,
+            onLodCreateLayer: onLodCreateLayer,
+            onLodAddMany: onLodAddMany,
+            onLodShowAll: onLodShowAll,
+            onLodHideAll: onLodHideAll,
+            onLodClear: onLodClear,
+          );
+
+          if (kIsWeb) {
+            return PointerInterceptor(child: drawer);
+          }
+
+          return drawer;
+        },
       ),
     );
   }
@@ -219,8 +238,11 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
     );
 
     /// Listen to InfoWindow click events
-    controller.onInfoWindowClickedStream.listen(
-      onInfoWindowClicked,
+    controller.onInfoWindowClickedStream.listen(onInfoWindowClicked);
+
+    /// Listen to cluster click events
+    clusterClickSubscription = controller.onClusterClickedStream.listen(
+      onClusterClicked,
     );
 
     /// Listen to camera move end events only if enabled
@@ -231,6 +253,10 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
     }
 
     if (mounted) setState(() => mapReadyNotifier.value = true);
+
+    controller.moveCamera(
+      cameraUpdate: const CameraUpdate(position: jamsilStation, zoomLevel: 12),
+    );
   }
 
   Future<void> setupInitialMap() async {
@@ -238,17 +264,21 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
 
     await Future.delayed(const Duration(milliseconds: 1800));
 
-    /// Set initial POI scale for better marker visibility
-    await mapController!.setPoiScale(scale: poiScale);
+    if (!kIsWeb) {
+      /// Set initial POI scale for better marker visibility
+      await mapController!.setPoiScale(scale: poiScale);
+    }
 
     await mapController!.registerMarkerStyles(styles: markerStyles);
 
     // Create default LabelLayer for normal markers before using addMarker/addMarkers
-    await mapController!.addMarkerLayer(
-      layerId: KakaoMapController.defaultLabelLayerId,
-      zOrder: 1000,
-      clickable: true,
-    );
+    if (!kIsWeb) {
+      await mapController!.addMarkerLayer(
+        layerId: KakaoMapController.defaultLabelLayerId,
+        zOrder: 1000,
+        clickable: true,
+      );
+    }
 
     // Optionally prepare LOD layer immediately (iOS fully; Android zOrder only)
     await onLodCreateLayer();
@@ -262,8 +292,9 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
 
     final newZoom = currentZoom + 1;
     await mapController!.setZoomLevel(zoomLevel: newZoom);
-    if (!mounted) return;
-    setState(() => currentZoomLevel = newZoom);
+    if (mounted) {
+      setState(() => currentZoomLevel = newZoom);
+    }
   }
 
   Future<void> onZoomOut() async {
@@ -274,8 +305,9 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
 
     final newZoom = currentZoom - 1;
     await mapController!.setZoomLevel(zoomLevel: newZoom);
-    if (!mounted) return;
-    setState(() => currentZoomLevel = newZoom);
+    if (mounted) {
+      setState(() => currentZoomLevel = newZoom);
+    }
   }
 
   Future<void> onGetCenter() async {
@@ -378,8 +410,9 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
     final newVisibility = !isPoisVisible;
     await mapController!.setPoiVisible(isVisible: newVisibility);
 
-    if (!mounted) return;
-    setState(() => isPoisVisible = newVisibility);
+    if (mounted) {
+      setState(() => isPoisVisible = newVisibility);
+    }
 
     showSnackBar('👁️ POIs ${newVisibility ? 'shown' : 'hidden'}');
   }
@@ -390,8 +423,9 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
     final newClickability = !isPoisClickable;
     await mapController!.setPoiClickable(isClickable: newClickability);
 
-    if (!mounted) return;
-    setState(() => isPoisClickable = newClickability);
+    if (mounted) {
+      setState(() => isPoisClickable = newClickability);
+    }
 
     showSnackBar('👆 POIs ${newClickability ? 'clickable' : 'non-clickable'}');
   }
@@ -401,8 +435,9 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
 
     await mapController!.setPoiScale(scale: scale);
 
-    if (!mounted) return;
-    setState(() => poiScale = scale);
+    if (mounted) {
+      setState(() => poiScale = scale);
+    }
 
     const scaleNames = ['Small', 'Regular', 'Large', 'XLarge'];
     final scaleName = scale < scaleNames.length ? scaleNames[scale] : 'Unknown';
@@ -425,8 +460,9 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
       cameraMoveEndSubscription = null;
     }
 
-    if (!mounted) return;
-    setState(() => isCameraMoveEndListenerEnabled = newEnabled);
+    if (mounted) {
+      setState(() => isCameraMoveEndListenerEnabled = newEnabled);
+    }
 
     showSnackBar(
       '📷 Camera move end listener ${newEnabled ? 'enabled' : 'disabled'}',
@@ -480,12 +516,7 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
   Future<void> onPaddingSet() async {
     if (mapController == null) return;
 
-    await mapController!.setPadding(
-      left: 20,
-      top: 80,
-      right: 20,
-      bottom: 20,
-    );
+    await mapController!.setPadding(left: 20, top: 80, right: 20, bottom: 20);
 
     showSnackBar('📐 Map padding applied');
   }
@@ -524,7 +555,50 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
 
   Future<void> onLodCreateLayer() async {
     if (mapController == null) return;
-    await mapController!.addLodMarkerLayer(
+
+    if (kIsWeb) {
+      return mapController!.addWebMarkerClusterer(
+        clustererId: lodLayerId,
+        gridSize: 40,
+        minLevel: 1,
+        clickable: true, // Make sure clusters are clickable
+        disableClickZoom: true, // Disable default zoom to use custom one
+        styles: [
+          {
+            'width': '30px',
+            'height': '30px',
+            'background': 'rgba(255, 82, 82, .8)',
+            'border-radius': '15px',
+            'color': '#fff',
+            'text-align': 'center',
+            'font-weight': 'bold',
+            'line-height': '30px',
+          },
+          {
+            'width': '40px',
+            'height': '40px',
+            'background': 'rgba(51, 153, 255, .8)',
+            'border-radius': '20px',
+            'color': '#fff',
+            'text-align': 'center',
+            'font-weight': 'bold',
+            'line-height': '40px',
+          },
+          {
+            'width': '50px',
+            'height': '50px',
+            'background': 'rgba(51, 204, 51, .8)',
+            'border-radius': '25px',
+            'color': '#fff',
+            'text-align': 'center',
+            'font-weight': 'bold',
+            'line-height': '50px',
+          },
+        ],
+      );
+    }
+
+    return mapController!.addLodMarkerLayer(
       options: const LodMarkerLayerOptions(
         layerId: lodLayerId,
         zOrder: 0,
@@ -596,6 +670,13 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
     );
   }
 
+  void onClusterClicked(ClusterClickEvent event) {
+    // When a cluster is clicked, smoothly zoom to fit its bounds.
+    mapController?.moveCamera(
+      cameraUpdate: CameraUpdate.fromBounds(event.bounds),
+    );
+  }
+
   /// InfoWindow management methods
   Future<void> onInfoWindowAdd(
     String id,
@@ -612,10 +693,13 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
         title: title,
         snippet: snippet,
         offset: const InfoWindowOffset(x: 0, y: -20),
+        bodyOffset: const InfoWindowOffset(x: 0, y: -20),
         zOrder: id.contains('jamsil') ? 1000 : 0,
         body: id.contains('jamsil')
             ? const GuiImage.fromBase64(
-                base64EncodedImage: ExampleAssets.infoWindowBackgroundImage2x,
+                base64EncodedImage: kIsWeb
+                    ? ExampleAssets.infoWindowBackgroundImage1x
+                    : ExampleAssets.infoWindowBackgroundImage2x,
               )
             : null,
       ),
@@ -713,7 +797,9 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
 
     // Create background with nine-patch (Android SDK style)
     const bgImage = GuiImage.fromBase64(
-      base64EncodedImage: ExampleAssets.infoWindowBackgroundImage4x,
+      base64EncodedImage: kIsWeb
+          ? ExampleAssets.infoWindowBackgroundImage2x
+          : ExampleAssets.infoWindowBackgroundImage4x,
       isNinepatch: true,
       fixedArea: GuiImageFixedArea(
         left: 14, // 7 * 2 for 4x scale
@@ -789,7 +875,9 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
 
     // Background with nine-patch scaling
     const backgroundImage = GuiImage.fromBase64(
-      base64EncodedImage: ExampleAssets.infoWindowBackgroundImage4x,
+      base64EncodedImage: kIsWeb
+          ? ExampleAssets.infoWindowBackgroundImage2x
+          : ExampleAssets.infoWindowBackgroundImage4x,
       isNinepatch: true,
       fixedArea: GuiImageFixedArea(left: 14, top: 14, right: 14, bottom: 14),
     );
@@ -821,7 +909,9 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
 
     // Create icon from base64 data
     const icon = GuiImage.fromBase64(
-      base64EncodedImage: ExampleAssets.marker2x,
+      base64EncodedImage: kIsWeb
+          ? ExampleAssets.marker1x
+          : ExampleAssets.marker2x,
     );
 
     // Create text component
@@ -921,7 +1011,9 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
     );
 
     const bgImage = GuiImage.fromBase64(
-      base64EncodedImage: ExampleAssets.infoWindowBackgroundImage4x,
+      base64EncodedImage: kIsWeb
+          ? ExampleAssets.infoWindowBackgroundImage2x
+          : ExampleAssets.infoWindowBackgroundImage4x,
       isNinepatch: true,
       fixedArea: GuiImageFixedArea(left: 14, top: 14, right: 14, bottom: 14),
     );
@@ -959,6 +1051,13 @@ class _KakaoMapExampleScreenState extends State<KakaoMapExampleScreen> {
       'Zoom: ${event.zoomLevel.toStringAsFixed(2)}\n'
       'Tilt: ${event.tilt.toStringAsFixed(2)}°\n'
       'Rotation: ${event.rotation.toStringAsFixed(2)}°',
+      duration: const Duration(seconds: 3),
+    );
+  }
+
+  Future<void> onUnsupported([dynamic _]) async {
+    showSnackBar(
+      '⚠️ This feature is not supported on the current platform.',
       duration: const Duration(seconds: 3),
     );
   }
