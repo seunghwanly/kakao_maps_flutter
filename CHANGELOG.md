@@ -1,4 +1,4 @@
-# 0.3.0
+# 0.2.1
 
 - Adds Web platform support for the interactive Kakao map widget.
 - Adds Web marker, InfoWindow, camera, and marker clusterer support through JS interop.

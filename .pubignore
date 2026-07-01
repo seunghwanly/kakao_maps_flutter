@@ -18,3 +18,5 @@ build/
 example/android/app/.cxx/
 doc/screenshots/flutter-3-44/
 samples/
+MIGRATION_PLAN.md
+kakao_maps_sdk_web.md
