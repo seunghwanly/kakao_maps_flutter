@@ -1,6 +1,7 @@
 import 'package:kakao_maps_flutter/src/base/data.dart';
 
 import '../lat_lng/lat_lng.dart';
+import '../lat_lng/lat_lng_bounds.dart';
 
 /// Camera update configuration
 /// [EN]
@@ -22,6 +23,7 @@ class CameraUpdate extends Data {
     this.rotationAngle = -1.0,
     this.height = -1.0,
     this.fitPoints,
+    this.bounds,
     this.padding = -1,
     this.type = -1,
   });
@@ -32,23 +34,30 @@ class CameraUpdate extends Data {
   ///
   /// [KO]
   /// - [position]으로 이동하며 기본 줌 17 적용
-  factory CameraUpdate.fromLatLng(LatLng position) => CameraUpdate(
-        position: position,
-        type: 0,
-        zoomLevel: 17,
-      );
+  factory CameraUpdate.fromLatLng(LatLng position) =>
+      CameraUpdate(position: position, type: 0, zoomLevel: 17);
+
+  /// Move to bounds
+  /// [EN]
+  /// - Adjust camera to fit [bounds]
+  ///
+  /// [KO]
+  /// - [bounds]에 맞게 카메라 조정
+  factory CameraUpdate.fromBounds(LatLngBounds bounds, {int padding = 0}) =>
+      CameraUpdate(bounds: bounds, padding: padding, type: 1);
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
-        'position': position?.toJson(),
-        'zoomLevel': zoomLevel,
-        'tiltAngle': tiltAngle,
-        'rotationAngle': rotationAngle,
-        'height': height,
-        'fitPoints': fitPoints?.map((e) => e.toJson()).toList(),
-        'padding': padding,
-        'type': type,
-      };
+    'position': position?.toJson(),
+    'zoomLevel': zoomLevel,
+    'tiltAngle': tiltAngle,
+    'rotationAngle': rotationAngle,
+    'height': height,
+    'fitPoints': fitPoints?.map((e) => e.toJson()).toList(),
+    'bounds': bounds?.toJson(),
+    'padding': padding,
+    'type': type,
+  };
 
   /// The target geographic position for the camera.
   final LatLng? position;
@@ -77,6 +86,9 @@ class CameraUpdate extends Data {
   ///
   /// When provided, the camera will adjust to show all these points.
   final List<LatLng>? fitPoints;
+
+  /// The target bounds to fit within the camera view.
+  final LatLngBounds? bounds;
 
   /// The padding to apply when fitting points.
   ///

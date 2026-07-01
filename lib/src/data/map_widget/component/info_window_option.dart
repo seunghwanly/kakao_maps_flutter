@@ -16,8 +16,8 @@ class InfoWindowOption extends Data {
   /// The [body] is a custom GUI layout for the info window content.
   /// The [tail] is an optional tail image for speech bubble effect.
   /// The [isVisible] determines whether the info window should be shown initially.
-  /// The [offset] allows positioning the info window relative to its anchor point.
-  /// The [bodyOffset] allows positioning the body relative to its anchor point.
+  /// The [offset] allows positioning the info window relative to its map position.
+  /// The [bodyOffset] allows positioning the body relative to its map position.
   /// The [zOrder] is the rendering order of the [InfoWindow]
   const InfoWindowOption({
     required this.id,
@@ -47,8 +47,8 @@ class InfoWindowOption extends Data {
     this.offset = const InfoWindowOffset(x: 0, y: 0),
     this.bodyOffset = const InfoWindowOffset(x: 0, y: 0),
     this.zOrder,
-  })  : body = null,
-        tail = null;
+  }) : body = null,
+       tail = null;
 
   /// Create custom GUI info window
   /// [EN]
@@ -65,8 +65,8 @@ class InfoWindowOption extends Data {
     this.offset = const InfoWindowOffset(x: 0, y: 0),
     this.bodyOffset = const InfoWindowOffset(x: 0, y: 0),
     this.zOrder,
-  })  : title = null,
-        snippet = null;
+  }) : title = null,
+       snippet = null;
 
   /// The unique identifier for this info window.
   final String id;
@@ -95,6 +95,12 @@ class InfoWindowOption extends Data {
   final bool isVisible;
 
   /// Body-free offset
+  ///
+  /// [EN]
+  /// - used on iOS, Android
+  ///
+  /// [KO]
+  /// - iOS, Android에서 사용
   final InfoWindowOffset offset;
 
   /// Body offset
@@ -108,18 +114,18 @@ class InfoWindowOption extends Data {
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
-        'id': id,
-        ...latLng.toJson(),
-        'title': title,
-        'snippet': snippet,
-        'body': body?.toJson(),
-        'tail': tail?.toJson(),
-        'isVisible': isVisible,
-        'offset': offset.toJson(),
-        'bodyOffset': bodyOffset.toJson(),
-        'hasCustomBody': hasCustomBody,
-        'zOrder': zOrder,
-      };
+    'id': id,
+    ...latLng.toJson(),
+    'title': title,
+    'snippet': snippet,
+    'body': body?.toJson(),
+    'tail': tail?.toJson(),
+    'isVisible': isVisible,
+    'offset': offset.toJson(),
+    'bodyOffset': bodyOffset.toJson(),
+    'hasCustomBody': hasCustomBody,
+    'zOrder': zOrder,
+  };
 }
 
 /// Represents the offset positioning for an info window.
@@ -128,10 +134,7 @@ class InfoWindowOffset extends Data {
   ///
   /// The [x] represents horizontal offset in pixels.
   /// The [y] represents vertical offset in pixels.
-  const InfoWindowOffset({
-    required this.x,
-    required this.y,
-  });
+  const InfoWindowOffset({required this.x, required this.y});
 
   /// Creates an InfoWindowOffset from a JSON map.
   factory InfoWindowOffset.fromJson(Map<String, Object?> json) =>
@@ -147,8 +150,5 @@ class InfoWindowOffset extends Data {
   final double y;
 
   @override
-  Map<String, Object?> toJson() => <String, Object?>{
-        'x': x,
-        'y': y,
-      };
+  Map<String, Object?> toJson() => <String, Object?>{'x': x, 'y': y};
 }

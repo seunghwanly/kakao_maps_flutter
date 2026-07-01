@@ -1,4 +1,6 @@
-part of '../kakao_maps_flutter.dart';
+import 'package:plugin_platform_interface/plugin_platform_interface.dart';
+
+import '../method_channel/method_channel_kakao_maps_flutter.dart';
 
 abstract class KakaoMapsFlutterPlatform extends PlatformInterface {
   /// Constructs a KakaoMapsFlutterPlatform.
@@ -22,7 +24,7 @@ abstract class KakaoMapsFlutterPlatform extends PlatformInterface {
   }
 
   /// Initialize KakaoMaps SDK
-  Future<void> init(String token) {
+  Future<void> init({String? nativeAppKey, String? webAppKey}) {
     throw UnimplementedError('init() has not been implemented.');
   }
 }

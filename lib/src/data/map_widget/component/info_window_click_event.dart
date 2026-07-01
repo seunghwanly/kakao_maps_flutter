@@ -33,7 +33,7 @@ class InfoWindowClickEvent extends Data {
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
-        'infoWindowId': infoWindowId,
-        'latLng': latLng.toJson(),
-      };
+    'infoWindowId': infoWindowId,
+    'latLng': latLng.toJson(),
+  };
 }

@@ -1,3 +1,10 @@
+# 0.3.0
+
+- Adds Web platform support for the interactive Kakao map widget.
+- Adds Web marker, InfoWindow, camera, and marker clusterer support through JS interop.
+- Updates the example app to run on Web with a JavaScript key.
+- Keeps minimum supported SDK versions at Flutter 3.44 and Dart 3.12.
+
 # 0.2.0
 
 - Updates minimum supported SDK versions to Flutter 3.44 and Dart 3.12.

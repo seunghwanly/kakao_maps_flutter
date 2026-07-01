@@ -26,9 +26,7 @@ final class GetZoomLevel extends KakaoMapMethodCall<int?> {
 }
 
 final class SetZoomLevel extends KakaoMapMethodCall<void> {
-  const SetZoomLevel({
-    required this.zoomLevel,
-  });
+  const SetZoomLevel({required this.zoomLevel});
 
   final int zoomLevel;
 
@@ -40,10 +38,7 @@ final class SetZoomLevel extends KakaoMapMethodCall<void> {
 }
 
 final class MoveCamera extends KakaoMapMethodCall<void> {
-  const MoveCamera({
-    required this.cameraUpdate,
-    this.animation,
-  });
+  const MoveCamera({required this.cameraUpdate, this.animation});
 
   final CameraUpdate cameraUpdate;
 
@@ -54,16 +49,13 @@ final class MoveCamera extends KakaoMapMethodCall<void> {
 
   @override
   Map<String, Object?>? encode() => {
-        'cameraUpdate': cameraUpdate.toJson(),
-        'animation': animation?.toJson(),
-      };
+    'cameraUpdate': cameraUpdate.toJson(),
+    'animation': animation?.toJson(),
+  };
 }
 
 final class AddMarker extends KakaoMapMethodCall<void> {
-  const AddMarker({
-    required this.markerOption,
-    required this.layerId,
-  });
+  const AddMarker({required this.markerOption, required this.layerId});
 
   final MarkerOption markerOption;
   final String layerId;
@@ -80,10 +72,7 @@ final class AddMarker extends KakaoMapMethodCall<void> {
 }
 
 final class RemoveMarker extends KakaoMapMethodCall<void> {
-  const RemoveMarker({
-    required this.id,
-    required this.layerId,
-  });
+  const RemoveMarker({required this.id, required this.layerId});
 
   final String id;
   final String layerId;
@@ -92,17 +81,11 @@ final class RemoveMarker extends KakaoMapMethodCall<void> {
   String get name => 'removeMarker';
 
   @override
-  Map<String, Object?>? encode() => {
-        'id': id,
-        'layerId': layerId,
-      };
+  Map<String, Object?>? encode() => {'id': id, 'layerId': layerId};
 }
 
 final class AddMarkers extends KakaoMapMethodCall<void> {
-  const AddMarkers({
-    required this.markerOptions,
-    required this.layerId,
-  });
+  const AddMarkers({required this.markerOptions, required this.layerId});
 
   final List<MarkerOption> markerOptions;
   final String layerId;
@@ -112,16 +95,13 @@ final class AddMarkers extends KakaoMapMethodCall<void> {
 
   @override
   Map<String, Object?>? encode() => {
-        'markers': markerOptions.map((e) => e.toJson()).toList(),
-        'layerId': layerId,
-      };
+    'markers': markerOptions.map((e) => e.toJson()).toList(),
+    'layerId': layerId,
+  };
 }
 
 final class RemoveMarkers extends KakaoMapMethodCall<void> {
-  const RemoveMarkers({
-    required this.ids,
-    required this.layerId,
-  });
+  const RemoveMarkers({required this.ids, required this.layerId});
 
   final List<String> ids;
   final String layerId;
@@ -130,10 +110,7 @@ final class RemoveMarkers extends KakaoMapMethodCall<void> {
   String get name => 'removeMarkers';
 
   @override
-  Map<String, Object?>? encode() => {
-        'ids': ids,
-        'layerId': layerId,
-      };
+  Map<String, Object?>? encode() => {'ids': ids, 'layerId': layerId};
 }
 
 final class ClearMarkers extends KakaoMapMethodCall<void> {
@@ -160,8 +137,8 @@ final class RegisterMarkerStyles extends KakaoMapMethodCall<void> {
 
   @override
   Map<String, Object?>? encode() => {
-        'styles': styles.map((e) => e.toJson()).toList(),
-      };
+    'styles': styles.map((e) => e.toJson()).toList(),
+  };
 }
 
 final class RemoveMarkerStyles extends KakaoMapMethodCall<void> {
@@ -173,9 +150,7 @@ final class RemoveMarkerStyles extends KakaoMapMethodCall<void> {
   String get name => 'removeMarkerStyles';
 
   @override
-  Map<String, Object?>? encode() => {
-        'styleIds': styleIds,
-      };
+  Map<String, Object?>? encode() => {'styleIds': styleIds};
 }
 
 final class ClearMarkerStyles extends KakaoMapMethodCall<void> {
@@ -208,9 +183,7 @@ final class GetCenter extends KakaoMapMethodCall<LatLng?> {
 }
 
 final class ToScreenPoint extends KakaoMapMethodCall<Offset?> {
-  const ToScreenPoint({
-    required this.position,
-  });
+  const ToScreenPoint({required this.position});
 
   final LatLng position;
 
@@ -229,17 +202,12 @@ final class ToScreenPoint extends KakaoMapMethodCall<Offset?> {
 
     if (dx == null || dy == null || dx is! num || dy is! num) return null;
 
-    return Offset(
-      dx.toDouble(),
-      dy.toDouble(),
-    );
+    return Offset(dx.toDouble(), dy.toDouble());
   }
 }
 
 final class FromScreenPoint extends KakaoMapMethodCall<LatLng?> {
-  const FromScreenPoint({
-    required this.point,
-  });
+  const FromScreenPoint({required this.point});
 
   final Offset point;
 
@@ -260,9 +228,7 @@ final class FromScreenPoint extends KakaoMapMethodCall<LatLng?> {
 }
 
 final class SetPoiVisible extends KakaoMapMethodCall<void> {
-  const SetPoiVisible({
-    required this.isVisible,
-  });
+  const SetPoiVisible({required this.isVisible});
 
   final bool isVisible;
 
@@ -274,9 +240,7 @@ final class SetPoiVisible extends KakaoMapMethodCall<void> {
 }
 
 final class SetPoiClickable extends KakaoMapMethodCall<void> {
-  const SetPoiClickable({
-    required this.isClickable,
-  });
+  const SetPoiClickable({required this.isClickable});
 
   final bool isClickable;
 
@@ -288,9 +252,7 @@ final class SetPoiClickable extends KakaoMapMethodCall<void> {
 }
 
 final class SetPoiScale extends KakaoMapMethodCall<void> {
-  const SetPoiScale({
-    required this.scale,
-  });
+  const SetPoiScale({required this.scale});
 
   /// - 0: SMALL
   /// - 1: REGULAR
@@ -326,18 +288,15 @@ final class SetPadding extends KakaoMapMethodCall<void> {
 
   @override
   Map<String, Object?>? encode() => {
-        'left': left,
-        'top': top,
-        'right': right,
-        'bottom': bottom,
-      };
+    'left': left,
+    'top': top,
+    'right': right,
+    'bottom': bottom,
+  };
 }
 
 final class SetViewport extends KakaoMapMethodCall<void> {
-  const SetViewport({
-    required this.width,
-    required this.height,
-  });
+  const SetViewport({required this.width, required this.height});
 
   final int width;
 
@@ -393,9 +352,7 @@ final class GetMapInfo extends KakaoMapMethodCall<MapInfo?> {
 }
 
 final class AddInfoWindow extends KakaoMapMethodCall<void> {
-  const AddInfoWindow({
-    required this.infoWindowOption,
-  });
+  const AddInfoWindow({required this.infoWindowOption});
 
   final InfoWindowOption infoWindowOption;
 
@@ -407,9 +364,7 @@ final class AddInfoWindow extends KakaoMapMethodCall<void> {
 }
 
 final class UpdateInfoWindow extends KakaoMapMethodCall<void> {
-  const UpdateInfoWindow({
-    required this.infoWindowOption,
-  });
+  const UpdateInfoWindow({required this.infoWindowOption});
 
   final InfoWindowOption infoWindowOption;
 
@@ -421,9 +376,7 @@ final class UpdateInfoWindow extends KakaoMapMethodCall<void> {
 }
 
 final class RemoveInfoWindow extends KakaoMapMethodCall<void> {
-  const RemoveInfoWindow({
-    required this.id,
-  });
+  const RemoveInfoWindow({required this.id});
 
   final String id;
 
@@ -435,9 +388,7 @@ final class RemoveInfoWindow extends KakaoMapMethodCall<void> {
 }
 
 final class AddInfoWindows extends KakaoMapMethodCall<void> {
-  const AddInfoWindows({
-    required this.infoWindowOptions,
-  });
+  const AddInfoWindows({required this.infoWindowOptions});
 
   final List<InfoWindowOption> infoWindowOptions;
 
@@ -446,15 +397,14 @@ final class AddInfoWindows extends KakaoMapMethodCall<void> {
 
   @override
   Map<String, Object?>? encode() => {
-        'infoWindowOptions':
-            infoWindowOptions.map((option) => option.toJson()).toList(),
-      };
+    'infoWindowOptions': infoWindowOptions
+        .map((option) => option.toJson())
+        .toList(),
+  };
 }
 
 final class RemoveInfoWindows extends KakaoMapMethodCall<void> {
-  const RemoveInfoWindows({
-    required this.ids,
-  });
+  const RemoveInfoWindows({required this.ids});
 
   final List<String> ids;
 
@@ -498,10 +448,7 @@ final class SetInfoWindowVisible extends KakaoMapMethodCall<void> {
   String get name => 'setInfoWindowVisible';
 
   @override
-  Map<String, Object?>? encode() => {
-        'id': id,
-        'visible': visible,
-      };
+  Map<String, Object?>? encode() => {'id': id, 'visible': visible};
 }
 
 final class ShowCompass extends KakaoMapMethodCall<void> {
@@ -545,10 +492,7 @@ final class HideScaleBar extends KakaoMapMethodCall<void> {
 }
 
 final class SetCompassPosition extends KakaoMapMethodCall<void> {
-  const SetCompassPosition({
-    required this.alignment,
-    required this.offset,
-  });
+  const SetCompassPosition({required this.alignment, required this.offset});
 
   final CompassAlignment alignment;
   final Offset offset;
@@ -558,12 +502,9 @@ final class SetCompassPosition extends KakaoMapMethodCall<void> {
 
   @override
   Map<String, Object?>? encode() => {
-        'alignment': alignment.name,
-        'offset': {
-          'dx': offset.dx,
-          'dy': offset.dy,
-        },
-      };
+    'alignment': alignment.name,
+    'offset': {'dx': offset.dx, 'dy': offset.dy},
+  };
 }
 
 final class ShowLogo extends KakaoMapMethodCall<void> {
@@ -587,10 +528,7 @@ final class HideLogo extends KakaoMapMethodCall<void> {
 }
 
 final class SetLogoPosition extends KakaoMapMethodCall<void> {
-  const SetLogoPosition({
-    required this.alignment,
-    required this.offset,
-  });
+  const SetLogoPosition({required this.alignment, required this.offset});
 
   final LogoAlignment alignment;
   final Offset offset;
@@ -600,12 +538,9 @@ final class SetLogoPosition extends KakaoMapMethodCall<void> {
 
   @override
   Map<String, Object?>? encode() => {
-        'alignment': alignment.name,
-        'offset': {
-          'dx': offset.dx,
-          'dy': offset.dy,
-        },
-      };
+    'alignment': alignment.name,
+    'offset': {'dx': offset.dx, 'dy': offset.dy},
+  };
 }
 
 // ===== LOD Marker (LodLabel/LodPoi) support =====
@@ -645,9 +580,9 @@ final class AddLodMarker extends KakaoMapMethodCall<void> {
 
   @override
   Map<String, Object?>? encode() => {
-        'layerId': layerId,
-        'option': option.toJson(),
-      };
+    'layerId': layerId,
+    'option': option.toJson(),
+  };
 }
 
 final class AddLodMarkers extends KakaoMapMethodCall<void> {
@@ -661,9 +596,9 @@ final class AddLodMarkers extends KakaoMapMethodCall<void> {
 
   @override
   Map<String, Object?>? encode() => {
-        'layerId': layerId,
-        'options': options.map((e) => e.toJson()).toList(),
-      };
+    'layerId': layerId,
+    'options': options.map((e) => e.toJson()).toList(),
+  };
 }
 
 final class RemoveLodMarkers extends KakaoMapMethodCall<void> {
@@ -676,10 +611,7 @@ final class RemoveLodMarkers extends KakaoMapMethodCall<void> {
   String get name => 'removeLodMarkers';
 
   @override
-  Map<String, Object?>? encode() => {
-        'layerId': layerId,
-        'ids': ids,
-      };
+  Map<String, Object?>? encode() => {'layerId': layerId, 'ids': ids};
 }
 
 final class ClearAllLodMarkers extends KakaoMapMethodCall<void> {
@@ -728,10 +660,7 @@ final class ShowLodMarkers extends KakaoMapMethodCall<void> {
   String get name => 'showLodMarkers';
 
   @override
-  Map<String, Object?>? encode() => {
-        'layerId': layerId,
-        'ids': ids,
-      };
+  Map<String, Object?>? encode() => {'layerId': layerId, 'ids': ids};
 }
 
 final class HideLodMarkers extends KakaoMapMethodCall<void> {
@@ -744,10 +673,7 @@ final class HideLodMarkers extends KakaoMapMethodCall<void> {
   String get name => 'hideLodMarkers';
 
   @override
-  Map<String, Object?>? encode() => {
-        'layerId': layerId,
-        'ids': ids,
-      };
+  Map<String, Object?>? encode() => {'layerId': layerId, 'ids': ids};
 }
 
 final class SetLodMarkerLayerClickable extends KakaoMapMethodCall<void> {
@@ -764,19 +690,15 @@ final class SetLodMarkerLayerClickable extends KakaoMapMethodCall<void> {
 
   @override
   Map<String, Object?>? encode() => {
-        'layerId': layerId,
-        'clickable': clickable,
-      };
+    'layerId': layerId,
+    'clickable': clickable,
+  };
 }
 
 // ===== LabelLayer control (non-LOD) =====
 
 final class AddMarkerLayer extends KakaoMapMethodCall<void> {
-  const AddMarkerLayer({
-    required this.layerId,
-    this.zOrder,
-    this.clickable,
-  });
+  const AddMarkerLayer({required this.layerId, this.zOrder, this.clickable});
 
   final String layerId;
   final int? zOrder;
@@ -787,17 +709,14 @@ final class AddMarkerLayer extends KakaoMapMethodCall<void> {
 
   @override
   Map<String, Object?>? encode() => {
-        'layerId': layerId,
-        if (zOrder != null) 'zOrder': zOrder,
-        if (clickable != null) 'clickable': clickable,
-      };
+    'layerId': layerId,
+    if (zOrder != null) 'zOrder': zOrder,
+    if (clickable != null) 'clickable': clickable,
+  };
 }
 
 final class SetMarkerLayerVisible extends KakaoMapMethodCall<void> {
-  const SetMarkerLayerVisible({
-    required this.layerId,
-    required this.visible,
-  });
+  const SetMarkerLayerVisible({required this.layerId, required this.visible});
 
   final String layerId;
   final bool visible;
@@ -806,16 +725,11 @@ final class SetMarkerLayerVisible extends KakaoMapMethodCall<void> {
   String get name => 'setMarkerLayerVisible';
 
   @override
-  Map<String, Object?>? encode() => {
-        'layerId': layerId,
-        'visible': visible,
-      };
+  Map<String, Object?>? encode() => {'layerId': layerId, 'visible': visible};
 }
 
 final class ShowAllMarkers extends KakaoMapMethodCall<void> {
-  const ShowAllMarkers({
-    required this.layerId,
-  });
+  const ShowAllMarkers({required this.layerId});
 
   final String layerId;
 
@@ -823,15 +737,11 @@ final class ShowAllMarkers extends KakaoMapMethodCall<void> {
   String get name => 'showAllMarkers';
 
   @override
-  Map<String, Object?>? encode() => {
-        'layerId': layerId,
-      };
+  Map<String, Object?>? encode() => {'layerId': layerId};
 }
 
 final class HideAllMarkers extends KakaoMapMethodCall<void> {
-  const HideAllMarkers({
-    required this.layerId,
-  });
+  const HideAllMarkers({required this.layerId});
 
   final String layerId;
 
@@ -839,7 +749,5 @@ final class HideAllMarkers extends KakaoMapMethodCall<void> {
   String get name => 'hideAllMarkers';
 
   @override
-  Map<String, Object?>? encode() => {
-        'layerId': layerId,
-      };
+  Map<String, Object?>? encode() => {'layerId': layerId};
 }
