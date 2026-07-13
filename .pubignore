@@ -17,6 +17,7 @@ build/
 
 example/android/app/.cxx/
 doc/screenshots/flutter-3-44/
+doc/screenshots/web-info-window-dpr/
 samples/
 MIGRATION_PLAN.md
 kakao_maps_sdk_web.md

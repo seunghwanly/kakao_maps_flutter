@@ -8,6 +8,7 @@ data class InfoWindowOption(
         val title: String,
         val snippet: String?,
         val isVisible: Boolean,
+        val applyDpScale: Boolean?,
         val offset: InfoWindowOffset,
 )
 

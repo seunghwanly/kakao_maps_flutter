@@ -1,3 +1,10 @@
+# 0.2.2
+
+- Adds `InfoWindowOption.applyDpScale` for density-independent Web custom GUI
+  scalar sizing while preserving existing platform behavior when it is omitted.
+- Set `applyDpScale: true` to use logical CSS pixels on Web. Explicit `false`
+  keeps the legacy browser DPR conversion.
+
 # 0.2.1
 
 - Adds Web platform support for the interactive Kakao map widget.

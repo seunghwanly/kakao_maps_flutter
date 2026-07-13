@@ -13,6 +13,7 @@ import 'package:kakao_maps_flutter/src/view/kakao_map/kakao_map_js_interop.dart'
 import 'package:web/web.dart' as web;
 
 import '../interface/kakao_map_controller_platform_interface.dart';
+import 'web_gui_scale.dart';
 
 //show ascii, base64Encodeion of KakaoMapController
 /// Uses JS interop to call Kakao Maps Web API directly
@@ -963,7 +964,10 @@ class WebKakaoMapController extends KakaoMapControllerPlatform {
 
     if (option.body != null) {
       // New logic to handle Gui body
-      container = _buildGuiElement(option.body!);
+      container = _buildGuiElement(
+        option.body!,
+        applyDpScale: option.applyDpScale,
+      );
     } else {
       // Existing logic for title/snippet
       container = web.HTMLDivElement()
@@ -1438,28 +1442,35 @@ class WebKakaoMapController extends KakaoMapControllerPlatform {
     web.console.log('Hid ${ids.length} LOD markers in layer: $layerId'.toJS);
   }
 
-  double _scale(num value) {
-    final dpr = web.window.devicePixelRatio;
-    return value / dpr;
+  double _scale(num value, {required bool? applyDpScale}) {
+    return scaleWebGuiValue(
+      value,
+      applyDpScale: applyDpScale,
+      devicePixelRatio: web.window.devicePixelRatio,
+    );
   }
 
-  web.Element _buildGuiElement(GuiView guiComponent) {
+  web.Element _buildGuiElement(
+    GuiView guiComponent, {
+    required bool? applyDpScale,
+  }) {
     if (guiComponent is GuiText) {
-      return _buildGuiText(guiComponent);
+      return _buildGuiText(guiComponent, applyDpScale: applyDpScale);
     } else if (guiComponent is GuiImage) {
       return _buildGuiImage(guiComponent);
     } else if (guiComponent is GuiLayout) {
-      return _buildGuiLayout(guiComponent);
+      return _buildGuiLayout(guiComponent, applyDpScale: applyDpScale);
     }
     return web.HTMLDivElement()..innerText = 'Unsupported GUI component';
   }
 
-  web.Element _buildGuiText(GuiText guiText) {
+  web.Element _buildGuiText(GuiText guiText, {required bool? applyDpScale}) {
     final span = web.HTMLSpanElement()..innerText = guiText.text;
-    span.style.fontSize = '${_scale(guiText.textSize)}px';
+    span.style.fontSize =
+        '${_scale(guiText.textSize, applyDpScale: applyDpScale)}px';
     span.style.color = _toCssColor(guiText.textColor);
     if (guiText.strokeSize > 0) {
-      final strokeSize = _scale(guiText.strokeSize);
+      final strokeSize = _scale(guiText.strokeSize, applyDpScale: applyDpScale);
       final strokeColor = _toCssColor(guiText.strokeColor);
       span.style.textShadow =
           '-${strokeSize}px -${strokeSize}px 0 $strokeColor, '
@@ -1476,19 +1487,26 @@ class WebKakaoMapController extends KakaoMapControllerPlatform {
     return img;
   }
 
-  web.Element _buildGuiLayout(GuiLayout guiLayout) {
+  web.Element _buildGuiLayout(
+    GuiLayout guiLayout, {
+    required bool? applyDpScale,
+  }) {
     final div = web.HTMLDivElement();
     div.style.display = 'flex';
     div.style.flexDirection = (guiLayout.orientation == Orientation.horizontal)
         ? 'row'
         : 'column';
     div.style.alignItems = 'center';
-    div.style.gap = '${_scale(4)}px';
+    div.style.gap = '${_scale(4, applyDpScale: applyDpScale)}px';
 
-    div.style.paddingLeft = '${_scale(guiLayout.paddingLeft)}px';
-    div.style.paddingTop = '${_scale(guiLayout.paddingTop)}px';
-    div.style.paddingRight = '${_scale(guiLayout.paddingRight)}px';
-    div.style.paddingBottom = '${_scale(guiLayout.paddingBottom)}px';
+    div.style.paddingLeft =
+        '${_scale(guiLayout.paddingLeft, applyDpScale: applyDpScale)}px';
+    div.style.paddingTop =
+        '${_scale(guiLayout.paddingTop, applyDpScale: applyDpScale)}px';
+    div.style.paddingRight =
+        '${_scale(guiLayout.paddingRight, applyDpScale: applyDpScale)}px';
+    div.style.paddingBottom =
+        '${_scale(guiLayout.paddingBottom, applyDpScale: applyDpScale)}px';
 
     if (guiLayout.background != null) {
       final bgImage = guiLayout.background!;
@@ -1500,7 +1518,10 @@ class WebKakaoMapController extends KakaoMapControllerPlatform {
         div.style.borderImageSlice =
             '${area.top} ${area.right} ${area.bottom} ${area.left} fill';
         div.style.borderWidth =
-            '${_scale(area.top)}px ${_scale(area.right)}px ${_scale(area.bottom)}px ${_scale(area.left)}px';
+            '${_scale(area.top, applyDpScale: applyDpScale)}px '
+            '${_scale(area.right, applyDpScale: applyDpScale)}px '
+            '${_scale(area.bottom, applyDpScale: applyDpScale)}px '
+            '${_scale(area.left, applyDpScale: applyDpScale)}px';
         div.style.borderStyle = 'solid';
         div.style.borderColor = 'transparent';
         div.style.borderImageRepeat = 'stretch';
@@ -1511,7 +1532,7 @@ class WebKakaoMapController extends KakaoMapControllerPlatform {
     }
 
     for (final child in guiLayout.children) {
-      div.append(_buildGuiElement(child));
+      div.append(_buildGuiElement(child, applyDpScale: applyDpScale));
     }
 
     return div;

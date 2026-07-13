@@ -160,6 +160,10 @@ await controller.addInfoWindow(
 await controller.removeInfoWindow(id: 'info_1');
 ```
 
+Web 커스텀 GUI InfoWindow에서 텍스트, 패딩, 간격, 테두리 너비를 논리
+CSS 픽셀로 사용하려면 `applyDpScale: true`를 지정합니다. 옵션을 생략하면
+플랫폼별 기존 동작을 유지합니다.
+
 7. MarkerStyle 등록과 적용
 ```dart
 // import 'dart:convert'; // for base64Decode
