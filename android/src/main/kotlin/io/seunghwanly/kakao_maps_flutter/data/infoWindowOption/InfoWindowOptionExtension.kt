@@ -44,6 +44,11 @@ fun JSONObject.toInfoWindowOptionOrNull(): InfoWindowOption? {
         title = this.optString("title", null),
         snippet = this.optString("snippet", null),
         isVisible = this.optBoolean("isVisible", true),
+        applyDpScale = if (this.has("applyDpScale") && !this.isNull("applyDpScale")) {
+            this.getBoolean("applyDpScale")
+        } else {
+            null
+        },
         offset = offset,
     )
 }
@@ -65,6 +70,11 @@ fun JSONObject.toNativeInfoWindowOptions(): InfoWindowOptions? {
 
     // Set visibility
     options.isVisible = this.optBoolean("isVisible", true)
+
+    // Keep the Android SDK default unless the caller explicitly overrides it.
+    if (this.has("applyDpScale") && !this.isNull("applyDpScale")) {
+        options.setApplyDpScale(this.getBoolean("applyDpScale"))
+    }
 
     // Set zOrder
     options.zOrder = this.optInt("zOrder", 0)

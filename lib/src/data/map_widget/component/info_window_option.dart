@@ -16,6 +16,7 @@ class InfoWindowOption extends Data {
   /// The [body] is a custom GUI layout for the info window content.
   /// The [tail] is an optional tail image for speech bubble effect.
   /// The [isVisible] determines whether the info window should be shown initially.
+  /// The [applyDpScale] keeps custom GUI scalar sizes density-independent on supported platforms.
   /// The [offset] allows positioning the info window relative to its map position.
   /// The [bodyOffset] allows positioning the body relative to its map position.
   /// The [zOrder] is the rendering order of the [InfoWindow]
@@ -27,6 +28,7 @@ class InfoWindowOption extends Data {
     this.body,
     this.tail,
     this.isVisible = true,
+    this.applyDpScale,
     this.offset = const InfoWindowOffset(x: 0, y: 0),
     this.bodyOffset = const InfoWindowOffset(x: 0, y: 0),
     this.zOrder,
@@ -44,6 +46,7 @@ class InfoWindowOption extends Data {
     required String this.title,
     this.snippet,
     this.isVisible = true,
+    this.applyDpScale,
     this.offset = const InfoWindowOffset(x: 0, y: 0),
     this.bodyOffset = const InfoWindowOffset(x: 0, y: 0),
     this.zOrder,
@@ -62,6 +65,7 @@ class InfoWindowOption extends Data {
     required GuiView this.body,
     this.tail,
     this.isVisible = true,
+    this.applyDpScale,
     this.offset = const InfoWindowOffset(x: 0, y: 0),
     this.bodyOffset = const InfoWindowOffset(x: 0, y: 0),
     this.zOrder,
@@ -94,6 +98,16 @@ class InfoWindowOption extends Data {
   /// Whether the info window should be visible when created.
   final bool isVisible;
 
+  /// Whether custom GUI scalar values use density-independent sizing.
+  ///
+  /// On Android this maps to `InfoWindowOptions.setApplyDpScale`.
+  /// On Web, enabled values are treated as logical CSS pixels. Disabled values
+  /// preserve the legacy behavior that divides GUI values by the browser
+  /// device pixel ratio. When omitted, each platform keeps its existing
+  /// behavior: Android uses the SDK default, Web uses the legacy conversion,
+  /// and iOS keeps its point-based behavior. This does not affect [bodyOffset].
+  final bool? applyDpScale;
+
   /// Body-free offset
   ///
   /// [EN]
@@ -121,6 +135,7 @@ class InfoWindowOption extends Data {
     'body': body?.toJson(),
     'tail': tail?.toJson(),
     'isVisible': isVisible,
+    if (applyDpScale != null) 'applyDpScale': applyDpScale,
     'offset': offset.toJson(),
     'bodyOffset': bodyOffset.toJson(),
     'hasCustomBody': hasCustomBody,

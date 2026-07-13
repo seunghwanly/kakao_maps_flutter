@@ -163,6 +163,9 @@ await controller.addInfoWindow(
 await controller.removeInfoWindow(id: 'info_1');
 ```
 
+For custom GUI InfoWindows on Web, set `applyDpScale: true` to interpret
+text, padding, gap, and border widths as logical CSS pixels. Omitting the
+option preserves the existing behavior on every platform.
 
 7. Add/Use MarkerStyle
 ```dart
