@@ -1,4 +1,4 @@
-# Unreleased
+# 0.2.2
 
 - Adds `InfoWindowOption.applyDpScale` for density-independent Web custom GUI
   scalar sizing while preserving existing platform behavior when it is omitted.
