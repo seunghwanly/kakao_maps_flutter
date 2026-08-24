@@ -3,7 +3,10 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:kakao_maps_flutter/kakao_maps_flutter.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
+
+import 'factory_impl/webview_params_stub.dart'
+    if (dart.library.io) 'factory_impl/webview_params_mobile.dart'
+    if (dart.library.js_interop) 'factory_impl/webview_params_web.dart';
 
 part 'controller/static_map_controller.dart';
 
@@ -111,15 +114,7 @@ class _StaticKakaoMapState extends State<StaticKakaoMap> {
   void _initializeController() {
     try {
       // 검증된 패턴을 사용하여 컨트롤러 생성
-      late final PlatformWebViewControllerCreationParams params;
-      if (WebViewPlatform.instance is WebKitWebViewPlatform) {
-        params = WebKitWebViewControllerCreationParams(
-          allowsInlineMediaPlayback: true,
-          mediaTypesRequiringUserAction: const <PlaybackMediaTypes>{},
-        );
-      } else {
-        params = const PlatformWebViewControllerCreationParams();
-      }
+      final params = createWebViewControllerCreationParams();
 
       controller = WebViewController.fromPlatformCreationParams(params)
         ..setJavaScriptMode(JavaScriptMode.unrestricted)
@@ -133,7 +128,6 @@ class _StaticKakaoMapState extends State<StaticKakaoMap> {
             },
           ),
         )
-
         // 작동하는 패턴을 사용하여 HTML 로드
         ..loadHtmlString(
           StaticMapController.instance.buildHTML(
@@ -174,7 +168,8 @@ class _StaticKakaoMapState extends State<StaticKakaoMap> {
               width: finalWidth,
               height: finalHeight,
               child: Center(
-                child: widget.loadingWidget ??
+                child:
+                    widget.loadingWidget ??
                     const CircularProgressIndicator.adaptive(),
               ),
             ),
@@ -185,9 +180,7 @@ class _StaticKakaoMapState extends State<StaticKakaoMap> {
         return SizedBox(
           width: finalWidth,
           height: finalHeight,
-          child: IgnorePointer(
-            child: WebViewWidget(controller: controller),
-          ),
+          child: IgnorePointer(child: WebViewWidget(controller: controller)),
         );
       },
     );

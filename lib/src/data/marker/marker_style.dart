@@ -31,11 +31,11 @@ class MarkerTextStyle extends Data {
   /// Serialize for platform channel
   @override
   Map<String, Object?> toJson() => <String, Object?>{
-        'fontSize': fontSize,
-        'fontColor': fontColorArgb,
-        'strokeThickness': strokeThickness,
-        'strokeColor': strokeColorArgb,
-      };
+    'fontSize': fontSize,
+    'fontColor': fontColorArgb,
+    'strokeThickness': strokeThickness,
+    'strokeColor': strokeColorArgb,
+  };
 }
 
 /// Per-level marker style
@@ -46,23 +46,14 @@ class MarkerTextStyle extends Data {
 /// - 줌 레벨별 아이콘/텍스트 스타일(iOS: PerLevelPoiStyle), Android는 첫 항목 우선
 class MarkerPerLevelStyle extends Data {
   /// Create per-level style
-  const MarkerPerLevelStyle({
-    required this.bytes,
-    this.textStyle,
-    this.level,
-  });
+  const MarkerPerLevelStyle({required this.bytes, this.textStyle, this.level});
 
   /// From raw bytes
   factory MarkerPerLevelStyle.fromBytes({
     required Uint8List bytes,
     MarkerTextStyle? textStyle,
     int? level,
-  }) =>
-      MarkerPerLevelStyle(
-        bytes: bytes,
-        textStyle: textStyle,
-        level: level,
-      );
+  }) => MarkerPerLevelStyle(bytes: bytes, textStyle: textStyle, level: level);
 
   /// Icon bytes (Base64 supported)
   final Uint8List bytes;
@@ -76,10 +67,10 @@ class MarkerPerLevelStyle extends Data {
   /// Serialize representation
   @override
   Map<String, Object?> toJson() => <String, Object?>{
-        'icon': bytes,
-        'textStyle': textStyle?.toJson(),
-        'level': level,
-      };
+    'icon': bytes,
+    'textStyle': textStyle?.toJson(),
+    'level': level,
+  };
 }
 
 /// Marker style bundle
@@ -90,10 +81,7 @@ class MarkerPerLevelStyle extends Data {
 /// - 하나의 [styleId] 아래 여러 레벨별 스타일 묶음
 class MarkerStyle extends Data {
   /// Create style bundle
-  const MarkerStyle({
-    required this.styleId,
-    required this.perLevels,
-  });
+  const MarkerStyle({required this.styleId, required this.perLevels});
 
   /// Unique style id (cross-platform)
   final String styleId;
@@ -104,7 +92,7 @@ class MarkerStyle extends Data {
   /// Serialize representation
   @override
   Map<String, Object?> toJson() => <String, Object?>{
-        'styleId': styleId,
-        'perLevels': perLevels.map((e) => e.toJson()).toList(),
-      };
+    'styleId': styleId,
+    'perLevels': perLevels.map((e) => e.toJson()).toList(),
+  };
 }

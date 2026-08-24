@@ -50,10 +50,10 @@ class MarkerOption extends Data {
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
-        'id': id,
-        'latLng': latLng.toJson(),
-        'styleId': styleId,
-        'rank': rank,
-        'text': text,
-      };
+    'id': id,
+    'latLng': latLng.toJson(),
+    'styleId': styleId,
+    'rank': rank,
+    'text': text,
+  };
 }

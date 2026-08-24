@@ -13,10 +13,7 @@ class LatLng extends Data {
   ///
   /// [KO]
   /// - [latitude] 범위 -90..90, [longitude] 범위 -180..180
-  const LatLng({
-    required this.latitude,
-    required this.longitude,
-  });
+  const LatLng({required this.latitude, required this.longitude});
 
   /// From JSON map
   factory LatLng.fromJson(Map<String, Object?> json) {
@@ -27,17 +24,14 @@ class LatLng extends Data {
       throw ArgumentError('Invalid LatLng json: $json');
     }
 
-    return LatLng(
-      latitude: latRaw.toDouble(),
-      longitude: lngRaw.toDouble(),
-    );
+    return LatLng(latitude: latRaw.toDouble(), longitude: lngRaw.toDouble());
   }
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
-        'latitude': latitude,
-        'longitude': longitude,
-      };
+    'latitude': latitude,
+    'longitude': longitude,
+  };
 
   /// Latitude in degrees
   final double latitude;

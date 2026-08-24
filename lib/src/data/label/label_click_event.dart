@@ -40,8 +40,8 @@ class LabelClickEvent extends Data {
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
-        'labelId': labelId,
-        'latLng': latLng.toJson(),
-        'layerId': layerId,
-      };
+    'labelId': labelId,
+    'latLng': latLng.toJson(),
+    'layerId': layerId,
+  };
 }

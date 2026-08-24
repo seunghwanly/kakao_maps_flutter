@@ -15,10 +15,7 @@ class LatLngBounds extends Data {
   ///
   /// [KO]
   /// - [southwest]: 좌하단 좌표, [northeast]: 우상단 좌표
-  const LatLngBounds({
-    required this.southwest,
-    required this.northeast,
-  });
+  const LatLngBounds({required this.southwest, required this.northeast});
 
   /// From JSON map
   factory LatLngBounds.fromJson(Map<String, Object?> json) {
@@ -30,9 +27,9 @@ class LatLngBounds extends Data {
 
   @override
   Map<String, Object?> toJson() => {
-        'southwest': southwest.toJson(),
-        'northeast': northeast.toJson(),
-      };
+    'southwest': southwest.toJson(),
+    'northeast': northeast.toJson(),
+  };
 
   /// The southwest corner coordinate of this bounds.
   final LatLng southwest;

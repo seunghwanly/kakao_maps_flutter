@@ -179,17 +179,17 @@ abstract class GuiView extends Data {
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
-        'type': type,
-        'id': id,
-        'clickable': clickable,
-        'paddingLeft': paddingLeft,
-        'paddingTop': paddingTop,
-        'paddingRight': paddingRight,
-        'paddingBottom': paddingBottom,
-        'verticalOrigin': verticalOrigin.value,
-        'horizontalOrigin': horizontalOrigin.value,
-        'verticalAlign': verticalAlign.value,
-        'horizontalAlign': horizontalAlign.value,
-        'tag': tag,
-      };
+    'type': type,
+    'id': id,
+    'clickable': clickable,
+    'paddingLeft': paddingLeft,
+    'paddingTop': paddingTop,
+    'paddingRight': paddingRight,
+    'paddingBottom': paddingBottom,
+    'verticalOrigin': verticalOrigin.value,
+    'horizontalOrigin': horizontalOrigin.value,
+    'verticalAlign': verticalAlign.value,
+    'horizontalAlign': horizontalAlign.value,
+    'tag': tag,
+  };
 }
