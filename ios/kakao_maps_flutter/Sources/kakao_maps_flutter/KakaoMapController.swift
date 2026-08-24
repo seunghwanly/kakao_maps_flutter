@@ -794,7 +794,15 @@ class KakaoMapController: NSObject, FlutterPlatformView, MapControllerDelegate, 
                         iconImage = UIImage(data: iconData)
                     }
                     guard let iconImage else { continue }
-                    let iconStyle = PoiIconStyle(symbol: iconImage)
+                    // Anchor at bottom-center to match the Android SDK default
+                    // (LabelStyle anchor 0.5/1.0) and web (kakao.maps.Marker).
+                    // The iOS SDK default is center (0.5/0.5), which rendered
+                    // the same marker half an icon height lower than the
+                    // other platforms.
+                    let iconStyle = PoiIconStyle(
+                        symbol: iconImage,
+                        anchorPoint: CGPoint(x: 0.5, y: 1.0)
+                    )
                     var textStyle: PoiTextStyle? = nil
                     if let ts = pl["textStyle"] as? [String: Any] {
                         let fontSize = (ts["fontSize"] as? Int).map { UInt($0) } ?? 14

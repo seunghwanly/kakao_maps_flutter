@@ -94,16 +94,30 @@ class InfoWindowOption extends Data {
   /// Whether the info window should be visible when created.
   final bool isVisible;
 
-  /// Body-free offset
+  /// Info window offset
   ///
   /// [EN]
-  /// - used on iOS, Android
+  /// - Shifts the info window body from its anchored position, in logical
+  ///   pixels (+x right, +y down). Combined with [bodyOffset] and applied
+  ///   identically on Android, iOS and web.
+  /// - When a [tail] is provided (Android/iOS), only the body is shifted.
   ///
   /// [KO]
-  /// - iOS, Android에서 사용
+  /// - 말풍선 본문을 기준 위치에서 이동시키는 오프셋 (논리 픽셀, +x 오른쪽,
+  ///   +y 아래). [bodyOffset]과 합산되어 Android, iOS, 웹에서 동일하게 적용
+  /// - [tail]이 있는 경우(Android/iOS) 본문만 이동
   final InfoWindowOffset offset;
 
   /// Body offset
+  ///
+  /// [EN]
+  /// - Shifts the info window body from its anchored position, in logical
+  ///   pixels (+x right, +y down). Combined with [offset] and applied
+  ///   identically on Android, iOS and web.
+  ///
+  /// [KO]
+  /// - 말풍선 본문을 기준 위치에서 이동시키는 오프셋 (논리 픽셀, +x 오른쪽,
+  ///   +y 아래). [offset]과 합산되어 Android, iOS, 웹에서 동일하게 적용
   final InfoWindowOffset bodyOffset;
 
   /// Whether this InfoWindow uses custom GUI components.
@@ -132,8 +146,8 @@ class InfoWindowOption extends Data {
 class InfoWindowOffset extends Data {
   /// Creates a new InfoWindowOffset with x and y coordinates.
   ///
-  /// The [x] represents horizontal offset in pixels.
-  /// The [y] represents vertical offset in pixels.
+  /// The [x] represents horizontal offset in logical pixels (+x right).
+  /// The [y] represents vertical offset in logical pixels (+y down).
   const InfoWindowOffset({required this.x, required this.y});
 
   /// Creates an InfoWindowOffset from a JSON map.

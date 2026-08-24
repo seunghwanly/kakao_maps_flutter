@@ -1,21 +1,31 @@
 # 0.2.2
 
 ### 🐛 Bug Fixes
+* Unifies InfoWindow `offset`/`bodyOffset` behavior across Android, iOS, and Web.
+  * Offsets are now interpreted as logical pixels (+x right, +y down) on every platform. Previously Android/iOS passed the values straight to the native SDK, which interprets them in 2x-reference pixels, so the same value moved the info window only half as far on mobile as on web.
+  * `offset` and `bodyOffset` are now combined into a single body shift. Previously `offset` was ignored on all platforms.
+  * `bodyOffset` now also applies to text-only info windows on Android/iOS (previously it only applied to custom GUI bodies).
+* (iOS) Marker icons are now anchored at bottom-center to match Android (`LabelStyle` anchor 0.5/1.0) and web (`kakao.maps.Marker`). The iOS SDK default was center (0.5/0.5), which rendered the same marker half an icon height lower than the other platforms.
+* ⚠️ Behavior change: if your app tuned platform-specific offset values to work around the mismatch (e.g. a smaller offset on mobile), remove the workaround and pass a single logical-pixel offset for all platforms.
+
+### 🔧 Improvements
 * (iOS) Updated KakaoMapsSDK to 2.12.19 (CocoaPods, SPM) to fix intermittent native crashes during map rendering reported via Firebase Crashlytics (`AsyncDownloaderManager::confirmDiskCache` / unordered_map race). Kakao confirmed the crash spike caused by the 2026-08-10 map server data deployment is fixed in iOS 2.12.18+.
 * (Android) Updated Kakao Maps SDK to 2.15.1 for the same engine/server data compatibility fix (fixed in Android 2.15.0+), plus ANR fixes during map shutdown and Fragment lifecycle handling (2.13.x).
 
 # 0.2.1
 
-- Adds Web platform support for the interactive Kakao map widget.
-- Adds Web marker, InfoWindow, camera, and marker clusterer support through JS interop.
-- Updates the example app to run on Web with a JavaScript key.
-- Keeps minimum supported SDK versions at Flutter 3.44 and Dart 3.12.
+### 🔧 Improvements
+* Adds Web platform support for the interactive Kakao map widget.
+* Adds Web marker, InfoWindow, camera, and marker clusterer support through JS interop.
+* Updates the example app to run on Web with a JavaScript key.
+* Keeps minimum supported SDK versions at Flutter 3.44 and Dart 3.12.
 
 # 0.2.0
 
-- Updates minimum supported SDK versions to Flutter 3.44 and Dart 3.12.
-- Migrates Android Gradle files to built-in Kotlin.
-- Adds FlutterFramework to the iOS Swift Package Manager manifest.
+### 🔧 Improvements
+* Updates minimum supported SDK versions to Flutter 3.44 and Dart 3.12.
+* Migrates Android Gradle files to built-in Kotlin.
+* Adds FlutterFramework to the iOS Swift Package Manager manifest.
 
 # 0.1.2
 
