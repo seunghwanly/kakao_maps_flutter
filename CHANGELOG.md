@@ -6,6 +6,7 @@
   - Offsets are now interpreted as logical pixels (+x right, +y down) on every platform. Previously Android/iOS passed the values straight to the native SDK, which interprets them in 2x-reference pixels, so the same value moved the info window only half as far on mobile as on web.
   - `offset` and `bodyOffset` are now combined into a single body shift. Previously `offset` was ignored on all platforms.
   - `bodyOffset` now also applies to text-only info windows on Android/iOS (previously it only applied to custom GUI bodies).
+- (iOS) Marker icons are now anchored at bottom-center to match Android (`LabelStyle` anchor 0.5/1.0) and web (`kakao.maps.Marker`). The iOS SDK default was center (0.5/0.5), which rendered the same marker half an icon height lower than the other platforms.
 - ⚠️ Behavior change: if your app tuned platform-specific offset values to work around the mismatch (e.g. a smaller offset on mobile), remove the workaround and pass a single logical-pixel offset for all platforms.
 
 # 0.2.1
