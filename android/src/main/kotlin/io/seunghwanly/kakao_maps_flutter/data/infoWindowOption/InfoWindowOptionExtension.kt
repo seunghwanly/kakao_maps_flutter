@@ -12,6 +12,13 @@ import org.json.JSONObject
  */
 
 /**
+ * Read a single component of a nested offset object (e.g. `offset.x`),
+ * defaulting to 0.0 when absent.
+ */
+private fun JSONObject.optOffsetComponent(key: String, axis: String): Double =
+    this.optJSONObject(key)?.optDouble(axis, 0.0) ?: 0.0
+
+/**
  * Convert JSON to InfoWindowOption data class
  */
 fun JSONObject.toInfoWindowOptionOrNull(): InfoWindowOption? {
@@ -69,6 +76,19 @@ fun JSONObject.toNativeInfoWindowOptions(): InfoWindowOptions? {
     // Set zOrder
     options.zOrder = this.optInt("zOrder", 0)
 
+    // The native SDK interprets GUI offsets in 2x-reference pixels
+    // (1 unit = 0.5dp on screen), while the Dart API and the web
+    // implementation use logical pixels (+x right, +y down).
+    // Combine `offset` and `bodyOffset`, then scale by 2 so the same
+    // Dart values shift the InfoWindow identically on every platform.
+    val offsetX = this.optOffsetComponent("offset", "x") +
+            this.optOffsetComponent("bodyOffset", "x")
+    val offsetY = this.optOffsetComponent("offset", "y") +
+            this.optOffsetComponent("bodyOffset", "y")
+    if (offsetX != 0.0 || offsetY != 0.0) {
+        options.setBodyOffset((offsetX * 2).toFloat(), (offsetY * 2).toFloat())
+    }
+
     // Handle custom body or fallback to text
     val hasCustomBody = this.optBoolean("hasCustomBody", false)
 
@@ -80,14 +100,6 @@ fun JSONObject.toNativeInfoWindowOptions(): InfoWindowOptions? {
             if (guiBody != null) {
                 options.body = guiBody
             }
-        }
-
-        // Set body offset if provided
-        val bodyOffsetJson = this.optJSONObject("bodyOffset")
-        if (bodyOffsetJson != null) {
-            val x = bodyOffsetJson.optDouble("x", 0.0).toInt()
-            val y = bodyOffsetJson.optDouble("y", 0.0).toInt()
-            options.setBodyOffset(x.toFloat(), y.toFloat())
         }
 
         // Set tail if provided
