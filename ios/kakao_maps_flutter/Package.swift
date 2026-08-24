@@ -18,7 +18,7 @@ let package = Package(
     .package(name: "FlutterFramework", path: "../FlutterFramework"),
     .package(
       url: "https://github.com/kakao-mapsSDK/KakaoMapsSDK-SPM.git",
-      .upToNextMinor(from: "2.12.5")
+      .upToNextMinor(from: "2.12.19")
     )
   ],
   targets: [

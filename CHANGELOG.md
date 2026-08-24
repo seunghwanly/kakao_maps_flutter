@@ -1,3 +1,9 @@
+# 0.2.2
+
+### 🐛 Bug Fixes
+* (iOS) Updated KakaoMapsSDK to 2.12.19 (CocoaPods, SPM) to fix intermittent native crashes during map rendering reported via Firebase Crashlytics (`AsyncDownloaderManager::confirmDiskCache` / unordered_map race). Kakao confirmed the crash spike caused by the 2026-08-10 map server data deployment is fixed in iOS 2.12.18+.
+* (Android) Updated Kakao Maps SDK to 2.15.1 for the same engine/server data compatibility fix (fixed in Android 2.15.0+), plus ANR fixes during map shutdown and Fragment lifecycle handling (2.13.x).
+
 # 0.2.1
 
 - Adds Web platform support for the interactive Kakao map widget.
