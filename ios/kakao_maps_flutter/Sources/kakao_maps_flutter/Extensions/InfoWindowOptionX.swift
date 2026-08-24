@@ -20,7 +20,18 @@ extension Dictionary where Key == String, Value == Any {
         let infoWindow = InfoWindow(id)
         infoWindow.position = position
         infoWindow.zOrder = self["zOrder"] as? Int ?? 0
-        
+
+        // The native SDK interprets GUI offsets in 2x-reference pixels
+        // (1 unit = 0.5pt on screen), while the Dart API and the web
+        // implementation use logical pixels (+x right, +y down).
+        // Combine `offset` and `bodyOffset`, then scale by 2 so the same
+        // Dart values shift the InfoWindow identically on every platform.
+        let offsetX = offsetComponent("offset", "x") + offsetComponent("bodyOffset", "x")
+        let offsetY = offsetComponent("offset", "y") + offsetComponent("bodyOffset", "y")
+        if offsetX != 0 || offsetY != 0 {
+            infoWindow.bodyOffset = CGPoint(x: offsetX * 2, y: offsetY * 2)
+        }
+
         if hasCustomBody {
             // Handle custom GuiView body
             if let bodyJson = self["body"] as? [String: Any] {
@@ -32,14 +43,7 @@ extension Dictionary where Key == String, Value == Any {
                     }
                 }
             }
-            
-            // Set body offset if provided
-            if let bodyOffsetJson = self["bodyOffset"] as? [String: Any],
-               let x = bodyOffsetJson["x"] as? Double,
-               let y = bodyOffsetJson["y"] as? Double {
-                infoWindow.bodyOffset = CGPoint(x: x, y: y)
-            }
-            
+
             // Set tail if provided
             if let tailJson = self["tail"] as? [String: Any],
                let tailButton = tailJson.createGuiButton() {
@@ -66,6 +70,13 @@ extension Dictionary where Key == String, Value == Any {
         }
         
         return infoWindow
+    }
+
+    /// Read a single component of a nested offset object (e.g. `offset.x`),
+    /// defaulting to 0 when absent.
+    private func offsetComponent(_ key: String, _ axis: String) -> Double {
+        guard let json = self[key] as? [String: Any] else { return 0 }
+        return json[axis] as? Double ?? 0
     }
 }
 

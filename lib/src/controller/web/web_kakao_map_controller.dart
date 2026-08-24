@@ -988,9 +988,13 @@ class WebKakaoMapController extends KakaoMapControllerPlatform {
       }
     }
 
-    if (option.bodyOffset.x != 0 || option.bodyOffset.y != 0) {
+    // `offset` and `bodyOffset` are combined into a single body shift in
+    // logical (CSS) pixels, matching the Android/iOS implementations.
+    final offsetX = option.offset.x + option.bodyOffset.x;
+    final offsetY = option.offset.y + option.bodyOffset.y;
+    if (offsetX != 0 || offsetY != 0) {
       (container as web.HTMLElement).style.transform =
-          'translate(${option.bodyOffset.x}px, ${option.bodyOffset.y}px)';
+          'translate(${offsetX}px, ${offsetY}px)';
     }
 
     // Add click listener to the container
