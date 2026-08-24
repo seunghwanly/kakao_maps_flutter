@@ -21,9 +21,7 @@ class ZoomControls extends StatelessWidget {
       padding: const EdgeInsets.only(top: 80),
       child: Material(
         color: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         elevation: 4,
         child: Padding(
           padding: const EdgeInsets.all(4),

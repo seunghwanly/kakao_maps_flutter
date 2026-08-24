@@ -58,17 +58,17 @@ class Compass extends Data {
 
   /// From JSON map
   factory Compass.fromJson(Map<String, Object?> json) => Compass(
-        isBackToNorthOnClick: json['isBackToNorthOnClick'] as bool? ?? true,
-        alignment: _alignmentFromString(json['alignment'] as String?),
-        offset: _offsetFromJson(json['offset'] as Map<String, Object?>?),
-      );
+    isBackToNorthOnClick: json['isBackToNorthOnClick'] as bool? ?? true,
+    alignment: _alignmentFromString(json['alignment'] as String?),
+    offset: _offsetFromJson(json['offset'] as Map<String, Object?>?),
+  );
 
   @override
   Map<String, Object?> toJson() => {
-        'isBackToNorthOnClick': isBackToNorthOnClick,
-        'alignment': _alignmentToString(alignment),
-        'offset': _offsetToJson(offset),
-      };
+    'isBackToNorthOnClick': isBackToNorthOnClick,
+    'alignment': _alignmentToString(alignment),
+    'offset': _offsetToJson(offset),
+  };
 
   /// Back-to-north on click
   final bool isBackToNorthOnClick;
@@ -136,7 +136,7 @@ class Compass extends Data {
   }
 
   static Map<String, Object?> _offsetToJson(Offset offset) => {
-        'dx': offset.dx,
-        'dy': offset.dy,
-      };
+    'dx': offset.dx,
+    'dy': offset.dy,
+  };
 }

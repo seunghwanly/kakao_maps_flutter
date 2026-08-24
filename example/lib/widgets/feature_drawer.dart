@@ -64,7 +64,7 @@ class FeatureDrawer extends StatelessWidget {
   final int poiScale;
   final bool isCameraMoveEndListenerEnabled;
   final Future<void> Function(String, LatLng, String, {String? snippet})
-      onInfoWindowAdd;
+  onInfoWindowAdd;
   final Future<void> Function(String) onInfoWindowRemove;
   final VoidCallback onInfoWindowsAddAll;
   final VoidCallback onInfoWindowsClear;
@@ -179,8 +179,9 @@ class FeatureDrawer extends StatelessWidget {
             children: [
               KakaoDrawerTile(
                 title: 'Toggle POI Visibility',
-                subtitle:
-                    isPoisVisible ? 'Currently: Visible' : 'Currently: Hidden',
+                subtitle: isPoisVisible
+                    ? 'Currently: Visible'
+                    : 'Currently: Hidden',
                 enabled: isMapReady,
                 onTap: () {
                   onPoiVisibilityToggle();

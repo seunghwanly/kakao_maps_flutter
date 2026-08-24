@@ -22,19 +22,19 @@ class ScaleBar extends Data {
 
   /// From JSON map
   factory ScaleBar.fromJson(Map<String, Object?> json) => ScaleBar(
-        isAutoHide: json['isAutoHide'] as bool? ?? false,
-        fadeInTime: json['fadeInTime'] as int? ?? 300,
-        fadeOutTime: json['fadeOutTime'] as int? ?? 300,
-        retentionTime: json['retentionTime'] as int? ?? 3000,
-      );
+    isAutoHide: json['isAutoHide'] as bool? ?? false,
+    fadeInTime: json['fadeInTime'] as int? ?? 300,
+    fadeOutTime: json['fadeOutTime'] as int? ?? 300,
+    retentionTime: json['retentionTime'] as int? ?? 3000,
+  );
 
   @override
   Map<String, Object?> toJson() => {
-        'isAutoHide': isAutoHide,
-        'fadeInTime': fadeInTime,
-        'fadeOutTime': fadeOutTime,
-        'retentionTime': retentionTime,
-      };
+    'isAutoHide': isAutoHide,
+    'fadeInTime': fadeInTime,
+    'fadeOutTime': fadeOutTime,
+    'retentionTime': retentionTime,
+  };
 
   /// Auto-hide enabled
   final bool isAutoHide;

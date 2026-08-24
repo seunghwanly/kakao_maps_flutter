@@ -9,9 +9,7 @@ class KakaoDrawerHeader extends StatelessWidget {
     return const DecoratedBox(
       decoration: BoxDecoration(
         color: Color(0xFFFEE500),
-        border: Border(
-          bottom: BorderSide(color: Color(0xCC2e2e30), width: 4),
-        ),
+        border: Border(bottom: BorderSide(color: Color(0xCC2e2e30), width: 4)),
       ),
       child: Padding(
         padding: EdgeInsets.fromLTRB(16, 40, 16, 16),
@@ -29,10 +27,7 @@ class KakaoDrawerHeader extends StatelessWidget {
             SizedBox(height: 4),
             Text(
               'Flutter SDK v2 Demo',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.black54,
-              ),
+              style: TextStyle(fontSize: 14, color: Colors.black54),
             ),
           ],
         ),
@@ -94,15 +89,10 @@ class KakaoDrawerTile extends StatelessWidget {
     return ListTile(
       title: Text(
         title,
-        style: TextStyle(
-          color: enabled ? Colors.black87 : Colors.grey,
-        ),
+        style: TextStyle(color: enabled ? Colors.black87 : Colors.grey),
       ),
       subtitle: subtitle != null
-          ? Text(
-              subtitle!,
-              style: const TextStyle(fontSize: 12),
-            )
+          ? Text(subtitle!, style: const TextStyle(fontSize: 12))
           : null,
       onTap: enabled ? onTap : null,
       enabled: enabled,

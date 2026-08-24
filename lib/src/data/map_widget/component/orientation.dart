@@ -44,17 +44,15 @@ enum Orientation {
   /// 수직
   vertical(value: 1);
 
-  const Orientation({
-    required this.value,
-  });
+  const Orientation({required this.value});
 
   /// 설정값
   final int value;
 
   /// 설정값[value] 에 따른 enum 반환
   static Orientation getEnum(int value) => switch (value) {
-        0 => horizontal,
-        1 => vertical,
-        _ => horizontal,
-      };
+    0 => horizontal,
+    1 => vertical,
+    _ => horizontal,
+  };
 }

@@ -118,14 +118,14 @@ class GuiImage extends GuiView {
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
-        ...super.toJson(),
-        'resourceId': resourceId,
-        'isNinepatch': isNinepatch,
-        'base64EncodedImage': base64EncodedImage,
-        'assetId': assetId,
-        'fixedArea': fixedArea.toJson(),
-        'child': child?.toJson(),
-      };
+    ...super.toJson(),
+    'resourceId': resourceId,
+    'isNinepatch': isNinepatch,
+    'base64EncodedImage': base64EncodedImage,
+    'assetId': assetId,
+    'fixedArea': fixedArea.toJson(),
+    'child': child?.toJson(),
+  };
 }
 
 /// GUI 이미지의 고정 영역을 나타내는 클래스
@@ -156,9 +156,9 @@ class GuiImageFixedArea extends Data {
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
-        'left': left,
-        'top': top,
-        'right': right,
-        'bottom': bottom,
-      };
+    'left': left,
+    'top': top,
+    'right': right,
+    'bottom': bottom,
+  };
 }

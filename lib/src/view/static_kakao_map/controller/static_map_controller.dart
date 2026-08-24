@@ -29,7 +29,8 @@ class StaticMapController {
     MarkerOption? marker,
   }) {
     // Flutter 위젯 크기를 viewport로 설정하고 map-container가 100% fill
-    final String htmlHeader = '''
+    final String htmlHeader =
+        '''
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -55,7 +56,8 @@ class StaticMapController {
 <body>
 ''';
 
-    final String scriptHeader = '''
+    final String scriptHeader =
+        '''
   <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=$_webAPIKey"></script>
 ''';
 
@@ -70,7 +72,8 @@ class StaticMapController {
     /// 기본 마커를 사용하는 정적 지도
     String? markerOption = '';
     if (marker != null) {
-      markerOption = '''
+      markerOption =
+          '''
 marker: {
   position: new kakao.maps.LatLng(${marker.latLng.latitude}, ${marker.latLng.longitude})
 },''';

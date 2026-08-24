@@ -31,23 +31,14 @@ class _CompassScaleBarExampleScreenState
         onMapCreated: (controller) {
           _mapController = controller;
         },
-        initialPosition: const LatLng(
-          latitude: 37.5665,
-          longitude: 126.9780,
-        ),
+        initialPosition: const LatLng(latitude: 37.5665, longitude: 126.9780),
         initialLevel: 15,
         compass: Compass(
           alignment: _compassAlignment,
-          offset: const Offset(
-            20,
-            20,
-          ), // Add some offset from the corner
+          offset: const Offset(20, 20), // Add some offset from the corner
         ),
         scaleBar: const ScaleBar(),
-        logo: Logo(
-          alignment: _logoAlignment,
-          offset: const Offset(20, 20),
-        ),
+        logo: Logo(alignment: _logoAlignment, offset: const Offset(20, 20)),
       ),
       floatingActionButton: Builder(
         builder: (context) {
@@ -73,10 +64,7 @@ class _CompassScaleBarExampleScreenState
               const SizedBox(height: 60), // Space for app bar
               const Text(
                 'Map Controls',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 20),
               // Compass Controls

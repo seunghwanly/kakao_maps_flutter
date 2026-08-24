@@ -56,12 +56,12 @@ class GuiText extends GuiView {
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
-        ...super.toJson(),
-        'text': text,
-        'textSize': textSize,
-        'textColor': textColor,
-        'strokeSize': strokeSize,
-        'strokeColor': strokeColor,
-        'lineCount': lineCount,
-      };
+    ...super.toJson(),
+    'text': text,
+    'textSize': textSize,
+    'textColor': textColor,
+    'strokeSize': strokeSize,
+    'strokeColor': strokeColor,
+    'lineCount': lineCount,
+  };
 }

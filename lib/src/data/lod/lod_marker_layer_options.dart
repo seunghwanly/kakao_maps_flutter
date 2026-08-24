@@ -16,9 +16,7 @@ class LodMarkerLayerOptions extends Data {
         competitionUnit: LodMarkerCompetitionUnitX.fromName(
           json['competitionUnit'] as String?,
         ),
-        orderType: LodMarkerOrderTypeX.fromName(
-          json['orderType'] as String?,
-        ),
+        orderType: LodMarkerOrderTypeX.fromName(json['orderType'] as String?),
         zOrder: json['zOrder'] as int?,
         radius: (json['radius'] as num?)?.toDouble(),
       );
@@ -42,13 +40,13 @@ class LodMarkerLayerOptions extends Data {
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
-        'layerId': layerId,
-        'competitionType': competitionType.name,
-        'competitionUnit': competitionUnit.name,
-        'orderType': orderType.name,
-        'zOrder': zOrder,
-        'radius': radius,
-      };
+    'layerId': layerId,
+    'competitionType': competitionType.name,
+    'competitionUnit': competitionUnit.name,
+    'orderType': orderType.name,
+    'zOrder': zOrder,
+    'radius': radius,
+  };
 }
 
 enum LodMarkerCompetitionType { none, upper, same, lower, background }

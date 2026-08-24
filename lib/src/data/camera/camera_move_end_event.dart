@@ -42,10 +42,10 @@ class CameraMoveEndEvent {
 
   /// To JSON map
   Map<String, dynamic> toJson() => {
-        'latitude': latitude,
-        'longitude': longitude,
-        'zoomLevel': zoomLevel,
-        'tilt': tilt,
-        'rotation': rotation,
-      };
+    'latitude': latitude,
+    'longitude': longitude,
+    'zoomLevel': zoomLevel,
+    'tilt': tilt,
+    'rotation': rotation,
+  };
 }

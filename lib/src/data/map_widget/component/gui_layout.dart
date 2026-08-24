@@ -108,10 +108,10 @@ class GuiLayout extends GuiView {
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
-        ...super.toJson(),
-        'orientation': orientation.value,
-        'children': children.map((child) => child.toJson()).toList(),
-        'background': background?.toJson(),
-        'hasChildren': hasChildren,
-      };
+    ...super.toJson(),
+    'orientation': orientation.value,
+    'children': children.map((child) => child.toJson()).toList(),
+    'background': background?.toJson(),
+    'hasChildren': hasChildren,
+  };
 }

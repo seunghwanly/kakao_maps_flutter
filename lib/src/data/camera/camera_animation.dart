@@ -21,10 +21,10 @@ class CameraAnimation extends Data {
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
-        'duration': duration,
-        'autoElevation': autoElevation,
-        'isConsecutive': isConsecutive,
-      };
+    'duration': duration,
+    'autoElevation': autoElevation,
+    'isConsecutive': isConsecutive,
+  };
 
   /// The duration of the animation in milliseconds.
   final int duration;

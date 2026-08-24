@@ -50,18 +50,16 @@ enum Horizontal {
   /// 오른쪽
   right(value: 2);
 
-  const Horizontal({
-    required this.value,
-  });
+  const Horizontal({required this.value});
 
   /// 설정값
   final int value;
 
   /// 설정값[value] 에 따른 enum 반환
   static Horizontal getEnum(int value) => switch (value) {
-        0 => left,
-        1 => center,
-        2 => right,
-        _ => center,
-      };
+    0 => left,
+    1 => center,
+    2 => right,
+    _ => center,
+  };
 }

@@ -9,9 +9,7 @@ class KakaoMapExampleStaticMapScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Static Map'),
-      ),
+      appBar: AppBar(title: const Text('Static Map')),
       body: LayoutBuilder(
         builder: (context, constraints) {
           return Center(
@@ -19,16 +17,10 @@ class KakaoMapExampleStaticMapScreen extends StatelessWidget {
               width: min(constraints.maxWidth, 300),
               height: min(constraints.maxHeight, 200),
               level: 3,
-              center: const LatLng(
-                latitude: 37.54699,
-                longitude: 127.09598,
-              ),
+              center: const LatLng(latitude: 37.54699, longitude: 127.09598),
               marker: const MarkerOption(
                 id: 'marker',
-                latLng: LatLng(
-                  latitude: 37.54699,
-                  longitude: 127.09598,
-                ),
+                latLng: LatLng(latitude: 37.54699, longitude: 127.09598),
               ),
               scaleRatio: MediaQuery.maybeDevicePixelRatioOf(context) ?? 1,
             ),

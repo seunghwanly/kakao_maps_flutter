@@ -21,17 +21,17 @@ class MapInfo extends Data {
 
   /// From JSON map
   factory MapInfo.fromJson(Map<String, Object?> json) => MapInfo(
-        zoomLevel: json['zoomLevel']! as int,
-        rotation: (json['rotation']! as num).toDouble(),
-        tilt: (json['tilt']! as num).toDouble(),
-      );
+    zoomLevel: json['zoomLevel']! as int,
+    rotation: (json['rotation']! as num).toDouble(),
+    tilt: (json['tilt']! as num).toDouble(),
+  );
 
   @override
   Map<String, Object?> toJson() => {
-        'zoomLevel': zoomLevel,
-        'rotation': rotation,
-        'tilt': tilt,
-      };
+    'zoomLevel': zoomLevel,
+    'rotation': rotation,
+    'tilt': tilt,
+  };
 
   /// Current zoom level
   final int zoomLevel;

@@ -57,15 +57,15 @@ class Logo extends Data {
 
   /// From JSON map
   factory Logo.fromJson(Map<String, Object?> json) => Logo(
-        alignment: _alignmentFromString(json['alignment'] as String?),
-        offset: _offsetFromJson(json['offset'] as Map<String, Object?>?),
-      );
+    alignment: _alignmentFromString(json['alignment'] as String?),
+    offset: _offsetFromJson(json['offset'] as Map<String, Object?>?),
+  );
 
   @override
   Map<String, Object?> toJson() => {
-        'alignment': _alignmentToString(alignment),
-        'offset': _offsetToJson(offset),
-      };
+    'alignment': _alignmentToString(alignment),
+    'offset': _offsetToJson(offset),
+  };
 
   /// Alignment position
   final LogoAlignment alignment;
@@ -130,7 +130,7 @@ class Logo extends Data {
   }
 
   static Map<String, Object?> _offsetToJson(Offset offset) => {
-        'dx': offset.dx,
-        'dy': offset.dy,
-      };
+    'dx': offset.dx,
+    'dy': offset.dy,
+  };
 }

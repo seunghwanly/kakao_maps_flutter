@@ -40,15 +40,15 @@ class WebKakaoMapController extends KakaoMapControllerPlatform {
   final Map<String, JSObject> _infoWindows = {};
 
   /// Storage for registered marker styles
-  /// Map<styleId, {imageUrl, width, height}>
+  /// `Map<styleId, {imageUrl, width, height}>`
   final Map<String, Map<String, dynamic>> _markerStyles = {};
 
   /// Storage for LOD marker clusterers by layerId
-  /// Map<layerId, MarkerClusterer>
+  /// `Map<layerId, MarkerClusterer>`
   final Map<String, JSObject> _lodClusterers = {};
 
   /// Storage for LOD markers by layerId
-  /// Map<layerId, Map<markerId, Marker>>
+  /// `Map<layerId, Map<markerId, Marker>>`
   final Map<String, Map<String, JSObject>> _lodMarkers = {};
 
   /// Get the kakao.maps namespace
